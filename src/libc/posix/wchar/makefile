@@ -3,5 +3,6 @@ TOP=../..
 
 SRC += wchar.c
 SRC += wcwidth.c
+SRC += wmemcpy.c
 
 include $(TOP)/../makefile.inc
