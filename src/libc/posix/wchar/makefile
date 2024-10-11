@@ -2,5 +2,6 @@
 TOP=../..
 
 SRC += wchar.c
+SRC += wcwidth.c
 
 include $(TOP)/../makefile.inc
