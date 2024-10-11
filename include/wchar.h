@@ -29,6 +29,9 @@ typedef uint32_t unichar_t;
 
 int wcwidth (wchar_t);
 wchar_t *wmemcpy (wchar_t *__restrict, const wchar_t *__restrict, size_t);
+wchar_t *wmemchr (const wchar_t *, wchar_t, size_t);
+size_t wcslen (const wchar_t *);
+size_t wcsnlen (const wchar_t *, size_t);
 #elif defined __GNUC__ || defined _MSC_VER || defined __WATCOMC__
 #include <wchar.h>
 #elif __STDC_VERSION__ >= 199901L && !defined __VBCC__
