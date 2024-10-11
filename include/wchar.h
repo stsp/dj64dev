@@ -1,55 +1,47 @@
-/* Copyright (C) 2012 DJ Delorie, see COPYING.DJ for details */
-/* Copyright (C) 2003 DJ Delorie, see COPYING.DJ for details */
-/* Copyright (C) 2001 DJ Delorie, see COPYING.DJ for details */
-/* Copyright (C) 1999 DJ Delorie, see COPYING.DJ for details */
-/* Copyright (C) 1998 DJ Delorie, see COPYING.DJ for details */
-#ifndef __dj_include_wchar_h_
-#define __dj_include_wchar_h_
+/*
+    $Id: wchar.h 2966 2023-01-08 21:28:13Z soci $
 
-/* Bare bones header to satisfy SGI STL's basic_string<> */
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-#ifndef __dj_ENFORCE_ANSI_FREESTANDING
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#include <sys/djtypes.h>
-#include <stddef.h>
+*/
 
-#ifndef _WINT_T
-__DJ_wint_t
-#define _WINT_T
-#endif
+#ifndef WCHAR_H
+#define WCHAR_H
+#include "inttypes.h"
 
-#ifndef WEOF
-#define WEOF ((wint_t)(-1))
-#endif
+#if defined __DJGPP__ || (defined __WATCOMC__ && !defined _WIN32)
+#include <_wchar.h>
+extern size_t wcrtomb(char *, wchar_t, mbstate_t *);
+extern size_t mbrtowc(wchar_t *, const char *, size_t, mbstate_t *);
+typedef uint32_t unichar_t;
+#elif defined __GNUC__ || defined _MSC_VER || defined __WATCOMC__
+#include <wchar.h>
+#elif __STDC_VERSION__ >= 199901L && !defined __VBCC__
+#include <wchar.h>
+#else
+typedef uint32_t wint_t;
 
-typedef struct
-{
+typedef struct {
   int shift_state;
 } mbstate_t;
 
-#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) \
-  || !defined(__STRICT_ANSI__) || defined(__cplusplus)
-
-#endif /* (__STDC_VERSION__ >= 199901L) || !__STRICT_ANSI__ */
-
-#ifndef __STRICT_ANSI__
-
-#ifndef _POSIX_SOURCE
-
-#endif /* !_POSIX_SOURCE */
-#endif /* !__STRICT_ANSI__ */
-#endif /* !__dj_ENFORCE_ANSI_FREESTANDING */
-
-#ifndef __dj_ENFORCE_FUNCTION_CALLS
-#endif /* !__dj_ENFORCE_FUNCTION_CALLS */
-
-#ifdef __cplusplus
-}
+extern size_t wcrtomb(char *, wchar_t, mbstate_t *);
+extern size_t mbrtowc(wchar_t *, const char *, size_t, mbstate_t *);
 #endif
 
-#endif /* !__dj_include_wchar_h_ */
+extern int wcwidth_v13(unichar_t);
+extern int isprint_v13(unichar_t);
 
+#endif
