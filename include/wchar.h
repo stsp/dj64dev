@@ -28,6 +28,7 @@ extern size_t mbrtowc(wchar_t *, const char *, size_t, mbstate_t *);
 typedef uint32_t unichar_t;
 
 int wcwidth (wchar_t);
+wchar_t *wmemcpy (wchar_t *__restrict, const wchar_t *__restrict, size_t);
 #elif defined __GNUC__ || defined _MSC_VER || defined __WATCOMC__
 #include <wchar.h>
 #elif __STDC_VERSION__ >= 199901L && !defined __VBCC__
