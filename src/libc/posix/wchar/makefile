@@ -7,5 +7,7 @@ SRC += wmemcpy.c
 SRC += wmemchr.c
 SRC += wcslen.c
 SRC += wcsnlen.c
+SRC += wcsrtombs.c
+SRC += wcsnrtombs.c
 
 include $(TOP)/../makefile.inc
