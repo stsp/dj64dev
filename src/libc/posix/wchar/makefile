@@ -9,5 +9,7 @@ SRC += wcslen.c
 SRC += wcsnlen.c
 SRC += wcsrtombs.c
 SRC += wcsnrtombs.c
+SRC += wctob.c
+SRC += btowc.c
 
 include $(TOP)/../makefile.inc

@@ -35,6 +35,9 @@ size_t wcsnlen (const wchar_t *, size_t);
 
 size_t wcsrtombs (char *__restrict, const wchar_t **__restrict, size_t, mbstate_t *__restrict);
 size_t wcsnrtombs(char *__restrict, const wchar_t **__restrict, size_t, size_t, mbstate_t *__restrict);
+
+wint_t btowc (int);
+int wctob (wint_t);
 #elif defined __GNUC__ || defined _MSC_VER || defined __WATCOMC__
 #include <wchar.h>
 #elif __STDC_VERSION__ >= 199901L && !defined __VBCC__
