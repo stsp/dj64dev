@@ -1,10 +1,7 @@
 #include <stdio.h>
 #include <wchar.h>
 #include <stdlib.h>
-//#include "internal.h"
-/* Arbitrary encoding for representing code units instead of characters. */
-#define CODEUNIT(c) (0xdfff & (signed char)(c))
-#define IS_CODEUNIT(c) ((unsigned)(c)-0xdf80 < 0x80)
+#include "internal.h"
 
 wint_t btowc(int c)
 {
