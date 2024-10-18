@@ -27,6 +27,8 @@ struct __atexit {
 
 extern struct __atexit *__atexit_ptr;
 
+int atexit2(void (*function)(void *, int), void *arg);
+
 #endif /* !_POSIX_SOURCE */
 #endif /* !__STRICT_ANSI__ */
 #endif /* !__dj_ENFORCE_ANSI_FREESTANDING */
