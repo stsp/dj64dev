@@ -1,7 +1,7 @@
 TOP = ../..
 PREFIX ?= /usr/local
 PKG_CONFIG ?= pkg-config
-SOURCES = djdev64.c elf.c
+SOURCES = djdev64.c elf.c djexec.c
 OBJECTS = $(SOURCES:.c=.o)
 LIBELF := $(shell $(PKG_CONFIG) --silence-errors --libs libelf)
 ifeq ($(LIBELF),)
