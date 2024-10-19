@@ -23,7 +23,6 @@
 #include <errno.h>
 #include <ctype.h>
 #include <string.h>
-#include "attributes.h"
 #ifdef __DJGPP__
 #include <dpmi.h>
 #include <go32.h>
@@ -31,6 +30,7 @@
 #include <i86.h>
 #endif
 
+#define UNUSED(x) __attribute__((unused)) x
 #define lenof(a) (sizeof(a) / sizeof((a)[0]))
 
 static const wchar_t *cp;
