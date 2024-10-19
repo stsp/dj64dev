@@ -21,5 +21,9 @@ SRC += isxdigit.c
 SRC += toascii.c
 SRC += tolower.c
 SRC += toupper.c
+SRC += iswprint.c
+SRC += iswalnum.c
+SRC += iswalpha.c
+SRC += iswdigit.c
 
 include $(TOP)/../makefile.inc

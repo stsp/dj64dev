@@ -22,6 +22,9 @@ LGPL-compatible licenses.
 Files ported from fdpp or comcom32 projects and originally distributed
 under GPLv3+, were donated to dj64dev project by their author (@stsp)
 and re-licensed to LGPLv3+ by himself.
+`libc/posix/wchar/wchar.c` is ported from tass64 project, and is
+[allowed](https://sourceforge.net/p/tass64/feature-requests/25/)
+to be distributed under LGPLv3+ by its author.
 Files ported from musl are under MIT license.
 
 Sources in `src/djdev64/*` are distributed under the terms of the
