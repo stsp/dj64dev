@@ -524,6 +524,16 @@ __djgpp_set_sigquit_key(int new_key)
   return set_signal_key(SIGQUIT, new_key);
 }
 
+
+void
+__djgpp_signal_setup(void)
+{
+  int i;
+
+  for (i = 0; i < SIGMAX; i++)
+    signal_list[i] = (SignalHandler)SIG_DFL;
+}
+
 void
 __djgpp_exception_setup(void)
 {
@@ -543,8 +553,7 @@ __djgpp_exception_setup(void)
       __djgpp_set_sigquit_key(DEFAULT_SIGQUIT_98);
     }
 
-  for (i = 0; i < SIGMAX; i++)
-    signal_list[i] = (SignalHandler)SIG_DFL;
+  __djgpp_signal_setup();
 
   /* app_DS only used when converting HW interrupts to exceptions */
   __djgpp_app_DS = _my_ds();

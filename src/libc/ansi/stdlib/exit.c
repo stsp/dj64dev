@@ -91,6 +91,7 @@ exit(int status)
   /* in case the program set it this way */
   setmode(0, O_TEXT);
 
+  __djgpp_signal_setup();
   if (atexit2_hook)
     atexit2_hook(atexit2_arg, status);
   _exit(status);
