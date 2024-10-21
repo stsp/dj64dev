@@ -30,6 +30,8 @@ struct exit_state {
   struct __atexit *__atexit_ptr;
   void (*__FSEXT_exit_hook)(void);
   void (*__fd_properties_cleanup_hook)(void);
+  void (*atexit2_hook)(void *, int);
+  void *atexit2_arg;
 };
 
 static struct exit_state *est;
@@ -49,6 +51,9 @@ static void est_post(void)
 }
 DJ64_DEFINE_SWAPPABLE_CONTEXT2(exit_state, est, ((struct exit_state){}),
     est_pre(), est_post());
+
+#define atexit2_hook est->atexit2_hook
+#define atexit2_arg est->atexit2_arg
 
 void
 exit(int status)
@@ -85,5 +90,18 @@ exit(int status)
 
   /* in case the program set it this way */
   setmode(0, O_TEXT);
+
+  __djgpp_signal_setup();
+  if (atexit2_hook)
+    atexit2_hook(atexit2_arg, status);
   _exit(status);
+}
+
+int atexit2(void (*function)(void *, int), void *arg)
+{
+  if (atexit2_hook && function)
+    return -1;
+  atexit2_hook = function;
+  atexit2_arg = arg;
+  return 0;
 }

@@ -32,4 +32,6 @@ int djdev64_ctrl(int handle, int libid, int fn, unsigned esi,
         unsigned char *sp);
 void djdev64_close(int handle);
 
+int djdev64_exec(const char *path, unsigned flags, int argc, char **argv);
+
 #endif
