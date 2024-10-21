@@ -298,6 +298,33 @@ example, the order of the present ones didn't change.
 Once you managed to link the objects, you get an executable that you can
 run under dosemu2.
 
+## building something real
+Building [ncurses](https://github.com/stsp/ncurses) is as simple as this:
+```
+./configure-dj64
+make -j 9
+```
+Directory `test` should be full of tests and demos. But how to run them
+if they have no `.exe` extension? One way of solving the problem is to
+add the `.exe` extention with the `link2exe.sh` script located in the
+same `test` directory:
+```
+./link2exe.sh firework
+```
+This creates `firework.exe` from `firework` ELF file, so you can do:
+```
+dosemu ./firework.exe TERM=djgpp204
+```
+to watch some firework. Press `q` to quit the demo. But why would you
+want to use some script to manually add an `.exe` extension to every
+test, which are too many? And the good news is that you don't have to:
+```
+dosemu -K . -E "elfexec firework" TERM=djgpp204
+```
+This way we can ask dosemu2 to load the ELF file directly. Of course
+you can't run every ELF program in dosemu2 this way. It can only execute
+the ELF files produced with dj64dev.
+
 ## what's unsupported
 - some crt0 overrides (only `_crt0_startup_flags` override is supported)
 
