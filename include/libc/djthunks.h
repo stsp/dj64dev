@@ -28,5 +28,6 @@ uint8_t *djaddr2ptr2(uint32_t addr, uint32_t len);
 uint32_t djptr2addr(const uint8_t *ptr);
 uint32_t djthunk_get(const char *name);
 uint32_t djthunk_get_h(int handle, const char *name);
+void *djsbrk(int increment);
 
 #endif

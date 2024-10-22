@@ -344,9 +344,9 @@ dj64cdispatch_t **DJ64_INIT_FN(int handle, const struct elf_ops *ops,
     u_handle_p = NULL;
 
     u->core_at = asm_thunks;
-    u->core_at.tab = malloc(sizeof(asm_thunks.tab[0]) * asm_thunks.num);
+    u->core_at.tab = dj64api->malloc(sizeof(asm_thunks.tab[0]) * asm_thunks.num);
     u->core_pt = pthunks;
-    u->core_pt.tab = malloc(sizeof(pthunks.tab[0]) * pthunks.num);
+    u->core_pt.tab = dj64api->malloc(sizeof(pthunks.tab[0]) * pthunks.num);
 
     for (i = 0; i < num_chooks; i++)
         chooks[i].init(handle);
@@ -363,8 +363,8 @@ void DJ64_DONE_FN(int handle)
         chooks[i].deinit();
     assert(handle < MAX_HANDLES);
     u = &udisps[handle];
-    free(u->core_at.tab);
-    free(u->core_pt.tab);
+    dj64api->free(u->core_at.tab);
+    dj64api->free(u->core_pt.tab);
 }
 
 int DJ64_INIT_ONCE_FN(const struct dj64_api *api, int api_ver)
@@ -598,4 +598,10 @@ void djregister_ctx_hooks(void (*init)(int), void (*deinit)(void),
     c->deinit = deinit;
     c->save = save;
     c->restore = restore;
+}
+
+void *djsbrk(int increment)
+{
+    assert(increment > 0);
+    return dj64api->malloc(increment);
 }

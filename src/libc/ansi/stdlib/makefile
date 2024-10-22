@@ -25,6 +25,7 @@ SRC += lldiv.c
 #SRC += nmalign.c
 SRC += nmalloc.c
 #SRC += nmalldbg.c
+SRC += malloc.c
 SRC += qsort.c
 SRC += rand.c
 #SRC += strtod.c

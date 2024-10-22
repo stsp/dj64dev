@@ -215,6 +215,6 @@ static __inline ulong roundup(size_t sz)
    return size;
 } /* roundup */
 
-memblockp __nmalloc_split(memblockp *mp, ulong sz);
+//memblockp __nmalloc_split(memblockp *mp, ulong sz);
 
 #endif /* NMALLOC_DEF_H */
