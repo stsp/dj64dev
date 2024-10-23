@@ -17,11 +17,13 @@
 extern "C" {
 #endif
 
+#include <libc/ieee.h>
+
 #ifndef __dj_ENFORCE_ANSI_FREESTANDING
 
-extern double __dj_huge_val;
+extern _double_union_t __dj_huge_val;
 
-#define HUGE_VAL  __dj_huge_val
+#define HUGE_VAL  __dj_huge_val.d
 
 double acos(double _x);
 double asin(double _x);
@@ -96,16 +98,16 @@ extern long double frexpl(long double, int *);
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) \
   || !defined(__STRICT_ANSI__) || defined(__cplusplus)
 
-extern float       __dj_huge_valf;
-extern long double __dj_huge_vall;
+extern _float_union_t      __dj_huge_valf;
+extern _longdouble_union_t __dj_huge_vall;
 
-#define HUGE_VALF __dj_huge_valf
-#define HUGE_VALL __dj_huge_vall
+#define HUGE_VALF __dj_huge_valf.f
+#define HUGE_VALL __dj_huge_vall.ld
 
 #define INFINITY  HUGE_VALF
 
-extern float       __dj_nan;
-#define NAN        __dj_nan
+extern _float_union_t   __dj_nan;
+#define NAN             __dj_nan.f
 
 #define FP_INFINITE     0x00000001
 #define FP_NAN          0x00000002
