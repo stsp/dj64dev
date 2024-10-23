@@ -7,5 +7,78 @@
 #define __dj_include_stddef_h_
 
 #include_next <stddef.h>
+#ifdef __USE_POSIX_IMPLICITLY
+#undef __USE_POSIX_IMPLICITLY
+#undef _DEFAULT_SOURCE
+#undef _POSIX_SOURCE
+#endif
+
+#ifdef __cplusplus
+//namespace std {
+  extern "C" {
+#endif
+
+#include <sys/djtypes.h>
+
+/* Some programs think they know better... */
+#undef NULL
+#if (__GNUC__ >= 4) && defined(__cplusplus)
+#  define NULL          __null
+#elif defined(__cplusplus)
+#  define NULL          0
+#else
+#  define NULL          ((void*)0)
+#endif
+
+#ifndef offsetof
+//#ifdef __cplusplus
+//#define offsetof(s_type, mbr) ((std::size_t) &((s_type *)0)->mbr)
+//#else
+#define offsetof(s_type, mbr) ((size_t) &((s_type *)0)->mbr)
+//#endif
+#endif
+
+#ifndef _PTRDIFF_T
+typedef int ptrdiff_t;
+#define _PTRDIFF_T
+#endif
+
+#ifndef _SIZE_T
+__DJ_size_t
+#define _SIZE_T
+#endif
+
+#ifndef _WCHAR_T
+__DJ_wchar_t
+#define _WCHAR_T
+#endif
+
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) \
+  || !defined(__STRICT_ANSI__) || defined(__cplusplus)
+
+#endif /* (__STDC_VERSION__ >= 199901L) || !__STRICT_ANSI__ */
+
+#ifndef __dj_ENFORCE_ANSI_FREESTANDING
+
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) \
+  || !defined(__STRICT_ANSI__) || defined(__cplusplus)
+
+#endif /* (__STDC_VERSION__ >= 199901L) || !__STRICT_ANSI__ */
+
+#ifndef __STRICT_ANSI__
+
+#ifndef _POSIX_SOURCE
+
+#endif /* !_POSIX_SOURCE */
+#endif /* !__STRICT_ANSI__ */
+#endif /* !__dj_ENFORCE_ANSI_FREESTANDING */
+
+#ifndef __dj_ENFORCE_FUNCTION_CALLS
+#endif /* !__dj_ENFORCE_FUNCTION_CALLS */
+
+#ifdef __cplusplus
+//  }
+}
+#endif
 
 #endif /* !__dj_include_stddef_h_ */
