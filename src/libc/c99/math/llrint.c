@@ -1,14 +1,8 @@
-/* Copyright (C) 2013 DJ Delorie, see COPYING.DJ for details */
-
 #include <math.h>
 
+/* uses LLONG_MAX > 2^53, see comments in lrint.c */
 
-long long int
-llrint(double x)
+long long llrint(double x)
 {
-  long long int result;
-
-  asm("fistpll %0" : "=m" (result) : "t" (x) : "st");
-
-  return result;
+	return rint(x);
 }
