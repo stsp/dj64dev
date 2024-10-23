@@ -5,52 +5,53 @@
 #define __dj_include_float_h_
 
 #include <libc/asmobj.h>
+#include <libc/ieee.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern float __dj_float_epsilon;
-extern float __dj_float_max;
-extern float __dj_float_min;
+extern _float_union_t __dj_float_epsilon;
+extern _float_union_t __dj_float_max;
+extern _float_union_t __dj_float_min;
 
 #define FLT_DIG		6
-#define FLT_EPSILON	__dj_float_epsilon
+#define FLT_EPSILON	__dj_float_epsilon.f
 #define FLT_MANT_DIG	24
-#define FLT_MAX		__dj_float_max
+#define FLT_MAX		__dj_float_max.f
 #define FLT_MAX_10_EXP	38
 #define FLT_MAX_EXP	128
-#define FLT_MIN		__dj_float_min
+#define FLT_MIN		__dj_float_min.f
 #define FLT_MIN_10_EXP	(-37)
 #define FLT_MIN_EXP	(-125)
 #define FLT_RADIX	2
 #define FLT_ROUNDS	1
 
-extern double __dj_double_epsilon;
-extern double __dj_double_max;
-extern double __dj_double_min;
+extern _double_union_t __dj_double_epsilon;
+extern _double_union_t __dj_double_max;
+extern _double_union_t __dj_double_min;
 
 #define DBL_DIG		15
-#define DBL_EPSILON	__dj_double_epsilon
+#define DBL_EPSILON	__dj_double_epsilon.d
 #define DBL_MANT_DIG	53
-#define DBL_MAX		__dj_double_max
+#define DBL_MAX		__dj_double_max.d
 #define DBL_MAX_10_EXP	308
 #define DBL_MAX_EXP	1024
-#define DBL_MIN		__dj_double_min
+#define DBL_MIN		__dj_double_min.d
 #define DBL_MIN_10_EXP	(-307)
 #define DBL_MIN_EXP	(-1021)
 
-extern long double __dj_long_double_epsilon;
-extern long double __dj_long_double_max;
-extern long double __dj_long_double_min;
+extern _longdouble_union_t __dj_long_double_epsilon;
+extern _longdouble_union_t __dj_long_double_max;
+extern _longdouble_union_t __dj_long_double_min;
 
 #define LDBL_DIG	18
-#define LDBL_EPSILON	__dj_long_double_epsilon
+#define LDBL_EPSILON	__dj_long_double_epsilon.ld
 #define LDBL_MANT_DIG	64
-#define LDBL_MAX	__dj_long_double_max
+#define LDBL_MAX	__dj_long_double_max.ld
 #define LDBL_MAX_10_EXP	4932
 #define LDBL_MAX_EXP	16384
-#define LDBL_MIN	__dj_long_double_min
+#define LDBL_MIN	__dj_long_double_min.ld
 #define LDBL_MIN_10_EXP	(-4931)
 #define LDBL_MIN_EXP	(-16381)
 
