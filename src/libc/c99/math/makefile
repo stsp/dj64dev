@@ -8,6 +8,7 @@ SRC += hugevalf.c
 SRC += hugevall.c
 SRC += rint.c
 SRC += rintf.c
+SRC += rintl.c
 SRC += lrintf.c
 SRC += lrint.c
 SRC += lrintl.c
