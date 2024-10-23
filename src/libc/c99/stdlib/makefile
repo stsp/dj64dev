@@ -3,6 +3,6 @@
 # Copyright (C) 2002 DJ Delorie, see COPYING.DJ for details
 TOP=../..
 
-#SRC += strtof.c
+SRC += strtof.c
 
 include $(TOP)/../makefile.inc
