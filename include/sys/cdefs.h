@@ -5,15 +5,6 @@
 #ifndef __dj_include_sys_cdefs_h_
 #define __dj_include_sys_cdefs_h_
 
-#if !defined(IN_ASMOBJ) || IN_ASMOBJ != 1
-#include_next <sys/cdefs.h>
-#ifdef __USE_POSIX_IMPLICITLY
-#undef __USE_POSIX_IMPLICITLY
-#undef _DEFAULT_SOURCE
-#undef _POSIX_SOURCE
-#endif
-#endif
-
 #ifndef  _ILP64			/* Note: win64 is LLP64 */
 # define LONG32  int
 # define ULONG32 unsigned int
