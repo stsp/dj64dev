@@ -8,7 +8,7 @@ include $(TOP)/../makefile.def
 
 .SUFFIXES: .o .i .c .cc .s
 
-CPPFLAGS += -DDJ64 -D_IN_DJ64 -D__DJGPP__
+CPPFLAGS += -DDJ64 -D_IN_DJ64 -D__DJGPP__ -nostdinc
 
 # Moved setting of $(GCC{L}_OPT) to top of file
 #
