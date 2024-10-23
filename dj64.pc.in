@@ -3,7 +3,7 @@ Description: dj64 dev suit
 Version: @VERSION@
 prefix=@PREFIX@
 makeinc=${prefix}/i386-pc-dj64/share/dj64.mk
-cppflags=-I${prefix}/i386-pc-dj64/include -DDJ64
+cppflags=-I${prefix}/i386-pc-dj64/include -DDJ64 -nostdinc
 xcppflags=${cppflags} -imacros ${prefix}/i386-pc-dj64/include/dj64/a_mac.h
 crt0=${prefix}/i386-pc-dj64/lib/uplt.o
 Cflags: -fpic
