@@ -6,6 +6,7 @@ TOP=../..
 SRC += errhandl.c
 SRC += hugevalf.c
 SRC += hugevall.c
+SRC += rint.c
 SRC += lrintf.c
 SRC += lrint.c
 SRC += lrintl.c
