@@ -3,7 +3,7 @@
 # Copyright (C) 2002 DJ Delorie, see COPYING.DJ for details
 TOP=../..
 
-#SRC += errhandl.c
+SRC += errhandl.c
 SRC += hugevalf.c
 SRC += hugevall.c
 SRC += lrintf.c
