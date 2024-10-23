@@ -37,18 +37,11 @@ static uclock_t r_exp, r_rel,  /* When REAL expires & reload value */
 static uclock_t u_now;
 
 /* Multiply a signed 32-bit VAL by a signed 32-bit M and divide the
-   64-bit intermediate result by a signed 32-bit D.  The inline
-   assembly avoids slow long long arithmetics.
-
-   Originally written by Sergey Vlasov <vsu@au.ru>, with improvements
-   by Nate Eldredge <neldredge@hmc.edu>.  */
+   64-bit intermediate result by a signed 32-bit D. */
 static inline long
 muldiv(long val, long m, long d)
 {
-  __asm__ __volatile__ ("imul %2\n\t"
-			"idiv %3"
-			: "=a" (val) : "0" (val), "rm" (m), "rm" (d) : "edx");
-  return val;
+  return (long long)val * m / d;
 }
 
 int
