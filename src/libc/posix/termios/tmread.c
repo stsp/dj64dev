@@ -389,7 +389,7 @@ static void
 __libc_termios_insert_editline (unsigned char ch)
 {
   int mbsize;
-  int col;
+  unsigned int col;
 
   col = __libc_tty_editline.col;
   if (col >= _TTY_EDITLINE_SIZE)
@@ -424,7 +424,7 @@ __libc_termios_insert_editline (unsigned char ch)
     }
   else
     {
-      int pcol;
+      unsigned int pcol;
 
       /* look for non fixed flag */
       pcol = col;
@@ -450,7 +450,7 @@ __libc_termios_insert_editline (unsigned char ch)
 	}
       else
 	{
-	  if ((col - pcol + 1) > MB_CUR_MAX)
+	  if ((col - pcol + 1) > (unsigned)MB_CUR_MAX)
 	    {
 	      /* it's terrible... */
 	      while (pcol <= col)
