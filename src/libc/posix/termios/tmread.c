@@ -428,9 +428,8 @@ __libc_termios_insert_editline (unsigned char ch)
       int pcol;
 
       /* look for non fixed flag */
-      assert(col >= 0);
       pcol = col;
-      while (pcol > 0 && __libc_tty_editline.flag[pcol - 1] == _TTY_EDITLINE_INVALID)
+      while (__libc_tty_editline.flag[pcol - 1] == _TTY_EDITLINE_INVALID)
 	if (--pcol <= 0)
 	  break;
 
