@@ -17,6 +17,7 @@
 
 #include <libc/stubs.h>
 #include <sys/time.h>
+#include <sys/exceptn.h>
 #include <errno.h>
 #include <stdint.h>
 #include <dpmi.h>

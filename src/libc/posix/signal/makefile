@@ -3,7 +3,7 @@
 # Copyright (C) 1995 DJ Delorie, see COPYING.DJ for details
 TOP=../..
 
-#SRC += itimer.c
+SRC += itimer.c
 SRC += kill.c
 SRC += sigactio.c
 SRC += sigaddse.c
