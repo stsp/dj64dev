@@ -121,5 +121,6 @@ int elfexec(const char *path, int argc, char **argv)
     regs.x.si = shmi.handle >> 16;
     pltcall32(&regs, api);
     __dpmi_free_shared_memory(shmi.handle);
-    return regs.d.eax;
+    /* returning only 16bit AX allows to distinguish with -1 returns above */
+    return regs.x.ax;
 }
