@@ -23,7 +23,8 @@
 
 struct exec_info {
     /* volatile because of longjmp() vs auto storage */
-    volatile unsigned short exit_code;
+    /* unsigned char to not clash with go64/dj64 errors */
+    volatile unsigned char exit_code;
     jmp_buf exit_jmp;
 };
 
@@ -61,7 +62,7 @@ int djdev64_exec(const char *path, unsigned flags, int argc, char **argv)
     if (setjmp(ei.exit_jmp))
         ret = ei.exit_code;
     else
-        ret = (unsigned short)m(argc, argv);
+        ret = (unsigned char)m(argc, argv);
     ae2(NULL, NULL);
 out:
     dlclose(dlobj);
