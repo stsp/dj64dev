@@ -1,7 +1,7 @@
 # Hello World demo
 
 This demo shows the basic usage of dj64 tool-chain.
-Just build an app from a single C source file.
+Just build an app from a single C source file into an ELF file.
 
 ## building
 

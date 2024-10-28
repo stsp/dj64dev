@@ -1,9 +1,5 @@
-LINK = djlink
-STRIP = @true
-# or use `STRIP = djstrip` for non-debug build
-
 SOURCES = hello.c
-TGT = hello.exe
+TGT = hello
 
 # the below 4 vars must be named exactly like here
 CFLAGS = -Wall -ggdb3
@@ -22,7 +18,7 @@ info: $(TGT)
 	djstubify -i $<
 
 run: $(TGT)
-	dosemu -dumb $<
+	dosemu -dumb -K . -E "elfexec $<"
 
 # hook in dj64 - make sure to not do that before defining `all:` target
 DJMK = $(shell pkg-config --silence-errors --variable=makeinc dj64)
@@ -37,7 +33,6 @@ endif
 
 # dj64 sets `DJ64_XOBJS`, `DJ64_XLIB`, `DJ64_XLDFLAGS`
 ifeq ($(filter info run,$(MAKECMDGOALS)),)
-$(TGT): $(DJ64_XOBJS)
-	$(LINK) -d dosemu_$@.dbg $(DJ64_XLIB) -n $@ -o $@ $(DJ64_XLDFLAGS)
-	$(STRIP) $@
+$(TGT): $(DJ64_XLIB)
+	cp $< $@
 endif
