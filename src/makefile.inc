@@ -17,10 +17,16 @@ XCPP = $(CROSS_CPP) -I . -I $(TOP)/../../include $(CPPFLAGS)
 XASGCC = $(CROSS_ASGCC) -I $(TOP)/../../include -m32 $(ASFLAGS)
 XASCPP = $(call CROSS_ASCPP, -I $(TOP)/../../include $(ASFLAGS) $(1))
 
+# Have to process with intermediate file, because with a single pipe
+# the partially preprocessed (before cpp hit an error) input is fed
+# to the compiler, and may actually successfully compile. :(
+# This is regardless of pipefail bash mode:
+# https://stackoverflow.com/questions/73162200/bash-set-eo-pipefail-not-immediately-exiting
 %.o : %.c
 	$(XCPP) -CC -g0 -MD $< | \
-	  sed -E -e 's/^\*\/#/\*\/\n#/' -e 's/^\*\/ *;/\*\/\n;\n/' | \
-	  $(XGCC) -xc - -c $(EXTRA_CFLAGS) -o $@
+	  sed -E -e 's/^\*\/#/\*\/\n#/' -e 's/^\*\/ *;/\*\/\n;\n/' >$@.c
+	$(XGCC) -xc $@.c -c $(EXTRA_CFLAGS) -o $@
+	$(RM) $@.c
 %.o : %.S
 	$(call XASCPP,$<) -o $@
 %.o : %.s
