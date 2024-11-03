@@ -2,6 +2,8 @@
 
 This demo shows the basic usage of dj64 tool-chain.
 Just build an app from a single C source file into an ELF file.
+Note that this demo doesn't support static linking: static linking
+is currently only supported for exe targets but not for elfs.
 
 ## building
 

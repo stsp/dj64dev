@@ -12,7 +12,7 @@ all:
 static:
 	$(MAKE) -C asmsimp static
 	$(MAKE) -C file static
-	$(MAKE) -C hello static
+#	$(MAKE) -C hello static
 	$(MAKE) -C helloasm static
 	$(MAKE) -C rmcb static
 
