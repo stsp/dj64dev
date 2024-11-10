@@ -5,7 +5,7 @@
 #undef assert
 
 #if defined(NDEBUG)
-#define assert(test) ((void)0) 
+#define assert(test) ((void)0)
 #else
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 #define assert(test) ((void)((test)||(__dj_assert(#test,__FILE__,__LINE__,__func__),0)))

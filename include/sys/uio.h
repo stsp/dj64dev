@@ -30,7 +30,7 @@ __DJ_ssize_t
 #endif
 
 #define IOV_MAX	16
-	
+
 struct iovec {
   void   *iov_base; /* Base address of a memory region for I/O */
   size_t  iov_len;  /* Size of memory region                   */
