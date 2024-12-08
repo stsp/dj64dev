@@ -17,6 +17,7 @@ DJSTUB64DEVL = $(TOP)/lib/libdjstub64.so
 
 ifeq ($(filter demos demos_clean clean,$(MAKECMDGOALS)),)
 AS = $(CROSS_PREFIX)as
+ifeq ($(CROSS_PREFIX),)
 CROSS_PREFIX := i686-linux-gnu-
 ifeq ($(shell $(AS) --version 2>/dev/null),)
 CROSS_PREFIX := x86_64-linux-gnu-
@@ -26,6 +27,12 @@ ifneq ($(filter x86_64 amd64,$(shell uname -m)),)
 CROSS_PREFIX :=
 else
 $(error cross-binutils not installed)
+endif
+endif
+else
+# CROSS_PREFIX already set
+ifeq ($(shell $(AS) --version 2>/dev/null),)
+$(error invalid CROSS_PREFIX)
 endif
 endif
 export CROSS_PREFIX
