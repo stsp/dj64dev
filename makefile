@@ -15,7 +15,7 @@ DJDEV64DEVL = $(TOP)/lib/libdjdev64.so
 DJSTUB64LIB = $(TOP)/lib/libdjstub64.so.*.*
 DJSTUB64DEVL = $(TOP)/lib/libdjstub64.so
 
-ifeq ($(filter demos demos_clean clean,$(MAKECMDGOALS)),)
+ifeq ($(filter demos demos_clean clean install,$(MAKECMDGOALS)),)
 AS = $(CROSS_PREFIX)as
 ifeq ($(CROSS_PREFIX),)
 CROSS_PREFIX := i686-linux-gnu-
