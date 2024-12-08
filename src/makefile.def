@@ -10,15 +10,5 @@ CROSS_CPP = $(CPP)
 CROSS_AS := $(CROSS_PREFIX)as
 CROSS_ASAR = $(CROSS_PREFIX)ar
 CROSS_ASLD = $(CROSS_PREFIX)ld
-ifeq ($(CROSS_PREFIX_GCC),)
-CROSS_ASGCC = $(CC)
-else
-CROSS_ASGCC = $(CROSS_PREFIX_GCC)gcc
-endif
-ifeq ($(shell $(CROSS_AS) --version 2>/dev/null),)
-CROSS_AS := $(CROSS_ASGCC) -xassembler
-CROSS_ASCPP = $(CPP) -x assembler-with-cpp $(1) | $(CROSS_AS) -m32 -c -
-else
 CROSS_ASCPP = $(CPP) -x assembler-with-cpp $(1) | $(CROSS_AS) --32 -
-endif
 CROSS_ASSTRIP = $(CROSS_PREFIX)strip

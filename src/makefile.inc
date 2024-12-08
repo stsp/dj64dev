@@ -14,7 +14,6 @@ CPPFLAGS += -DDJ64 -D_IN_DJ64 -D__DJGPP__ -nostdinc
 #
 XGCC = $(CROSS_GCC) @$(TOP)/../gcc.opt $(CFLAGS)
 XCPP = $(CROSS_CPP) -I . -I $(TOP)/../../include $(CPPFLAGS)
-XASGCC = $(CROSS_ASGCC) -I $(TOP)/../../include -m32 $(ASFLAGS)
 XASCPP = $(call CROSS_ASCPP, -I $(TOP)/../../include $(ASFLAGS) $(1))
 
 # Have to process with intermediate file, because with a single pipe

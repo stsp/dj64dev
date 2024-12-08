@@ -37,20 +37,6 @@ endif
 endif
 export CROSS_PREFIX
 
-CROSS_PREFIX_GCC := $(CROSS_PREFIX)
-GCC = $(CROSS_PREFIX_GCC)gcc
-CROSS_PREFIX_GCC := i686-linux-gnu-
-ifeq ($(shell $(GCC) --version 2>/dev/null),)
-CROSS_PREFIX_GCC := x86_64-linux-gnu-
-endif
-ifeq ($(shell $(GCC) --version 2>/dev/null),)
-ifneq ($(filter x86_64 amd64,$(shell uname -m)),)
-CROSS_PREFIX_GCC :=
-else
-$(error cross-gcc not installed)
-endif
-endif
-export CROSS_PREFIX_GCC
 endif
 
 export PREFIX

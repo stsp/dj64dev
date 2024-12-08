@@ -11,9 +11,11 @@ LIBS = libdj64_s.a
 SOURCES = thunks.c thunks_a.c thunks_c.c thunks_p.c dosobj.c smalloc.c
 OBJECTS = $(SOURCES:.c=.o)
 
-thunk_syms.o: thunk_syms.c asm_incsn.h
-	$(XCPP) -CC -g0 $< | $(XASGCC) -xc - -c $(EXTRA_CFLAGS) -o $@
-	$(CROSS_ASSTRIP) --strip-debug $@
+.INTERMEDIATE: thunk_syms.s
+thunk_syms.s: thunk_syms.c asm_incsn.h
+	$(XCPP) -CC -g0 $< | $(CC) -xc - -S $(EXTRA_CFLAGS) -o $@
+thunk_syms.o: thunk_syms.s
+	$(CROSS_AS) --32 $(ASFLAGS) $< -o $@
 
 ALL_AS_OBJS = $(addprefix ../,$(file < $(TOP)/makefile.rfo))
 libc_tmp.a : $(TOP)/makefile.rfo thunk_syms.o $(ALL_AS_OBJS)
