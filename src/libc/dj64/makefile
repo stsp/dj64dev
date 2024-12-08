@@ -11,9 +11,11 @@ LIBS = libdj64_s.a
 SOURCES = thunks.c thunks_a.c thunks_c.c thunks_p.c dosobj.c smalloc.c
 OBJECTS = $(SOURCES:.c=.o)
 
-.INTERMEDIATE: thunk_syms.s
-thunk_syms.s: thunk_syms.c asm_incsn.h
+.INTERMEDIATE: thunk_syms.s thunk_syms.ss
+thunk_syms.ss: thunk_syms.c asm_incsn.h
 	$(XCPP) -CC -g0 $< | $(CC) -xc - -S $(EXTRA_CFLAGS) -o $@
+thunk_syms.s: thunk_syms.ss
+	$(P)/sanitize_arch.sh $< >$@
 thunk_syms.o: thunk_syms.s
 	$(CROSS_AS) --32 $(ASFLAGS) $< -o $@
 
