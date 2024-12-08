@@ -1,6 +1,8 @@
+ifeq ($(filter clean install,$(MAKECMDGOALS)),)
 # find the suitable cross-assembler
 DJ64AS = $(CROSS_PREFIX)as
 DJ64ASFLAGS = --32 --defsym _DJ64=1
+ifeq ($(CROSS_PREFIX),)
 CROSS_PREFIX := i686-linux-gnu-
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 CROSS_PREFIX := x86_64-linux-gnu-
@@ -15,6 +17,13 @@ DJ64ASFLAGS = -m32 -Wa,-defsym,_DJ64=1 -c
 endif
 else
 $(error cross-binutils not installed)
+endif
+endif
+else
+# CROSS_PREFIX already set
+ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
+$(error invalid CROSS_PREFIX)
+endif
 endif
 endif
 
