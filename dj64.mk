@@ -41,6 +41,9 @@ DJ64_XLDFLAGS = -V 5
 ifeq ($(shell uname -s),FreeBSD)
 DJ64STATIC = 1
 endif
+ifeq ($(shell uname -o),Android)
+DJ64STATIC = 1
+endif
 ifeq ($(DJ64STATIC),0)
 $(error DJ64STATIC must be empty, not 0)
 endif
