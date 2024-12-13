@@ -32,13 +32,15 @@ static void exit_exec(void *handle, int rc);
 
 int djdev64_exec(const char *path, unsigned flags, int argc, char **argv)
 {
-    void *dlobj;
+    void *dlobj = NULL;
     int (*m)(int, char **);
     int (*ae2)(void(*)(void*,int),void*);
     struct exec_info ei;
     int ret = -1, rc;
 
+#ifdef RTLD_DEEPBIND
     dlobj = dlopen(path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND);
+#endif
     if (!dlobj) {
         printf("error loading %s: %s\n", path, dlerror());
         return -1;
