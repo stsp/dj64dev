@@ -26,7 +26,7 @@ run: $(TGT)
 
 # hook in dj64 - make sure to not do that before defining `all:` target
 DJMK = $(shell pkg-config --silence-errors --variable=makeinc dj64)
-ifeq ($(DJMK),)
+ifeq ($(wildcard $(DJMK)),)
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
 $(error dj64 not installed)
 endif

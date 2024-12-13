@@ -209,7 +209,7 @@ functions from asm. `thunks_p.c` is needed if you call to asm from C.
 Next, add this to your makefile, verbatim:
 ```
 DJMK = $(shell pkg-config --variable=makeinc dj64)
-ifeq ($(DJMK),)
+ifeq ($(wildcard $(DJMK)),)
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
 $(error dj64 not installed)
 endif
