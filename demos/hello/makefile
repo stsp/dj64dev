@@ -32,7 +32,7 @@ include $(DJMK)
 endif
 
 # dj64 sets `DJ64_XOBJS`, `DJ64_XLIB`, `DJ64_XLDFLAGS`
-ifeq ($(filter info run,$(MAKECMDGOALS)),)
+ifeq ($(filter info run clean,$(MAKECMDGOALS)),)
 ifeq ($(DJ64STATIC),1)
 $(error this demo does not support static linking)
 endif
