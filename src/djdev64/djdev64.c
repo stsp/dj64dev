@@ -144,7 +144,7 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
     dj64init_once_t *init_once;
     dj64cdispatch_t **cdisp;
     void *main;
-    void *dlh;
+    void *dlh = NULL;
     const char **v;
     char *path2 = NULL;
     struct dj64handle *h;
@@ -167,8 +167,7 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
         return -1;
 #endif
     } else if (flags & FLG_STATIC) {
-        dlh = emu_dlmopen(handles, path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND,
-                &path2);
+        dlh = emu_dlmopen(handles, path, RTLD_LOCAL | RTLD_NOW, &path2);
     } else {
 #define WANT_DLMOPEN 0
 #if WANT_DLMOPEN
@@ -177,12 +176,18 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
         dlh = dlmopen(LM_ID_NEWLM, path, RTLD_LOCAL | RTLD_NOW);
 #else
         fprintf(stderr, "dlmopen() not supported, use static linking\n");
+#ifdef RTLD_DEEPBIND
         dlh = emu_dlmopen(handles, path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND,
                 &path2);
 #endif
+#endif
 #else
+#ifdef RTLD_DEEPBIND
         dlh = emu_dlmopen(handles, path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND,
                 &path2);
+#else
+        fprintf(stderr, "RTLD_DEEPBIND not supported, use static linking\n");
+#endif
 #endif
     }
     if (!dlh) {
