@@ -53,6 +53,7 @@ typedef struct {
 
 void	NORETURN abort(void);
 int	abs(int _i);
+#define atexit(x) __dj_atexit(x)
 int	atexit(void (*_func)(void));
 double	atof(const char *_s);
 int	atoi(const char *_s);
