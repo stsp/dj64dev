@@ -2,6 +2,7 @@ TOP ?= .
 PREFIX ?= /usr/local
 LIBDIR ?= $(PREFIX)/lib
 INSTALL ?= install
+export PKG_CONFIG_PATH = $(PREFIX)/share/pkgconfig:$(LIBDIR)/pkgconfig
 
 VERSION = 0.1
 DJLIBC = $(TOP)/lib/libc.a
