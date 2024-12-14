@@ -27,6 +27,7 @@
 #include <io.h>
 #include <dpmi.h>
 #include <crt0.h>
+#include <stubinfo.h>
 #include <go64.h>
 
 #ifndef PAGE_SIZE
@@ -62,6 +63,15 @@ int elfexec(const char *path, int argc, char **argv)
     __dpmi_regs regs;
     int en_dis = !(_crt0_startup_flags & _CRT0_FLAG_NEARPTR);
 
+    if ((_stubinfo->stubinfo_ver >> 16) < 4) {
+        fprintf(stderr, "unsupported stub version %i\n",
+                _stubinfo->stubinfo_ver);
+        return -1;
+    }
+    if (_stubinfo->flags & 0x40) {
+        fprintf(stderr, "unsupported due to static linking\n");
+        return -1;
+    }
     err = __dpmi_get_vendor_specific_api_entry_point("DJ64", &api);
     if (err) {
         fprintf(stderr, "DJ64 support missing\n");
