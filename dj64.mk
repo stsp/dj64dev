@@ -4,6 +4,7 @@ DJ64AS = $(CROSS_PREFIX)as
 DJ64ASFLAGS = --32 --defsym _DJ64=1
 XSTRIP = $(CROSS_PREFIX)strip --strip-debug
 XLD = $(CROSS_PREFIX)ld
+XLD_IMB = -Ttext-segment
 ifeq ($(CROSS_PREFIX),)
 CROSS_PREFIX := i686-linux-gnu-
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
@@ -25,6 +26,7 @@ DJ64AS = clang -x assembler -target i686-unknown-linux-gnu
 DJ64ASFLAGS = -Wa,-defsym,_DJ64=1 -c
 XSTRIP = llvm-strip --strip-debug
 XLD = ld.lld
+XLD_IMB = --image-base
 endif
 endif
 endif
@@ -88,7 +90,7 @@ ifeq ($(DJ64STATIC),1)
 XLDFLAGS += $(shell pkg-config --static --libs dj64static)
 DJ64_XLDFLAGS += -f 0x4000
 else
-XLDFLAGS += $(shell pkg-config --variable=crt0 dj64) -Ttext-segment=0x08148000
+XLDFLAGS += $(shell pkg-config --variable=crt0 dj64) $(XLD_IMB)=0x08148000
 endif
 $(XELF): $(AS_OBJECTS) $(PLT_O)
 	$(XLD) $^ $(XLDFLAGS) -o $@
