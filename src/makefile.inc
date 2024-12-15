@@ -6,6 +6,8 @@
 
 include $(TOP)/../makefile.def
 
+SHELL := bash -o pipefail
+
 .SUFFIXES: .o .i .c .cc .s
 
 CPPFLAGS += -DDJ64 -D_IN_DJ64 -D__DJGPP__ -nostdinc
