@@ -1,5 +1,5 @@
 TOP ?= ..
-PREFIX ?= /usr/local
+prefix ?= /usr/local
 INSTALL ?= install
 
 all:
@@ -32,9 +32,9 @@ clean:
 
 src_install: clean
 	for i in `find . -maxdepth 1 -type d ! -path . -printf '%P\n'`; do \
-	  $(INSTALL) -d $(DESTDIR)$(PREFIX)/share/doc/dj64/demos/$$i; \
-	  $(INSTALL) -m 0644 $$i/* $(DESTDIR)$(PREFIX)/share/doc/dj64/demos/$$i; \
+	  $(INSTALL) -d $(DESTDIR)$(prefix)/share/doc/dj64/demos/$$i; \
+	  $(INSTALL) -m 0644 $$i/* $(DESTDIR)$(prefix)/share/doc/dj64/demos/$$i; \
 	done
 
 src_uninstall:
-	$(RM) -r $(DESTDIR)$(PREFIX)/share/doc/dj64
+	$(RM) -r $(DESTDIR)$(prefix)/share/doc/dj64

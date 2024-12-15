@@ -8,7 +8,7 @@ ifeq ($(LIBELF),)
 $(error libelf not installed)
 endif
 CFLAGS += -iquote include -fpic -ggdb3 -Wall -Og -MD \
-  -DCRT0=\"$(PREFIX)/i386-pc-dj64/lib/crt0.elf\"
+  -DCRT0=\"$(prefix)/i386-pc-dj64/lib/crt0.elf\"
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<

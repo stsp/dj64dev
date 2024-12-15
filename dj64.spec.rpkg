@@ -35,14 +35,14 @@ dj64 is a 64-bit djgpp-compatible dev suite.
 %end
 
 %build
-make PREFIX=%{_prefix}
+make prefix=%{_prefix}
 %end
 
 %check
 %end
 
 %install
-make install DESTDIR=%{buildroot} PREFIX=%{_prefix} LIBDIR=%{_libdir}
+make install DESTDIR=%{buildroot} prefix=%{_prefix} libdir=%{_libdir}
 %end
 
 
