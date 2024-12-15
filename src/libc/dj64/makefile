@@ -40,7 +40,7 @@ thunk_calls.tmp thunk_asms.tmp thunk_incs.h &: \
 		thunk_calls.tmp thunk_incs.h
 
 TGMK = $(shell pkg-config --silence-errors --variable=makeinc thunk_gen)
-ifeq ($(TGMK),)
+ifeq ($(wildcard $(TGMK)),)
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
 $(error thunk_gen not installed)
 endif

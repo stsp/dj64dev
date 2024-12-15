@@ -125,7 +125,7 @@ $(OBJECTS): glob_asmdefs.h
 endif
 # hook in thunk-gen - make sure to not do that before defining `all:` target
 TGMK = $(shell pkg-config --variable=makeinc thunk_gen)
-ifeq ($(TGMK),)
+ifeq ($(wildcard $(TGMK)),)
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
 $(error thunk_gen not installed)
 endif
