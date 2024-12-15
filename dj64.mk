@@ -2,21 +2,30 @@ ifeq ($(filter clean install,$(MAKECMDGOALS)),)
 # find the suitable cross-assembler
 DJ64AS = $(CROSS_PREFIX)as
 DJ64ASFLAGS = --32 --defsym _DJ64=1
+XSTRIP = $(CROSS_PREFIX)strip --strip-debug
+XLD = $(CROSS_PREFIX)ld
 ifeq ($(CROSS_PREFIX),)
 CROSS_PREFIX := i686-linux-gnu-
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 CROSS_PREFIX := x86_64-linux-gnu-
 endif
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
-ifneq ($(filter x86_64 amd64,$(shell uname -m)),)
 CROSS_PREFIX :=
+ifneq ($(filter x86_64 amd64 i686 i386,$(shell uname -m)),)
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 # found nothing, try built-in assembler
 DJ64AS = $(CC) -x assembler
 DJ64ASFLAGS = -m32 -Wa,-defsym,_DJ64=1 -c
 endif
 else
+ifeq ($(shell clang --version 2>/dev/null),)
 $(error cross-binutils not installed)
+else
+DJ64AS = clang -x assembler -target i686-unknown-linux-gnu
+DJ64ASFLAGS = -Wa,-defsym,_DJ64=1 -c
+XSTRIP = llvm-strip --strip-debug
+XLD = ld.lld
+endif
 endif
 endif
 else
@@ -31,8 +40,6 @@ DJ64CFLAGS = $(shell pkg-config --cflags dj64)
 XCPPFLAGS = $(shell pkg-config --variable=xcppflags dj64)
 ASCPPFLAGS = $(shell pkg-config --variable=cppflags dj64)
 
-XSTRIP = $(CROSS_PREFIX)strip --strip-debug
-XLD = $(CROSS_PREFIX)ld
 LD = $(CC)
 # stub version 5
 DJ64_XLDFLAGS = -V 5
