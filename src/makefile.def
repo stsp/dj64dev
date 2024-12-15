@@ -10,3 +10,6 @@ CROSS_ASAR = $(CROSS_PREFIX)ar
 CROSS_ASLD = $(CROSS_PREFIX)ld
 CROSS_ASCPP = $(CPP) -x assembler-with-cpp $(1) | $(CROSS_AS) --32 -
 CROSS_ASSTRIP = $(CROSS_PREFIX)strip
+
+# for mkproto.sh
+export CROSS_ASLD

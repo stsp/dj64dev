@@ -56,7 +56,7 @@ TF=/tmp/tagsxx
 TL=/tmp/a.so
 set -e
 
-${CROSS_PREFIX}ld -melf_i386 -shared -Bsymbolic -z notext -o $TL --whole-archive "$1"
+${CROSS_ASLD} -melf_i386 -shared -Bsymbolic -z notext -o $TL --whole-archive "$1"
 shift
 PRUNES="-name libm -prune -o -name machine -prune"
 PRUNES="$PRUNES -o -name string.h -prune -o -name in.h -prune"
