@@ -4,12 +4,14 @@
 # Copyright (C) 1998 DJ Delorie, see COPYING.DJ for details
 # -*- makefile -*-
 
-include $(TOP)/../makefile.def
+include $(TOP)/../../Makefile.conf
 
 SHELL := bash -o pipefail
 
 # for mkproto.sh
 export CROSS_LD
+
+export prefix
 
 .SUFFIXES: .o .i .c .cc .s
 

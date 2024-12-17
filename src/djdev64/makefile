@@ -1,5 +1,5 @@
 TOP = ../..
-PREFIX ?= /usr/local
+prefix ?= /usr/local
 PKG_CONFIG ?= pkg-config
 SOURCES = djdev64.c elf.c djexec.c
 OBJECTS = $(SOURCES:.c=.o)

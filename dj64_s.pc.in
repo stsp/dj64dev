@@ -1,6 +1,6 @@
 Name: dj64_s
 Description: dj64 static linking
 Version: @VERSION@
-prefix=@PREFIX@
+prefix=@prefix@
 crt0=${prefix}/i386-pc-dj64/lib/crt0.elf
 Libs: -L${prefix}/i386-pc-dj64/lib64 -ldj64_s -shared -Wl,-Bsymbolic

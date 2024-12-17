@@ -1,10 +1,7 @@
 TOP ?= .
-prefix ?= /usr/local
-libdir ?= $(prefix)/lib
-INSTALL ?= install
-export PKG_CONFIG_PATH = $(prefix)/share/pkgconfig:$(libdir)/pkgconfig
+include Makefile.conf
+export PKG_CONFIG_PATH = $(datarootdir)/pkgconfig:$(libdir)/pkgconfig
 
-VERSION = 0.1
 DJLIBC = $(TOP)/lib/libc.a
 DJCRT0 = $(TOP)/lib/crt0.elf
 DJUCRT0 = $(TOP)/lib/uplt.o
@@ -44,10 +41,16 @@ export prefix
 
 .PHONY: subs dj64 djdev64 demos
 
-all: dj64 djdev64
+all: Makefile.conf dj64 djdev64
 	@echo
 	@echo "Done building. You may need to run \"sudo make install\" now."
 	@echo "You can first run \"sudo make uninstall\" to purge the prev install."
+
+Makefile.conf: Makefile.conf.in configure
+	./configure
+
+configure: configure.ac
+	autoreconf -v -i
 
 subs:
 	$(MAKE) -C src
@@ -111,7 +114,7 @@ uninstall:
 clean: demos_clean
 	$(MAKE) -C src clean
 	$(MAKE) -C src/djdev64 clean
-	$(RM) *.pc
+	$(RM) *.pc Makefile.conf configure
 	$(RM) -r lib
 
 deb:
@@ -120,14 +123,6 @@ deb:
 rpm:
 	make clean
 	rpkg local && $(MAKE) clean >/dev/null
-
-%.pc: %.pc.in makefile
-	sed \
-		-e 's!@PREFIX[@]!$(prefix)!g' \
-		-e 's!@INCLUDEDIR[@]!$(INCLUDEDIR)!g' \
-		-e 's!@LIBDIR[@]!$(libdir)!g' \
-		-e 's!@VERSION[@]!$(VERSION)!g' \
-		$< >$@
 
 demos:
 	$(MAKE) -C demos

@@ -1,5 +1,5 @@
 TOP = ../../..
-PREFIX ?= /usr/local
+prefix ?= /usr/local
 SOURCES = coff.c elf.c util.c stub.c dpmiwrp.c dos.c
 OBJECTS = $(SOURCES:.c=.o)
 CFLAGS += -iquote ../include -fpic -ggdb3 -Wall -Og -MD \
