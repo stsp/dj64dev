@@ -1,4 +1,4 @@
 usr/include/djdev64
-usr/lib/*.so
+usr/lib/*/*.so
 usr/share/pkgconfig/djdev64.pc
 usr/share/pkgconfig/djstub64.pc
