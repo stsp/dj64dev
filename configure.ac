@@ -55,9 +55,14 @@ if test -z "$CROSS_AS"; then
   AC_PATH_PROG([CROSS_AS], [x86_64-linux-gnu-as])
   if test -z "$CROSS_AS"; then
     if test "$machine" = "i386" -o "$machine" = "x86_64"; then
-      CROSS_AS="$AS"
-      if test "$clang_as_as" = "1"; then
-        CROSS_ASFLAGS="$ASFLAGS -m32"
+      AC_PATH_PROG([CROSS_AS], [as])
+      if test -z "$CROSS_AS"; then
+        AC_PATH_PROG([CROSS_AS], [clang])
+        if test -z "$CROSS_AS"; then
+          AC_MSG_ERROR([gnu assembler not found, please install clang or binutils])
+        else
+          CROSS_ASFLAGS="-m32 -x assembler -c -"
+        fi
       else
         CROSS_ASFLAGS="--32"
       fi
