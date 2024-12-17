@@ -8,6 +8,7 @@ Build-Depends:
     binutils-i686-linux-gnu,
     universal-ctags,
     autoconf,
+    automake,
     pkgconf,
     libelf-dev,
     debhelper (>= 9~)

@@ -15,6 +15,7 @@ VCS: {{{ git_dir_vcs }}}
 Source0: {{{ git_dir_archive }}}
 
 BuildRequires: autoconf
+BuildRequires: automake
 BuildRequires: make
 BuildRequires: sed
 BuildRequires: bash
@@ -36,14 +37,16 @@ dj64 is a 64-bit djgpp-compatible dev suite.
 %end
 
 %build
-make prefix=%{_prefix}
+autoreconf -v -i
+%configure
+make
 %end
 
 %check
 %end
 
 %install
-make install DESTDIR=%{buildroot} prefix=%{_prefix} libdir=%{_libdir}
+make install DESTDIR=%{buildroot}
 %end
 
 
