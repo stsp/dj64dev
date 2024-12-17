@@ -1,5 +1,5 @@
 Name: dj64static
 Description: dj64static libs
 Version: @VERSION@
-prefix=@PREFIX@
+prefix=@prefix@
 Libs: --whole-archive ${prefix}/i386-pc-dj64/lib/libc.a --no-whole-archive

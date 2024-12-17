@@ -1,7 +1,7 @@
 Name: dj64
 Description: dj64 dev suit
 Version: @VERSION@
-prefix=@PREFIX@
+prefix=@prefix@
 makeinc=${prefix}/i386-pc-dj64/share/dj64.mk
 cppflags=-I${prefix}/i386-pc-dj64/include -DDJ64 -nostdinc
 xcppflags=${cppflags} -imacros ${prefix}/i386-pc-dj64/include/dj64/a_mac.h

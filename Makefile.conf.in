@@ -1,0 +1,12 @@
+prefix := @prefix@
+libdir := @libdir@
+datarootdir := @datarootdir@
+
+CC := @CC@
+CPP := @CPP@
+INSTALL := @INSTALL@
+
+CROSS_AS := @CROSS_AS@
+CROSS_AR := @CROSS_AR@
+CROSS_LD := @CROSS_LD@
+CROSS_STRIP := @CROSS_STRIP@

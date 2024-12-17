@@ -22,8 +22,8 @@ thunk_syms.o: thunk_syms.s
 ALL_AS_OBJS = $(addprefix ../,$(file < $(TOP)/makefile.rfo))
 libc_tmp.a : $(TOP)/makefile.rfo thunk_syms.o $(ALL_AS_OBJS)
 	@-$(RM) $@
-	$(CROSS_ASAR) q $@ $(ALL_AS_OBJS) thunk_syms.o
-	$(CROSS_ASAR) s $@
+	$(CROSS_AR) q $@ $(ALL_AS_OBJS) thunk_syms.o
+	$(CROSS_AR) s $@
 
 asm_incs.h:
 	$(GA) 0 $(TOP)/../../include >$@
@@ -78,13 +78,13 @@ $(LIB)/$(LIBS): $(TOP)/makefile.rf $(ALL_OBJS) \
 
 $(LIB)/libc.a: libc_tmp.a plt.o | $(LIB)
 	cp -f $< libctmp.a
-	$(CROSS_ASAR) q libctmp.a plt.o
-	$(CROSS_ASAR) s libctmp.a
+	$(CROSS_AR) q libctmp.a plt.o
+	$(CROSS_AR) s libctmp.a
 	mv -f libctmp.a $@
 
 $(LIB)/crt0.elf: $(LIB)/libc.a
-	$(CROSS_ASLD) --whole-archive $< -melf_i386 -static -o $@
-	$(CROSS_ASSTRIP) --strip-debug $@
+	$(CROSS_LD) --whole-archive $< -melf_i386 -static -o $@
+	$(CROSS_STRIP) --strip-debug $@
 	chmod -x $@
 
 $(LIB)/uplt.o: uplt.o
