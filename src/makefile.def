@@ -6,8 +6,4 @@ CROSS_PREFIX ?= i686-linux-gnu-
 CROSS_AS := $(CROSS_PREFIX)as
 CROSS_AR = $(CROSS_PREFIX)ar
 CROSS_LD = $(CROSS_PREFIX)ld
-CROSS_ASCPP = $(CPP) -x assembler-with-cpp $(1) | $(CROSS_AS) --32 -
 CROSS_STRIP = $(CROSS_PREFIX)strip
-
-# for mkproto.sh
-export CROSS_LD

@@ -8,6 +8,9 @@ include $(TOP)/../makefile.def
 
 SHELL := bash -o pipefail
 
+# for mkproto.sh
+export CROSS_LD
+
 .SUFFIXES: .o .i .c .cc .s
 
 CPPFLAGS += -DDJ64 -D_IN_DJ64 -D__DJGPP__ -nostdinc
@@ -16,6 +19,7 @@ CPPFLAGS += -DDJ64 -D_IN_DJ64 -D__DJGPP__ -nostdinc
 #
 XGCC = $(CC) @$(TOP)/../gcc.opt $(CFLAGS)
 XCPP = $(CPP) -I . -I $(TOP)/../../include $(CPPFLAGS)
+CROSS_ASCPP = $(CPP) -x assembler-with-cpp $(1) | $(CROSS_AS) --32 -
 XASCPP = $(call CROSS_ASCPP, -I $(TOP)/../../include $(ASFLAGS) $(1))
 
 # Have to process with intermediate file, because with a single pipe
