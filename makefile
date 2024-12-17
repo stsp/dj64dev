@@ -1,5 +1,6 @@
 TOP ?= .
 include Makefile.conf
+export prefix
 export PKG_CONFIG_PATH = $(datarootdir)/pkgconfig:$(libdir)/pkgconfig
 
 DJLIBC = $(TOP)/lib/libc.a
@@ -12,32 +13,6 @@ DJDEV64LIB = $(TOP)/lib/libdjdev64.so.*.*
 DJDEV64DEVL = $(TOP)/lib/libdjdev64.so
 DJSTUB64LIB = $(TOP)/lib/libdjstub64.so.*.*
 DJSTUB64DEVL = $(TOP)/lib/libdjstub64.so
-
-ifeq ($(filter demos demos_clean clean install,$(MAKECMDGOALS)),)
-AS = $(CROSS_PREFIX)as
-ifeq ($(CROSS_PREFIX),)
-CROSS_PREFIX := i686-linux-gnu-
-ifeq ($(shell $(AS) --version 2>/dev/null),)
-CROSS_PREFIX := x86_64-linux-gnu-
-endif
-ifeq ($(shell $(AS) --version 2>/dev/null),)
-ifneq ($(filter x86_64 amd64,$(shell uname -m)),)
-CROSS_PREFIX :=
-else
-$(error cross-binutils not installed)
-endif
-endif
-else
-# CROSS_PREFIX already set
-ifeq ($(shell $(AS) --version 2>/dev/null),)
-$(error invalid CROSS_PREFIX)
-endif
-endif
-export CROSS_PREFIX
-
-endif
-
-export prefix
 
 .PHONY: subs dj64 djdev64 demos
 
