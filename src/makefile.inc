@@ -14,8 +14,8 @@ CPPFLAGS += -DDJ64 -D_IN_DJ64 -D__DJGPP__ -nostdinc
 
 # Moved setting of $(GCC{L}_OPT) to top of file
 #
-XGCC = $(CROSS_GCC) @$(TOP)/../gcc.opt $(CFLAGS)
-XCPP = $(CROSS_CPP) -I . -I $(TOP)/../../include $(CPPFLAGS)
+XGCC = $(CC) @$(TOP)/../gcc.opt $(CFLAGS)
+XCPP = $(CPP) -I . -I $(TOP)/../../include $(CPPFLAGS)
 XASCPP = $(call CROSS_ASCPP, -I $(TOP)/../../include $(ASFLAGS) $(1))
 
 # Have to process with intermediate file, because with a single pipe
