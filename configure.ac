@@ -61,7 +61,7 @@ if test -z "$CROSS_AS"; then
         if test -z "$CROSS_AS"; then
           AC_MSG_ERROR([gnu assembler not found, please install clang or binutils])
         else
-          CROSS_ASFLAGS="-m32 -x assembler -c -"
+          CROSS_ASFLAGS="-m32 -x assembler -c"
         fi
       else
         CROSS_ASFLAGS="--32"
@@ -69,7 +69,7 @@ if test -z "$CROSS_AS"; then
     else
       AC_PATH_PROG([CROSS_AS], [clang])
       if test -n "$CROSS_AS"; then
-        CROSS_ASFLAGS="-x assembler -target i686-unknown-linux-gnu -c -"
+        CROSS_ASFLAGS="-x assembler -target i686-unknown-linux-gnu -c"
       else
         AC_MSG_ERROR([386 assembler not found, please install clang or binutils-i686-linux-gnu])
       fi
@@ -78,6 +78,7 @@ if test -z "$CROSS_AS"; then
     CROSS_ASFLAGS="--32"
   fi
 fi
+AC_SUBST(CROSS_ASFLAGS)
 
 if test -n "$CROSS_PREFIX"; then
   AC_PATH_PROG([CROSS_LD], [${CROSS_PREFIX}ld])

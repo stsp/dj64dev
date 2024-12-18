@@ -17,7 +17,7 @@ thunk_syms.ss: thunk_syms.c asm_incsn.h
 thunk_syms.s: thunk_syms.ss
 	$(P)/sanitize_arch.sh $< >$@
 thunk_syms.o: thunk_syms.s
-	$(CROSS_AS) --32 $(ASFLAGS) $< -o $@
+	$(CROSS_AS) $(CROSS_ASFLAGS) $< -o $@
 
 ALL_AS_OBJS = $(addprefix ../,$(file < $(TOP)/makefile.rfo))
 libc_tmp.a : $(TOP)/makefile.rfo thunk_syms.o $(ALL_AS_OBJS)
