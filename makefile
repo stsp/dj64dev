@@ -1,7 +1,7 @@
 TOP ?= .
 include Makefile.conf
 export prefix
-export PKG_CONFIG_PATH = $(datarootdir)/pkgconfig:$(libdir)/pkgconfig
+export PKG_CONFIG_PATH := $(PKG_CONFIG_PATH):$(datarootdir)/pkgconfig:$(libdir)/pkgconfig
 
 DJLIBC = $(TOP)/lib/libc.a
 DJCRT0 = $(TOP)/lib/crt0.elf
