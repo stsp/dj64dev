@@ -38,9 +38,10 @@
 static long double powten[] =
 {
   1e1L, 1e2L, 1e4L, 1e8L, 1e16L, 1e32L, 1e64L, 1e128L, 1e256L,
-  1e512L, 1e1024L, 1e2048L, 1e4096L
+//  1e512L, 1e1024L, 1e2048L, 1e4096L
 };
 
+#define _countof(array) (sizeof(array) / sizeof(array[0]))
 
 long double
 strtold(const char *s, char **sret)
@@ -367,12 +368,14 @@ strtold(const char *s, char **sret)
     e = -e;
   }
   e = e - ne;
+#if 0
   if (e < -4096)
   {
     /* possibly subnormal number, 10^e would overflow */
     r *= 1.0e-2048L;
     e += 2048;
   }
+#endif
   if (e < 0)
   {
     e = -e;
@@ -384,7 +387,7 @@ strtold(const char *s, char **sret)
   {
     long double d = 1.0L;
     l2powm1 = 0;
-    while (e)
+    while (e && l2powm1 < (int)_countof(powten))
     {
       if (e & 1)
         d *= powten[l2powm1];
