@@ -328,7 +328,7 @@ static void
 __libc_termios_erase_editline (void)
 {
   int col;
-  char pf;
+  signed char pf;
 
   col = __libc_tty_editline.col;
   if (col == 0) /* no more */
