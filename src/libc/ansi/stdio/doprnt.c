@@ -635,17 +635,18 @@ pforw:
 static long double powten[] =
 {
   1e1L, 1e2L, 1e4L, 1e8L, 1e16L, 1e32L, 1e64L, 1e128L, 1e256L,
-  1e512L, 1e1024L, 1e2048L, 1e4096L
+//  1e512L, 1e1024L, 1e2048L, 1e4096L
 };
 
 static long double powtenneg[] =
 {
   1e-1L, 1e-2L, 1e-4L, 1e-8L, 1e-16L, 1e-32L, 1e-64L, 1e-128L, 1e-256L,
-  1e-512L, 1e-1024L, 1e-2048L, 1e-4096L
+//  1e-512L, 1e-1024L, 1e-2048L, 1e-4096L
 };
 
 #define MAXP 4096
-#define NP   12
+#define _countof(array) (sizeof(array) / sizeof(array[0]))
+#define NP   (_countof(powten) - 1)
 #define P    (4294967296.0L * 4294967296.0L * 2.0L)   /* 2^65 */
 static long double INVPREC = P;
 static long double PREC = 1.0L / P;
