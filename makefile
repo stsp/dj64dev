@@ -25,7 +25,7 @@ Makefile.conf: Makefile.conf.in configure
 	./configure
 
 configure: configure.ac
-	autoreconf -v -i
+	autoreconf -v -i -I m4
 
 subs:
 	$(MAKE) -C src

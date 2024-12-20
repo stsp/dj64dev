@@ -37,7 +37,7 @@ dj64 is a 64-bit djgpp-compatible dev suite.
 %end
 
 %build
-autoreconf -v -i
+autoreconf -v -i -I m4
 %configure
 make
 %end

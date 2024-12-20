@@ -4,6 +4,7 @@ libdir := @libdir@
 datarootdir := @datarootdir@
 
 CC := @CC@
+CC_FOR_BUILD := @CC_FOR_BUILD@
 CPP := @CPP@
 INSTALL := @INSTALL@
 

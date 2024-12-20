@@ -1,7 +1,9 @@
+include ../Makefile.conf
+
 all : config makemake.exe subs
 
 makemake.exe : makemake.c
-	$(CC) -O2 -Wall makemake.c -o makemake.exe
+	$(CC_FOR_BUILD) -O2 -Wall makemake.c -o makemake.exe
 
 subs:
 	$(MAKE) -C libc
