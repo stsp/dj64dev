@@ -51,7 +51,7 @@ struct tty
 struct tty_editline
 {
   int col;
-  char flag[_TTY_EDITLINE_SIZE];
+  signed char flag[_TTY_EDITLINE_SIZE];
   unsigned char buf[_TTY_EDITLINE_SIZE];
 };
 
