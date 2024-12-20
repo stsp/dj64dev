@@ -367,7 +367,11 @@ strtod(const char *s, char **sret)
       r *= 0.1L;
       /* Detect underflow below 2^-1075, which is half
          the smallest representable double. */
+#if 0
       if (r < 2.47032822920623272088e-324L)
+#else
+      if (r < 5e-324L)
+#endif
       {
         errno = ERANGE;
         r = 0.0;
