@@ -13,7 +13,11 @@ OBJECTS = $(SOURCES:.c=.o)
 
 .INTERMEDIATE: thunk_syms.s thunk_syms.ss
 thunk_syms.ss: thunk_syms.c asm_incsn.h
+ifeq ($(CC_IS_CLANG),1)
+	$(XCPP) -CC -g0 $< | $(CC) -xc - -target i686-unknown-linux-gnu -S $(EXTRA_CFLAGS) -o $@
+else
 	$(XCPP) -CC -g0 $< | $(CC) -xc - -S $(EXTRA_CFLAGS) -o $@
+endif
 thunk_syms.s: thunk_syms.ss
 	$(P)/sanitize_arch.sh $< >$@
 thunk_syms.o: thunk_syms.s
