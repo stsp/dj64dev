@@ -35,7 +35,7 @@ typedef struct __jmp_buf {
 __attribute__((returns_twice,always_inline))
 static inline int do_setjmp(minimal_jmp_buf _env)
 {
-    int ret;
+    long int ret;
     asm volatile(
                  // x9 is the first of the regular temporary registers
                  // per the above-mentioned Procedule Call Standard document.
@@ -56,7 +56,7 @@ static inline int do_setjmp(minimal_jmp_buf _env)
       "  stp x9, x10,  [%[_env], 0x60]  \n"
       "  mov x0, 0                      \n"
       "_out:                            \n"
-      "  mov %[ret], x0                 \n"
+      "  mov %x[ret], x0                \n"
       :
       // Outputs
       [ret]"=r"(ret)
