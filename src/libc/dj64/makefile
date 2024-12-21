@@ -87,7 +87,7 @@ $(LIB)/libc.a: libc_tmp.a plt.o | $(LIB)
 	mv -f libctmp.a $@
 
 $(LIB)/crt0.elf: $(LIB)/libc.a
-	$(CROSS_LD) --whole-archive $< -melf_i386 -static -o $@
+	$(CROSS_LD) --whole-archive $< -melf_i386 -static $(XLD_IMB_OPT)=0x08048000 -o $@
 	$(CROSS_STRIP) --strip-debug $@
 	chmod -x $@
 

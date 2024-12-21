@@ -118,6 +118,16 @@ if test -z "$CROSS_LD"; then
   AC_MSG_ERROR([cross-ld not found])
 fi
 
+AC_MSG_CHECKING([ld supports --image-base])
+if ! $CROSS_LD --image-base=0x0 -v >/dev/null 2>&1; then
+  AC_MSG_RESULT([no, using -Ttext-segment])
+  XLD_IMB_OPT=-Ttext-segment
+else
+  AC_MSG_RESULT([yes])
+  XLD_IMB_OPT=--image-base
+fi
+AC_SUBST(XLD_IMB_OPT)
+
 if test -n "$CROSS_PREFIX"; then
   AC_PATH_PROG([CROSS_AR], [${CROSS_PREFIX}ar])
   if test -z "$CROSS_AR"; then
