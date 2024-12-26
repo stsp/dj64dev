@@ -162,12 +162,12 @@ if test -z "$CROSS_STRIP"; then
   AC_MSG_ERROR([cross-strip not found])
 fi
 
-AC_CHECK_PROGS([CTAGS], [uctags ctags])
-AC_CHECK_PROGS([RTAGS], [ureadtags readtags])
-if test -z "$CTAGS" -o -z "$RTAGS"; then
+AC_CHECK_PROGS([UCTAGS], [uctags ctags])
+AC_CHECK_PROGS([URTAGS], [ureadtags readtags])
+if test -z "$UCTAGS" -o -z "$URTAGS"; then
   AC_MSG_ERROR([universal-ctags not installed])
 fi
-if ! $CTAGS --version | grep "Universal Ctags" >/dev/null; then
+if ! $UCTAGS --version | grep "Universal Ctags" >/dev/null; then
   AC_MSG_ERROR([bsd ctags do not suit, install universal-ctags])
 fi
 
