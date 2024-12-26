@@ -1,4 +1,8 @@
 ifeq ($(filter clean install,$(MAKECMDGOALS)),)
+MACH = $(subst -, ,$(shell $(CC) -dumpmachine))
+ifeq ($(MACH),)
+$(error unknown target architecture)
+endif
 # find the suitable cross-assembler
 DJ64AS = $(CROSS_PREFIX)as
 DJ64ASFLAGS = --32 --defsym _DJ64=1
@@ -12,7 +16,7 @@ CROSS_PREFIX := x86_64-linux-gnu-
 endif
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 CROSS_PREFIX :=
-ifneq ($(filter x86_64 amd64 i686 i386,$(shell uname -m)),)
+ifneq ($(filter x86_64 amd64 i686 i386,$(MACH)),)
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 # found nothing, try built-in assembler
 DJ64AS = $(CC) -x assembler
@@ -47,10 +51,10 @@ LD = $(CC)
 DJ64_XLDFLAGS = -V 5
 # freebsd's dlopen() ignores link order and binds to libc the symbols
 # defined in libdj64.so. Use static linking as a work-around.
-ifeq ($(shell uname -s),FreeBSD)
+ifneq ($(filter freebsd%,$(MACH)),)
 DJ64STATIC = 1
 endif
-ifeq ($(shell uname -o),Android)
+ifneq ($(filter android%,$(MACH)),)
 DJ64STATIC = 1
 endif
 ifeq ($(DJ64STATIC),0)
