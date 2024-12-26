@@ -10,6 +10,8 @@ SHELL := bash -o pipefail
 
 # for mkproto.sh
 export CROSS_LD
+export CTAGS
+export RTAGS
 
 export prefix
 

@@ -8,25 +8,9 @@ if [ $# -lt 5 ]; then
     exit 1
 fi
 
-if ! which uctags >/dev/null 2>&1; then
-    if ! which ctags >/dev/null 2>&1; then
-	echo "universal-ctags not installed"
-	exit 1
-    fi
-    if ! ctags -L /dev/null -f /dev/null; then
-	if [ "`uname -s`" = "FreeBSD" ]; then
-	    echo "bsd ctags do not suit, install universal-ctags"
-	    exit 1
-	else
-	    # https://bugs.launchpad.net/ubuntu/+source/coreutils/+bug/2069483
-	    echo "ctags reported failure, running on ubuntu Focal?"
-	fi
-    fi
-    RTAGS=readtags
-    CTAGS=ctags
-else
-    RTAGS=ureadtags
-    CTAGS=uctags
+if test -z "$CTAGS" -o test -z "$RTAGS"; then
+    echo "universal-ctags not installed"
+    exit 1
 fi
 
 extr_proto() {
