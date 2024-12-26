@@ -8,7 +8,7 @@ if [ $# -lt 5 ]; then
     exit 1
 fi
 
-if test -z "$CTAGS" -o test -z "$RTAGS"; then
+if [ -z "$CTAGS" -o -z "$RTAGS" ]; then
     echo "universal-ctags not installed"
     exit 1
 fi
