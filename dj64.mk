@@ -66,7 +66,7 @@ ifneq ($(PREFIX),)
 RP += -Wl,-rpath=$(PREFIX)/i386-pc-dj64/lib64
 endif
 # sort removes duplicates
-DJLDFLAGS = $(shell pkg-config --libs dj64) $(sort $(RP))
+DJLDFLAGS = $(shell pkg-config --libs dj64) $(sort $(RP)) $(LDFLAGS)
 endif
 DJ64_XLIB = libtmp.so
 ifneq ($(AS_OBJECTS),)

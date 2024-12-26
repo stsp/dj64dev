@@ -27,7 +27,7 @@ $(LIBDIR):
 	mkdir $@
 
 $(LIB): $(OBJECTS) libdjstub.version | $(LIBDIR)
-	$(CC) -shared -Wl,-Bsymbolic -Wl,-soname=$(LIBN) \
+	$(CC) $(LDFLAGS) -shared -Wl,-Bsymbolic -Wl,-soname=$(LIBN) \
 		-Wl,--version-script=libdjstub.version -o $@ $(OBJECTS)
 
 $(LIBDIR)/libdjstub64.so: $(LIB)

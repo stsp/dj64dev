@@ -33,7 +33,7 @@ $(LIBDIR):
 	mkdir $@
 
 $(LIB): $(OBJECTS) | $(LIBDIR)
-	$(CC) -shared -Wl,-Bsymbolic -Wl,-soname=$(LIBN) -o $@ $^ $(LIBELF)
+	$(CC) $(LDFLAGS) -shared -Wl,-Bsymbolic -Wl,-soname=$(LIBN) -o $@ $^ $(LIBELF)
 
 $(LIBDIR)/libdjdev64.so: $(LIB)
 	ln -sf $(LIBN) $@
