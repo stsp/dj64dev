@@ -35,7 +35,6 @@ XASCPP = $(call CROSS_ASCPP, -I $(TOP)/../../include $(1))
 	$(XCPP) -CC -g0 -MD $< | \
 	  sed -E -e 's/^\*\/#/\*\/\n#/' -e 's/^\*\/ *;/\*\/\n;\n/' >$@.c
 	$(XGCC) -xc $@.c -c $(EXTRA_CFLAGS) -o $@
-	$(RM) $@.c
 %.o : %.S
 	$(call XASCPP,$<) -o $@
 %.o : %.s
@@ -70,7 +69,7 @@ makefile.oho: makefile
 endif
 
 clean ::
-	-$(RM) *.o *.d *.i makefile.oh makefile.oho
+	-$(RM) *.o *.d *.o.c *.i makefile.oh makefile.oho
 
 DEPS := $(wildcard *.d)
 ifneq ($(DEPS),)
