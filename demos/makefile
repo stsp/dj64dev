@@ -17,11 +17,11 @@ static:
 	$(MAKE) -C rmcb static
 
 djgpp:
-	$(MAKE) -C asmsimp -f makefile.djgpp
-	$(MAKE) -C file -f makefile.djgpp
-	$(MAKE) -C hello -f makefile.djgpp
-	$(MAKE) -C helloasm -f makefile.djgpp
-	$(MAKE) -C rmcb -f makefile.djgpp
+	$(MAKE) -C asmsimp/djgpp
+	$(MAKE) -C file/djgpp
+	$(MAKE) -C hello/djgpp
+	$(MAKE) -C helloasm/djgpp
+	$(MAKE) -C rmcb/djgpp
 
 clean:
 	$(MAKE) -C asmsimp clean
