@@ -1,6 +1,8 @@
+VPATH = ..
 CC = i586-pc-msdosdjgpp-gcc
 LD = i586-pc-msdosdjgpp-gcc
 CFLAGS = -Wall
+ASFLAGS = -I..
 AS = i586-pc-msdosdjgpp-as
 STRIP = i586-pc-msdosdjgpp-strip
 
@@ -19,3 +21,10 @@ $(TGT): $(OBJECTS) $(AS_OBJECTS)
 
 clean:
 	$(RM) *.o $(TGT)
+
+# display info about the built executable
+info: $(TGT)
+	djstubify -i $<
+
+run: $(TGT)
+	dosemu -t $<
