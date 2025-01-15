@@ -1,3 +1,4 @@
+VPATH = ..
 CC = i586-pc-msdosdjgpp-gcc
 LD = i586-pc-msdosdjgpp-gcc
 CFLAGS = -Wall
@@ -19,3 +20,10 @@ $(TGT): $(OBJECTS) $(AS_OBJECTS)
 
 clean:
 	$(RM) *.o $(TGT)
+
+# display info about the built executable
+info: $(TGT)
+	djstubify -i $<
+
+run: $(TGT)
+	dosemu -t $<
