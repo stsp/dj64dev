@@ -197,7 +197,7 @@ int	__dpmi_get_raw_mode_switch_addr(__out __dpmi_raddr *_rm, __out __dpmi_paddr 
 
 int	__dpmi_get_version(__out __dpmi_version_ret *_ret);						/* DPMI 0.9 AX=0400 */
 
-int	__dpmi_get_capabilities(__out int *_flags, char vendor_info[128]);				/* DPMI 1.0 AX=0401 */
+int	__dpmi_get_capabilities(__out int *_flags, __out char vendor_info[128]);				/* DPMI 1.0 AX=0401 */
 
 int	__dpmi_get_free_memory_information(__out __dpmi_free_mem_info *_info);			/* DPMI 0.9 AX=0500 */
 int	__dpmi_allocate_memory(__dpmi_meminfo *_info);						/* DPMI 0.9 AX=0501 */
