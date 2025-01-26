@@ -72,7 +72,6 @@ install_djdev64:
 install: install_dj64 install_djdev64 install_demos
 
 uninstall:
-	$(RM) -r $(DESTDIR)$(prefix)/bin/dj64-gcc
 	$(RM) -r $(DESTDIR)$(prefix)/i386-pc-dj64
 	$(RM) -r $(DESTDIR)$(prefix)/include/djdev64
 	$(RM) $(DESTDIR)$(prefix)/share/pkgconfig/dj64.pc
