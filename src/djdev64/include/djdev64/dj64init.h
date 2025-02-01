@@ -25,7 +25,7 @@
 
 typedef int (dj64cdispatch_t)(int handle, int libid, int fn, unsigned esi,
         uint8_t *sp);
-#define DJ64_API_VER 13
+#define DJ64_API_VER 14
 enum { DJ64_PRINT_LOG, DJ64_PRINT_TERMINAL, DJ64_PRINT_SCREEN };
 
 /* pushal */
@@ -62,6 +62,7 @@ struct dj64_api {
     void (*exit)(int rc);
     void *(*malloc)(size_t size);
     void (*free)(void *ptr);
+    int (*elfload)(int num);
 };
 #define DJ64_INIT_ONCE_FN dj64init_once
 typedef int (dj64init_once_t)(const struct dj64_api *api, int api_ver);

@@ -7,7 +7,7 @@ LIBELF := $(shell $(PKG_CONFIG) --silence-errors --libs libelf)
 ifeq ($(LIBELF),)
 $(error libelf not installed)
 endif
-CFLAGS += -iquote include -fpic -ggdb3 -Wall -Og -MD \
+CFLAGS += -iquote include -fpic -ggdb3 -Wall -Wmissing-prototypes -Og -MD \
   $(shell $(PKG_CONFIG) --cflags libelf) \
   -DCRT0=\"$(prefix)/i386-pc-dj64/lib/crt0.elf\"
 

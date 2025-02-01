@@ -39,6 +39,7 @@
 #include <libc/djctx.h>
 #include <libc/internal.h>
 #include <dpmi.h>
+#include <go64.h>
 #include <sys/nearptr.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -604,4 +605,9 @@ void *djsbrk(int increment)
 {
     assert(increment > 0);
     return dj64api->malloc(increment);
+}
+
+int elfload(int num)
+{
+    return dj64api->elfload(num);
 }
