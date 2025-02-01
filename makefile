@@ -66,10 +66,10 @@ install_djdev64:
 	cp -fP $(DJDEV64DEVL) $(DESTDIR)$(libdir)
 	$(INSTALL) -m 0755 $(DJSTUB64LIB) $(DESTDIR)$(libdir)
 	cp -fP $(DJSTUB64DEVL) $(DESTDIR)$(libdir)
-	@echo
-	@echo "Done installing. You may need to run \"sudo ldconfig\" now."
 
 install: install_dj64 install_djdev64 install_demos
+	@echo
+	@echo "Done installing. You may need to run \"sudo ldconfig\" now."
 
 uninstall:
 	$(RM) -r $(DESTDIR)$(prefix)/i386-pc-dj64
