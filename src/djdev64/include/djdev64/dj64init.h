@@ -26,6 +26,7 @@
 typedef int (dj64cdispatch_t)(int handle, int libid, int fn, unsigned esi,
         uint8_t *sp);
 #define DJ64_API_VER 14
+#define DJ64_API_MIN_VER 13
 enum { DJ64_PRINT_LOG, DJ64_PRINT_TERMINAL, DJ64_PRINT_SCREEN };
 
 /* pushal */

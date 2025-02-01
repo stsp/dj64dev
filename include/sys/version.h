@@ -19,3 +19,4 @@
 #define __DJGPP_MINOR 5
 #define __DJGPP_MINOR__ 5
 
+#define DJ64_API_VERSION 2

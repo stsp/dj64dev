@@ -73,6 +73,7 @@ struct udisp {
 #define MAX_HANDLES 10
 static struct udisp udisps[MAX_HANDLES];
 static const struct dj64_api *dj64api;
+static int dj64api_ver;
 static dj64dispatch_t *disp_fn;
 static struct athunks *u_athunks;
 static struct athunks *u_pthunks;
@@ -371,11 +372,12 @@ void DJ64_DONE_FN(int handle)
 int DJ64_INIT_ONCE_FN(const struct dj64_api *api, int api_ver)
 {
     int ret = 0;
-    if (api_ver != DJ64_API_VER)
+    if (api_ver < DJ64_API_MIN_VER)
         return -1;
     if (!dj64api)
         ret++;
     dj64api = api;
+    dj64api_ver = api_ver;
     return ret;
 }
 
@@ -609,5 +611,7 @@ void *djsbrk(int increment)
 
 int elfload(int num)
 {
+    if (dj64api_ver < 14)
+        return -1;
     return dj64api->elfload(num);
 }
