@@ -44,7 +44,6 @@
 #define stub_debug(...)
 #endif
 
-#define STFLAGS_OFF    0x2c
 #define FLG1_OFF STFLAGS_OFF
 #define FLG2_OFF (STFLAGS_OFF + 1)
 
@@ -162,7 +161,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
     uint32_t nsize = 0;
     uint32_t noffset2 = 0;
     uint32_t nsize2 = 0;
-    char ovl_name[16] = {0};
     int rc, i;
 #define BUF_SIZE 0x40
     char buf[BUF_SIZE];
@@ -181,6 +179,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     _GO32_StubInfo stubinfo = {0};
     _GO32_StubInfo *stubinfo_p;
     struct ldops *ops = NULL;
+    int STFLAGS_OFF = 0x2c;
 
     if (ver == 0) {
         /* backward-compat code */
@@ -224,6 +223,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
             cnt++;
 #endif
             stubinfo.stubinfo_ver |= stub_ver << 16;
+            if (stub_ver >= 6)
+                STFLAGS_OFF = 0x38;
             stub_debug("Found exe header %i at 0x%lx\n", cnt, coffset);
             memcpy(&offs, &buf[0x3c], sizeof(offs));
             /* fixup for old stubs: if they have any 32bit payload, that
@@ -254,12 +255,24 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 noffset2 = noffset + nsize;
             memcpy(&nsize2, &buf[0x24 - moff], sizeof(nsize2));
             memcpy(&stubinfo.flags, &buf[STFLAGS_OFF], 2);
-            if (stub_ver >= 4) {
-                strncpy(ovl_name, &buf[0x2e], 12);
-                ovl_name[12] = '\0';
+            if (stub_ver >= 6) {
+                uint32_t nmoffs;
+                memcpy(&nmoffs, &buf[0x28], sizeof(nmoffs));
+                if (nmoffs) {
+                    dosops->_dos_seek(ifile, noffset + nmoffs, SEEK_SET);
+                    rc = dosops->_dos_read(ifile, stubinfo.payload2_name,
+                            16, &rd);
+                    stubinfo.payload2_name[rd] = '\0';
+                }
+            } else if (stub_ver >= 4) {
+                strncpy(stubinfo.payload2_name, &buf[0x2e], 12);
+                stubinfo.payload2_name[12] = '\0';
+                strcat(stubinfo.payload2_name, ".dbg");
             } else {
                 error("unsupported stub version %i\n", stub_ver);
             }
+            stub_debug("suppl name %s\n", stubinfo.payload2_name[0] ?
+                    stubinfo.payload2_name : "<not set>");
         } else if (buf[0] == 0x4c && buf[1] == 0x01) { /* it's a COFF */
             done = 1;
             ops = &coff_ops;
@@ -392,12 +405,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
     stubinfo.payload_size = nsize;
     stubinfo.payload2_offs = noffset2;
     stubinfo.payload2_size = nsize2;
-    if (ovl_name[0]) {
-        assert(ovl_name[12] == '\0');  // no need to len-check copy below
-        strcpy(stubinfo.payload2_name, ovl_name);
-        strcat(stubinfo.payload2_name, ".dbg");
-        stub_debug("loading %s\n", ovl_name);
-    }
     dosops->_dos_seek(ifile, noffset, SEEK_SET);
     if (nsize > 0)
         stub_debug("Found payload of size %i at 0x%x\n", nsize, noffset);
