@@ -74,11 +74,10 @@ DJLDFLAGS = $(shell pkg-config --libs dj64) $(sort $(RP)) $(LDFLAGS)
 endif
 DJ64_XLIB = libtmp.so
 ifneq ($(AS_OBJECTS),)
-XELF = tmp.elf
+XELF = tmp.o
 endif
-DJ64_XOBJS = $(DJ64_XLIB) $(XELF)
 
-.INTERMEDIATE: $(DJ64_XOBJS)
+.INTERMEDIATE: $(DJ64_XLIB) $(XELF) $(XELF).elf
 
 ifneq ($(PDHDR),)
 HASH := \#
@@ -96,10 +95,20 @@ DJ64_XLDFLAGS += -f 0x4000
 else
 XLDFLAGS += $(shell pkg-config --variable=crt0 dj64) $(XLD_IMB)=0x08148000
 endif
-$(XELF): $(AS_OBJECTS) $(PLT_O)
+$(XELF).elf: $(AS_OBJECTS) $(PLT_O)
 	$(XLD) $^ $(XLDFLAGS) -o $@
 	$(XSTRIP) $@
-DJ64_XLDFLAGS += -l $(XELF)
+$(XELF): $(XELF).elf
+	objcopy -I binary -O default \
+	  --rename-section .data=.dj64startup,readonly,contents \
+	  --add-section .note.GNU-stack=/dev/null \
+	  $< $@
+# Note: .INTERMEIATE files are removed at the very end of the build,
+# so we can safely assume they are still here when shell called.
+SZ = $(shell stat -c '%s' $(XELF).elf)
+OFF = $(shell LC_ALL=C readelf -S libtmp.so | grep .dj64startup | \
+  tr -s '[:space:]' | cut -d " " -f 6 | sed -E -e 's/0*/0x/')
+DJ64_XLDFLAGS += -S $(SZ) -O $(OFF) -f 0x8000
 else
 ifeq ($(DJ64STATIC),1)
 DJ64_XLDFLAGS += -l $(shell pkg-config --variable=crt0 dj64_s) -f 0x4000
@@ -108,7 +117,7 @@ DJ64_XLDFLAGS += -f 0x80
 endif
 endif
 
-$(DJ64_XLIB): $(OBJECTS)
+$(DJ64_XLIB): $(OBJECTS) $(XELF)
 	$(LD) $^ $(DJLDFLAGS) -o $@
 
 %.o: %.c
@@ -154,4 +163,4 @@ LINK = djlink
 clean_dj64:
 	$(RM) $(OBJECTS) $(AS_OBJECTS) plt.o plt.inc *.tmp
 	$(RM) thunk_calls.h thunk_asms.h plt_asmc.h glob_asmdefs.h
-	$(RM) $(DJ64_XOBJS)
+	$(RM) $(DJ64_XLIB) $(XELF).elf

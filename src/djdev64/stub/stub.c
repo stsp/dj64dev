@@ -34,7 +34,7 @@
 #include "djdev64/dj64init.h"
 #include "djdev64/stub.h"
 
-#define DJSTUB_VERSION 6
+#define DJSTUB_VERSION 7
 #define DJSTUB_API_VERSION 5
 
 #define STUB_DEBUG 1
@@ -54,6 +54,7 @@
  * present. */
 #define STFLG1_NO32PL  0x80  // no 32bit payload
 #define STFLG2_C32PL   0x40  // have core 32bit payload
+#define STFLG2_EMBOV   0x80  // embedded overlay layout
 
 #define MB (1024 * 1024)
 #define VA_SZ (2*MB)
@@ -246,9 +247,15 @@ int djstub_main(int argc, char *argv[], char *envp[],
             } else {
                 pl32++;
                 coffset = offs;
+                if (stub_ver >= 6) {
+                    uint32_t ooffs;
+                    memcpy(&ooffs, &buf[0x2c], sizeof(ooffs));
+                    coffset += ooffs;
+                }
                 memcpy(&coffsize, &buf[0x1c], sizeof(coffsize));
-                if (coffsize)
-                    noffset = coffset + coffsize;
+                noffset = offs;
+                if (stub_ver < 6 || !(buf[FLG2_OFF] & STFLG2_EMBOV))
+                    noffset += coffsize;
             }
             memcpy(&nsize, &buf[0x20 - moff], sizeof(nsize));
             if (nsize)

@@ -38,8 +38,8 @@ include $(DJMK)
 endif
 
 # dj64 sets `DJ64_XOBJS`, `DJ64_XLIB`, `DJ64_XLDFLAGS`
-$(TGT): $(DJ64_XOBJS)
-	$(LINK) -d $@.dbg $(DJ64_XLIB) -o $@ $(DJ64_XLDFLAGS)
+$(TGT): $(DJ64_XLIB)
+	$(LINK) -d $@.dbg $^ -o $@ $(DJ64_XLDFLAGS)
 	$(STRIP) $@
 
 djgpp/%:
