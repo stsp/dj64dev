@@ -194,6 +194,8 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
         char cmd[1024];
         const char *d = findmnt(path);
         fprintf(stderr, "cannot dlopen %s: %s\n", path, dlerror());
+        if (!d)
+            return -1;
         snprintf(cmd, sizeof(cmd), "grep %.256s /proc/mounts | grep noexec", d);
         if (system(cmd) == 0) {
             loudprintf(api, "\nDJ64 ERROR: Your %s is mounted with noexec option.\n"
