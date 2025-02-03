@@ -436,9 +436,13 @@ uint64_t dj64_asm_call_u(int handle, int num, uint8_t *sp, uint8_t len,
     struct udisp *u;
 
     assert(handle < MAX_HANDLES);
+    u = &udisps[handle];
+    if (!u->pt) {
+        djloudprintf("no user thunks\n");
+        return ASM_CALL_ABORT;
+    }
     for (i = 0; i < num_chooks; i++)
         chooks[i].save();
-    u = &udisps[handle];
     ret = do_asm_call(u, u->pt, u->cs, num, sp, len, flags);
     /* asm call can recursively invoke dj64, so restore context here */
     for (i = 0; i < num_chooks; i++)
