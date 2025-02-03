@@ -48,7 +48,7 @@ ASCPPFLAGS = $(shell pkg-config --variable=cppflags dj64)
 
 LD = $(CC)
 # stub version 5
-DJ64_XLDFLAGS = -V 5
+#DJ64_XLDFLAGS = -V 5
 # freebsd's dlopen() ignores link order and binds to libc the symbols
 # defined in libdj64.so. Use static linking as a work-around.
 ifneq ($(filter freebsd%,$(MACH)),)
@@ -144,6 +144,12 @@ TFLAGS = -a 4 -p 4
 include $(TGMK)
 endif
 endif
+
+LNK_VER = $(lastword $(shell djlink -v))
+ifeq ($(LNK_VER),)
+$(error djlink is too old)
+endif
+LINK = djlink
 
 clean_dj64:
 	$(RM) $(OBJECTS) $(AS_OBJECTS) plt.o plt.inc *.tmp

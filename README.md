@@ -87,11 +87,10 @@ package is installed):
 ```
 $ djstubify -i comcom64.exe
 dj64 file format
-Overlay 0 (i386/ELF DOS payload) at 23368, size 30548
-Overlay 1 (x86_64/ELF host payload) at 53916, size 87048
-Overlay 2 (x86_64/ELF host debug info) at 140964, size 174936
-Overlay name: comcom64.exe
-Stub version: 4
+Overlay 0 (i386/ELF DOS payload) at 23440, size 5304
+Overlay 1 (x86_64/ELF host payload) at 28744, size 78768
+Overlay 2 (x86_64/ELF debug info for comcom64.exe.dbg) at 107512, size 212192
+Stub version: 6
 Stub flags: 0x0b07
 ```
 As can be seen, the executable consists of 3 overlays. If you use
@@ -229,7 +228,7 @@ clean: clean_dj64
 ```
 As soon as the dj64's makefile is hooked in, it takes care of compiling
 the object files and sets the following variables as the result:
-`DJ64_XOBJS`, `DJ64_XLIB` and `DJ64_XLDFLAGS`.
+`DJ64_XOBJS`, `DJ64_XLIB`, `DJ64_XLDFLAGS` and `LINK`.
 You only need to pass those to `djlink` as described below.
 
 Another important variable is `DJ64STATIC`. You can set it to `1`
@@ -255,26 +254,21 @@ It doesn't need `dj64` package to be installed on a host system, as
 the entire runtime is linked in.
 
 Next comes the linking stage where we need to link the dj64-compiled
-`DJ64_XOBJS` objects with `djlink`:
+`DJ64_XOBJS` objects with `djlink`, to which the variable `LINK` points:
 ```
-LINK = djlink
 STRIP = @true
 # or use `STRIP = djstrip` for non-debug build
 ...
 $(TGT): $(DJ64_XOBJS)
-	$(LINK) -d dosemu_$@.dbg $(DJ64_XLIB) -n $@ -o $@ $(DJ64_XLDFLAGS)
+	$(LINK) -d $@.dbg $(DJ64_XLIB) -o $@ $(DJ64_XLDFLAGS)
 	$(STRIP) $@
 ```
 Lets consider this command line, which we get from the above recipe:
 ```
-djlink -d dosemu_hello.exe.dbg libtmp.so -n hello.exe -o hello.exe -f 0x80
+djlink -d hello.exe.dbg libtmp.so -o hello.exe -f 0x80
 ```
-`-d` option sets the debuglink name. It always has the form of
-`dosemu_<exe_file>.dbg` if you want to debug your program under dosemu2.<br/>
+`-d` option sets the debuglink name.<br/>
 `libtmp.so` arg is an expansion of `DJ64_XLIB` variable set by dj64 for us.<br/>
-`-n` specifies the exe file name as seen by the debugger. It should match
-the `<exe_file>` part passed to `-d` for debugger to work, but it doesn't
-have to match the actual file name (although it usually does).<br/>
 `-o` specifies the output file.<br/>
 `-f 0x80` arg is an expansion of `DJ64_XLDFLAGS` variable set by dj64.
 It sets `bit 7` in `Stub flags`.<br/>

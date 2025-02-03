@@ -1,4 +1,3 @@
-LINK = djlink
 STRIP = @true
 # or use `STRIP = djstrip` for non-debug build
 
@@ -37,7 +36,7 @@ endif
 
 # dj64 sets `DJ64_XOBJS`, `DJ64_XLIB`, `DJ64_XLDFLAGS`
 $(TGT): $(DJ64_XOBJS)
-	$(LINK) -d dosemu_$@.dbg $(DJ64_XLIB) -n $@ -o $@ $(DJ64_XLDFLAGS)
+	$(LINK) -d $@.dbg $(DJ64_XLIB) -o $@ $(DJ64_XLDFLAGS)
 	$(STRIP) $@
 
 djgpp/%:
