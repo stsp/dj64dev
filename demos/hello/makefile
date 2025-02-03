@@ -18,7 +18,7 @@ info: $(TGT)
 	djstubify -i $<
 
 run: $(TGT)
-	dosemu -dumb -K . -E "elfexec $<"
+	dosemu -dumb -l $(realpath $<)
 
 # hook in dj64 - make sure to not do that before defining `all:` target
 DJMK = $(shell pkg-config --silence-errors --variable=makeinc dj64)

@@ -307,13 +307,13 @@ same `test` directory:
 ```
 This creates `firework.exe` from `firework` ELF file, so you can do:
 ```
-dosemu ./firework.exe TERM=djgpp204
+dosemu ./firework.exe
 ```
 to watch some firework. Press `q` to quit the demo. But why would you
 want to use some script to manually add an `.exe` extension to every
 test, which are too many? And the good news is that you don't have to:
 ```
-dosemu -K . -E "elfexec firework" TERM=djgpp204
+dosemu -l `pwd`/firework
 ```
 This way we can ask dosemu2 to load the ELF file directly. Of course
 you can't run every ELF program in dosemu2 this way. It can only execute
