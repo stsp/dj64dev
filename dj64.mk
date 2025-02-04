@@ -44,10 +44,9 @@ endif
 endif
 endif
 
-# try built-in AS var of gnu make first
-ifeq ($(shell $(AS) --version 2>/dev/null),)
+# Override external AS as termux sets it to aarch64-linux-android-clang
+# omitting -c. Note that plain as also doesn't work for termux.
 AS = $(CC) -x assembler -c
-endif
 
 DJ64CFLAGS = $(shell pkg-config --cflags dj64)
 XCPPFLAGS = $(shell pkg-config --variable=xcppflags dj64)
