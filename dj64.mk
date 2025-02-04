@@ -148,17 +148,16 @@ $(shell pkg-config --atleast-version=1.2 thunk_gen)
 ifneq ($(.SHELLSTATUS),0)
 $(error thunk_gen is too old, 1.2 is needed)
 endif
-endif
-TFLAGS = -a 4 -p 4
-include $(TGMK)
-endif
-endif
-
 LNK_VER = $(lastword $(shell djlink -v))
 ifeq ($(LNK_VER),)
 $(error djlink is too old)
 endif
 LINK = djlink
+endif
+TFLAGS = -a 4 -p 4
+include $(TGMK)
+endif
+endif
 
 clean_dj64:
 	$(RM) $(OBJECTS) $(AS_OBJECTS) plt.o plt.inc *.tmp
