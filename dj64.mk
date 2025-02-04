@@ -103,12 +103,6 @@ $(XELF): $(XELF).elf
 	  --rename-section .data=.dj64startup,readonly,contents \
 	  --add-section .note.GNU-stack=/dev/null \
 	  $< $@
-# Note: .INTERMEIATE files are removed at the very end of the build,
-# so we can safely assume they are still here when shell called.
-SZ = $(shell stat -c '%s' $(XELF).elf)
-OFF = $(shell LC_ALL=C readelf -S libtmp.so | grep .dj64startup | \
-  tr -s '[:space:]' | cut -d " " -f 6 | sed -E -e 's/0*/0x/')
-DJ64_XLDFLAGS += -S $(SZ) -O $(OFF) -f 0x8000
 else
 ifeq ($(DJ64STATIC),1)
 DJ64_XLDFLAGS += -l $(shell pkg-config --variable=crt0 dj64_s) -f 0x4000
