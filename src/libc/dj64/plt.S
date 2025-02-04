@@ -48,8 +48,6 @@ SHM_EXCL = 2
 SHM_NEW_NS = 4
 SHM_NS = 8
 SHM_FLG_MASK = (SHM_NOEXEC | SHM_EXCL | SHM_NEW_NS | SHM_NS)
-/* leave bits 4 and 5 reserved */
-OPEN_FLG_SHIFT = 6
 
 .data
 
@@ -176,7 +174,7 @@ plt_init:
     movw shm_block + SHM_HANDLE, %di
     movw shm_block + SHM_HANDLE + 2, %si
     movzbl %fs:STUBINFO_FLAGS, %ecx
-    shrl $OPEN_FLG_SHIFT, %ecx
+    andl $~SHM_FLG_MASK, %ecx
     lcalll *__plt_open
     jc 2f
     movl %eax, __plt_handle

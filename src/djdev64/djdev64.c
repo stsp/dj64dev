@@ -133,7 +133,7 @@ err_free:
     return NULL;
 }
 
-#define FLG_STATIC 1
+#define FLG_STATIC 0x40
 
 static int _djdev64_open(const char *path, const struct dj64_api *api,
     int api_ver, unsigned flags)
