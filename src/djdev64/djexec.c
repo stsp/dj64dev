@@ -19,12 +19,7 @@
 #include <stdio.h>
 #include <setjmp.h>
 #include <dlfcn.h>
-#include <assert.h>
 #include "djdev64/djdev64.h"
-
-#define MAX_PATHS 10
-static const char *exec_path[MAX_PATHS];
-static int num_exec_path;
 
 struct exec_info {
     /* volatile because of longjmp() vs auto storage */
@@ -81,18 +76,4 @@ static void exit_exec(void *handle, int rc)
     struct exec_info *ei = handle;
     ei->exit_code = rc;
     longjmp(ei->exit_jmp, 1);
-}
-
-int djdev64_add_load_path(const char *path)
-{
-    assert(num_exec_path < MAX_PATHS);
-    exec_path[num_exec_path] = path;
-    return num_exec_path++;
-}
-
-int djdev64_load(int num, unsigned flags)
-{
-    if (num >= num_exec_path)
-        return -1;
-    return djdev64_exec(exec_path[num], flags, 0, NULL);
 }

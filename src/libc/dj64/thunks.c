@@ -615,7 +615,7 @@ void *djsbrk(int increment)
 
 int elfload(int num)
 {
-    if (dj64api_ver < 14)
+    if (dj64api_ver < 15)
         return -1;
     return dj64api->elfload(num);
 }

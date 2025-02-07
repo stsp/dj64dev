@@ -33,7 +33,5 @@ int djdev64_ctrl(int handle, int libid, int fn, unsigned esi,
 void djdev64_close(int handle);
 
 int djdev64_exec(const char *path, unsigned flags, int argc, char **argv);
-int djdev64_add_load_path(const char *path);
-int djdev64_load(int num, unsigned flags);
 
 #endif
