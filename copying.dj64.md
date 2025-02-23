@@ -46,9 +46,6 @@ or (at your option) any later version (GPLv3+).
 Files in `demos/*` are distributed under the GNU Lesser General Public
 License, either version 3, or (at your option) any later version (LGPLv3+).
 
-Files in `bin/*` are distributed under the GNU General Public License,
-either version 3, or (at your option) any later version (GPLv3+).
-
 Files in the top dir and in `src/libc/*` that have no explicit licensing
 information within (small scripts, pkg-config files, makefile rules etc)
 are distributed under the terms of the GNU Lesser General Public License,
