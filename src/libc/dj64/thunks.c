@@ -266,7 +266,9 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         uint32_t addr = regs->ebx;
         uint32_t size = regs->ecx;
         uint32_t mem_base = regs->edx;
-        void *eh;
+        int32_t cpl_fd = regs->esi;
+        int32_t upl_fd = regs->edi;
+        void *eh = NULL;
         int ret;
 
         u->cs = esi;
@@ -296,9 +298,30 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
                     goto err;
             }
             u->eops->close(eh);
+        } else if (have_core) {
+            return -1;
+        } else {
+            if (upl_fd != -1) {
+                eh = u->eops->open_dyn(upl_fd);
+                if (!eh)
+                    return -1;
+                if (u->at) {
+                    ret = process_athunks(u->at, mem_base, u->eops, eh);
+                    if (ret)
+                        goto err;
+                }
+                if (u->pt) {
+                    ret = process_pthunks(u->pt, u->eops, eh);
+                    if (ret)
+                        goto err;
+                }
+                u->eops->close(eh);
+            }
         }
         if (!have_core) {
-            eh = u->eops->open_dyn();
+            if (cpl_fd == -1)
+                return -1;
+            eh = u->eops->open_dyn(cpl_fd);
             if (!eh)
                 return -1;
             ret = process_athunks(&u->core_at, mem_base, u->eops, eh);

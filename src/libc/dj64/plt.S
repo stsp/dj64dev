@@ -247,6 +247,8 @@ plt_init:
     movl maddr, %ebx
     movl %fs:STUBINFO_SELF_SIZE, %ecx
     movl %fs:STUBINFO_MEM_BASE, %edx
+    movl %fs:STUBINFO_CPL_FD, %esi
+    movl $-1, %edi  // user payload in mem buffer
     call ctrl
     jc 2f
     /* free mem */
@@ -286,6 +288,8 @@ perr:
     movl $0, %ebx
     movl $0, %ecx
     movl %fs:STUBINFO_MEM_BASE, %edx
+    movl %fs:STUBINFO_CPL_FD, %esi
+    movl $-1, %edi  // no user payload
     call ctrl
     jc 2b
     jmp 11b

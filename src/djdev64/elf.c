@@ -105,19 +105,13 @@ void *djelf_open(char *addr, uint32_t size)
     return ret;
 }
 
-void *djelf_open_dyn(void)
+void *djelf_open_dyn(int fd)
 {
     struct elfstate es = {}, *ret;
     int err;
-    int fd;
     char *addr;
     struct stat st;
 
-    fd = open(CRT0, O_RDONLY | O_CLOEXEC);
-    if (fd == -1) {
-        perror("open()");
-        return NULL;
-    }
     fstat(fd, &st);
     addr = (char *)mmap(NULL, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE,
         fd, 0);

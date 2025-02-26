@@ -200,7 +200,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     }
 
     register_dpmiops(dpmiops);
-
+    stubinfo.cpl_fd = -1;
     while (!done) {
         unsigned rd;
 #if STUB_DEBUG
@@ -239,6 +239,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
             if (!(buf[FLG2_OFF] & STFLG2_C32PL)) {
                 dyn++;
                 pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
+                stubinfo.cpl_fd = pfile;
                 ops = &elf_ops;
             } else {
                 pfile = ifile;
@@ -369,8 +370,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
     stub_debug("mem_lin 0x%x mem_base 0x%x\n", mem_lin, mem_base);
     ops->read_sections(handle, lin2ptr(mem_base), pfile, dyn ? 0 : coffset);
     ops->close(handle);
-    if (dyn)
-        close(pfile);
     unregister_dosops();
     if (dyn && pl32) {
         uint32_t va2;

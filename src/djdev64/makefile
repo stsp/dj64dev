@@ -8,8 +8,7 @@ ifeq ($(LIBELF),)
 $(error libelf not installed)
 endif
 CFLAGS += -iquote include -fpic -ggdb3 -Wall -Wmissing-prototypes -Og -MD \
-  $(shell $(PKG_CONFIG) --cflags libelf) \
-  -DCRT0=\"$(prefix)/i386-pc-dj64/lib/crt0.elf\"
+  $(shell $(PKG_CONFIG) --cflags libelf)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<

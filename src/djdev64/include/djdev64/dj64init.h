@@ -71,7 +71,7 @@ int DJ64_INIT_ONCE_FN(const struct dj64_api *api, int api_ver);
 
 struct elf_ops {
     void *(*open)(char *addr, uint32_t size);
-    void *(*open_dyn)(void);
+    void *(*open_dyn)(int fd);
     void (*close)(void *arg);
     uint32_t (*getsym)(void *arg, const char *name);
 };
