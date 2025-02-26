@@ -277,6 +277,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 strcat(stubinfo.payload2_name, ".dbg");
             } else {
                 error("unsupported stub version %i\n", stub_ver);
+                return -1;
             }
             stub_debug("suppl name %s\n", stubinfo.payload2_name[0] ?
                     stubinfo.payload2_name : "<not set>");
