@@ -266,8 +266,10 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         uint32_t addr = regs->ebx;
         uint32_t size = regs->ecx;
         uint32_t mem_base = regs->edx;
-        int32_t cpl_fd = regs->esi;
-        int32_t upl_fd = regs->edi;
+        int32_t cpl_fd = (regs->esi == (uint32_t)-1 ? -1 :
+                dj64api->uget(regs->esi));
+        int32_t upl_fd = (regs->edi == (uint32_t)-1 ? -1 :
+                dj64api->uget(regs->edi));
         void *eh = NULL;
         int ret;
 

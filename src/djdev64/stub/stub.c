@@ -153,7 +153,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
     unsigned psp_sel, int ifile, int ver,
     struct stub_ret_regs *regs, char *(*lin2ptr)(unsigned lin),
     struct dos_ops *dosops, struct dpmi_ops *dpmiops,
-    void (*do_printf)(int prio, const char *fmt, va_list ap))
+    void (*do_printf)(int prio, const char *fmt, va_list ap),
+    int (*uput)(int))
 {
     int pfile;
     off_t coffset = 0;
@@ -239,7 +240,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
             if (!(buf[FLG2_OFF] & STFLG2_C32PL)) {
                 dyn++;
                 pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-                stubinfo.cpl_fd = pfile;
+                stubinfo.cpl_fd = uput(pfile);
                 ops = &elf_ops;
             } else {
                 pfile = ifile;
