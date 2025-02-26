@@ -54,6 +54,7 @@ SHM_FLG_MASK = (SHM_NOEXEC | SHM_EXCL | SHM_NEW_NS | SHM_NS)
 dos_nm: .asciz "MS-DOS"
 ext_nm: .asciz "DJ64"
 err_str: .asciz "dj64: load failure\r\n$"
+err2_str: .asciz "dj64: missing payload\r\n$"
 
 .text
 
@@ -101,10 +102,10 @@ plt_init:
     movl %eax, __plt_open + 4
     movl %edi, __plt_open
 
-.macro mk_shm b,offs,size,name,err,flg,h2
+.macro mk_shm b,offs,size,name,err,zerr,flg,h2
     movl %fs:\size, %ecx
     orl %ecx, %ecx
-    jz \err
+    jz \zerr
     xorb %al, %al
     cmpb %fs:\name, %al
     je \err
@@ -164,8 +165,8 @@ plt_init:
     int $0x31
 .endm
 
-    mk_shm shm_block,STUBINFO_PAYLOAD_OFFS,STUBINFO_PAYLOAD_SIZE,STUBINFO_ARGV0,2f,STUBINFO_FLAGS,$0
-    mk_shm shm_block2,STUBINFO_PAYLOAD2_OFFS,STUBINFO_PAYLOAD2_SIZE,STUBINFO_PAYLOAD2_NAME,5f,STUBINFO_FLAGS+1,shm_block+SHM_HANDLE
+    mk_shm shm_block,STUBINFO_PAYLOAD_OFFS,STUBINFO_PAYLOAD_SIZE,STUBINFO_ARGV0,2f,321f,STUBINFO_FLAGS,$0
+    mk_shm shm_block2,STUBINFO_PAYLOAD2_OFFS,STUBINFO_PAYLOAD2_SIZE,STUBINFO_PAYLOAD2_NAME,5f,5f,STUBINFO_FLAGS+1,shm_block+SHM_HANDLE
 
 5:
     // now open lib
@@ -259,11 +260,18 @@ plt_init:
 
 1:
     ret
+
+321:
+    // no payload found
+    movl $err2_str, %edx
+    jmp perr
+
 2:
-    popl %es
     movl $err_str, %edx
+perr:
     movl $0x900, %eax
     int $0x21
+    popl %es
     movl $0x4c01, %eax
     int $0x21
     jmp 1b

@@ -181,6 +181,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
     _GO32_StubInfo *stubinfo_p;
     struct ldops *ops = NULL;
     int STFLAGS_OFF = 0x2c;
+    uint8_t stub_ver = 0;
+#define BARE_STUB() (stub_ver == 0)
 
     if (ver == 0) {
         /* backward-compat code */
@@ -219,7 +221,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
             /* lfanew */
             uint32_t offs;
             int moff = 0;
-            uint8_t stub_ver = buf[0x3b];
+
+            stub_ver = buf[0x3b];
 #if STUB_DEBUG
             cnt++;
 #endif
@@ -230,7 +233,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
             memcpy(&offs, &buf[0x3c], sizeof(offs));
             /* fixup for old stubs: if they have any 32bit payload, that
              * always includes the core payload. */
-            if (stub_ver < 5 && !(buf[FLG1_OFF] & STFLG1_NO32PL))
+            if (stub_ver > 0 && stub_ver < 5 && !(buf[FLG1_OFF] & STFLG1_NO32PL))
                 buf[FLG2_OFF] |= STFLG2_C32PL;
 
             if (!(buf[FLG2_OFF] & STFLG2_C32PL)) {
@@ -275,6 +278,11 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 strncpy(stubinfo.payload2_name, &buf[0x2e], 12);
                 stubinfo.payload2_name[12] = '\0';
                 strcat(stubinfo.payload2_name, ".dbg");
+            } else if (BARE_STUB()) {
+                done = 1;
+                ops = &elf_ops;
+                assert(dyn && pl32);
+                pl32 = 0;
             } else {
                 error("unsupported stub version %i\n", stub_ver);
                 return -1;
@@ -347,7 +355,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     if (va_size > MB)
         exit(EXIT_FAILURE);
     /* if we load 2 payloads, use larger estimate */
-    if (dyn && pl32)
+    if (dyn && (pl32 || BARE_STUB()))
         stubinfo.initial_size = VA_SZ;
     else
         stubinfo.initial_size = max(va_size, 0x10000);
