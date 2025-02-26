@@ -27,7 +27,7 @@ subs:
 
 clean:
 	$(MAKE) -C stub clean
-	$(RM) *.o $(LIBDIR)/libdjdev64.so*
+	$(RM) *.o *.d $(LIBDIR)/libdjdev64.so*
 
 $(LIBDIR):
 	mkdir $@

@@ -21,7 +21,7 @@ LIB = $(LIBDIR)/$(LIBN)
 all: $(LIBDIR)/libdjstub64.so
 
 clean:
-	$(RM) *.o $(LIBDIR)/libdjstub64.so*
+	$(RM) *.o *.d $(LIBDIR)/libdjstub64.so*
 
 $(LIBDIR):
 	mkdir $@
