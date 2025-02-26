@@ -240,6 +240,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
             if (!(buf[FLG2_OFF] & STFLG2_C32PL)) {
                 dyn++;
                 pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
+                if (pfile == -1)
+                    return -1;
                 stubinfo.cpl_fd = uput(pfile);
                 ops = &elf_ops;
             } else {
