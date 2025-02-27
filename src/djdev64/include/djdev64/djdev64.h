@@ -22,7 +22,8 @@
 #include "djdev64/dj64init.h"
 
 /* first 16 bits are for internal use */
-#define DJ64F_DLMOPEN (1 << 16)
+#define DJ64F_DLMOPEN  (1 << 16)
+#define DJ64F_NOMANGLE (1 << 17)
 
 int djdev64_open(const char *path, const struct dj64_api *api, int api_ver,
         unsigned flags);
@@ -33,5 +34,11 @@ int djdev64_ctrl(int handle, int libid, int fn, unsigned esi,
 void djdev64_close(int handle);
 
 int djdev64_exec(const char *path, unsigned flags, int argc, char **argv);
+
+char *djelf64_parse(const char *path, uint32_t *r_size);
+void *djelf_open(char *addr, uint32_t size);
+void djelf_close(void *arg);
+int djelf_reloc(void *arg, char *addr, uint32_t size, uint32_t va,
+        uint32_t *r_entry);
 
 #endif

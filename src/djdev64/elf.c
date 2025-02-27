@@ -26,6 +26,7 @@
 #include <libelf.h>
 #include <gelf.h>
 #include <assert.h>
+#include "djdev64/djdev64.h"
 #include "elf_priv.h"
 
 struct elfstate {
@@ -34,6 +35,7 @@ struct elfstate {
     Elf_Scn *symtab_scn;
     GElf_Shdr symtab_shdr;
     char *addr;
+    int need_unmap;
 };
 
 static int do_getsym(struct elfstate *state, const char *name, GElf_Sym *r_sym)
@@ -87,6 +89,7 @@ static int do_elf_open(char *addr, uint32_t size, struct elfstate *ret)
     ret->elf = elf;
     ret->symtab_scn = scn;
     ret->symtab_shdr = shdr;
+    ret->addr = addr;
     return 0;
 
 err:
@@ -125,7 +128,7 @@ void *djelf_open_dyn(int fd)
         return NULL;
     ret = (struct elfstate *)malloc(sizeof(*ret));
     *ret = es;
-    ret->addr = addr;
+    ret->need_unmap = 1;
     return ret;
 }
 
@@ -134,7 +137,7 @@ void djelf_close(void *arg)
     struct elfstate *state = (struct elfstate *)arg;
 
     elf_end(state->elf);
-    if (state->addr)
+    if (state->need_unmap)
         munmap(state->addr, state->mapsize);
     free(state);
 }
@@ -151,4 +154,30 @@ uint32_t djelf_getsymoff(void *arg, const char *name)
 {
     struct elfstate *state = (struct elfstate *)arg;
     return do_getsymoff(state, name);
+}
+
+int djelf_reloc(void *arg, char *addr, uint32_t size, uint32_t va,
+        uint32_t *r_entry)
+{
+    struct elfstate *state = (struct elfstate *)arg;
+    GElf_Ehdr ehdr;
+    GElf_Phdr phdr;
+    int offs;
+    int i;
+
+    gelf_getehdr(state->elf, &ehdr);
+    for (i = 0; i < ehdr.e_phnum; i++) {
+        gelf_getphdr(state->elf, i, &phdr);
+        if (phdr.p_type != PT_LOAD)
+            continue;
+        offs = phdr.p_vaddr - va;
+        if (offs < 0 || offs + phdr.p_memsz > size)
+            return -1;
+        memcpy(addr + offs, state->addr + phdr.p_offset, phdr.p_filesz);
+        if (phdr.p_memsz > phdr.p_filesz)
+            memset(addr + offs + phdr.p_filesz, 0, phdr.p_memsz -
+                    phdr.p_filesz);
+    }
+    *r_entry = ehdr.e_entry;
+    return 0;
 }
