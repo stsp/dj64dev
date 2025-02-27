@@ -333,8 +333,8 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         void *eh = NULL;
         int ret;
         uint32_t esize, entry;
-        char *elf = dj64api->elfparse64(0, addr, size, mem_base, &esize,
-                &entry);
+        char *elf = dj64api->elfparse64(regs->eax, addr, size, mem_base,
+                &esize, &entry);
         if (!elf)
             return -1;
         eh = u->eops->open(elf, esize);

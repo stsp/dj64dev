@@ -156,7 +156,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     void (*do_printf)(int prio, const char *fmt, va_list ap),
     int (*uput)(int))
 {
-    int pfile;
+    int pfile = -1;
     off_t coffset = 0;
     uint32_t coffsize = 0;
     uint32_t noffset = 0;
@@ -202,6 +202,20 @@ int djstub_main(int argc, char *argv[], char *envp[],
 
     register_dpmiops(dpmiops);
     stubinfo.cpl_fd = -1;
+    for (i = 0; envp[i]; i++) {
+        const char *s = "ELFLOAD=";
+        int l = strlen(s);
+        if (strncmp(envp[i], s, l) == 0) {
+            pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
+            if (pfile == -1)
+                return -1;
+            stubinfo.cpl_fd = uput(pfile);
+            stubinfo.elfload_arg = atoi(envp[i] + l);
+            ops = &elf_ops;
+            dyn = 1;
+            done = 1;
+        }
+    }
     while (!done) {
         unsigned rd;
 #if STUB_DEBUG

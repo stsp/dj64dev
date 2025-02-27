@@ -270,7 +270,7 @@ plt_init:
 
 321:
     // no payload found, try dynamic
-    movl $0, %eax
+    movl %fs:STUBINFO_ELFLOAD_ARG, %eax
     movl $PLT_ELOAD_CMD, %ebx
     movl $0, %ecx  // reserve
     lcalll *__plt_open
@@ -292,7 +292,7 @@ plt_init:
     popl %eax
     jc 222f
     /* resolve upl */
-    movl $0, %eax
+    movl %fs:STUBINFO_ELFLOAD_ARG, %eax
     movl %fs:STUBINFO_UPL_BASE, %ebx
     movl %fs:STUBINFO_UPL_SIZE, %ecx
     movl %fs:STUBINFO_MEM_BASE, %edx

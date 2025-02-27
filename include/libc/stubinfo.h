@@ -31,7 +31,8 @@
 #define STUBINFO_CPL_FD 0x94
 #define STUBINFO_UPL_BASE 0x98
 #define STUBINFO_UPL_SIZE 0x9C
-#define STUBINFO_END 0xA0
+#define STUBINFO_ELFLOAD_ARG 0xA0
+#define STUBINFO_END 0xA4
 #ifndef __ASSEMBLER__
 #include <stdint.h>
 typedef struct {
@@ -65,6 +66,7 @@ typedef struct {
   int32_t cpl_fd;
   uint32_t upl_base;
   uint32_t upl_size;
+  uint32_t elfload_arg;
 } _GO32_StubInfo;
 
 _Static_assert(sizeof(_GO32_StubInfo) == STUBINFO_END, "size mismatch");
