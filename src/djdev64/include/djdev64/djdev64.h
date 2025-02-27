@@ -35,4 +35,10 @@ void djdev64_close(int handle);
 
 int djdev64_exec(const char *path, unsigned flags, int argc, char **argv);
 
+char *djelf64_parse(const char *path, uint32_t *r_size);
+void *djelf_open(char *addr, uint32_t size);
+void djelf_close(void *arg);
+int djelf_reloc(void *arg, char *addr, uint32_t size, uint32_t va,
+        uint32_t *r_entry);
+
 #endif
