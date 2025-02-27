@@ -183,7 +183,10 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
 #endif
 #else
 #ifdef RTLD_DEEPBIND
-        dlh = emu_dlmopen(handles, path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND,
+        if (flags & DJ64F_NOMANGLE)
+            dlh = dlopen(path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND);
+        else
+            dlh = emu_dlmopen(handles, path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND,
                 &path2);
 #else
         fprintf(stderr, "RTLD_DEEPBIND not supported, use static linking\n");

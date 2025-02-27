@@ -22,7 +22,8 @@
 #include "djdev64/dj64init.h"
 
 /* first 16 bits are for internal use */
-#define DJ64F_DLMOPEN (1 << 16)
+#define DJ64F_DLMOPEN  (1 << 16)
+#define DJ64F_NOMANGLE (1 << 17)
 
 int djdev64_open(const char *path, const struct dj64_api *api, int api_ver,
         unsigned flags);

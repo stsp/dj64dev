@@ -359,10 +359,13 @@ int djstub_main(int argc, char *argv[], char *envp[],
     if (va_size > MB)
         exit(EXIT_FAILURE);
     /* if we load 2 payloads, use larger estimate */
-    if (dyn && (pl32 || BARE_STUB()))
+    if (dyn && (pl32 || BARE_STUB())) {
         stubinfo.initial_size = VA_SZ;
-    else
+        stubinfo.upl_base = va + MB;
+        stubinfo.upl_size = VA_SZ - MB;
+    } else {
         stubinfo.initial_size = max(va_size, 0x10000);
+    }
     info.size = PAGE_ALIGN(stubinfo.initial_size);
     /* allocate mem */
     __dpmi_allocate_memory(&info);

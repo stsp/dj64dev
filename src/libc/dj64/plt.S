@@ -26,10 +26,13 @@
 __plt_open: .quad 0
 PLT_OPEN_CMD = 0
 PLT_CLOSE_CMD = 1
+PLT_ELOAD_CMD = 4
+PLT_ECLOSE_CMD = 5
 __plt_call: .quad 0
 __plt_ctrl: .quad 0
 .global __plt_handle
 __plt_handle: .long 0
+elfload: .long 0
 
 sel: .word 0
 SHM_REQ_LEN = 0
@@ -184,6 +187,7 @@ plt_init:
     movl %edi, __plt_call
     movl %eax, __plt_ctrl + 4
     movl %esi, __plt_ctrl
+
     movl %fs:STUBINFO_FLAGS, %ecx
     testw $0x4080, %cx
     jnz 111f
@@ -248,8 +252,9 @@ plt_init:
     movl %fs:STUBINFO_SELF_SIZE, %ecx
     movl %fs:STUBINFO_MEM_BASE, %edx
     movl %fs:STUBINFO_CPL_FD, %esi
-    movl $-1, %edi  // user payload in mem buffer
+    pushl $DL_SET_SYMTAB
     call ctrl
+    popl %eax
     jc 2f
     /* free mem */
     movl $0x502, %eax
@@ -264,7 +269,44 @@ plt_init:
     ret
 
 321:
-    // no payload found
+    // no payload found, try dynamic
+    movl $0, %eax
+    movl $PLT_ELOAD_CMD, %ebx
+    movl $0, %ecx  // reserve
+    lcalll *__plt_open
+    jc 222f
+    movl %eax, __plt_handle
+    movl %es, %eax
+    movl %eax, __plt_call + 4
+    movl %edi, __plt_call
+    movl %eax, __plt_ctrl + 4
+    movl %esi, __plt_ctrl
+    /* resolve cpl */
+    movl %fs:STUBINFO_FLAGS, %eax
+    movl $0, %ebx
+    movl $0, %ecx
+    movl %fs:STUBINFO_MEM_BASE, %edx
+    movl %fs:STUBINFO_CPL_FD, %esi
+    pushl $DL_SET_SYMTAB
+    call ctrl
+    popl %eax
+    jc 222f
+    /* resolve upl */
+    movl $0, %eax
+    movl %fs:STUBINFO_UPL_BASE, %ebx
+    movl %fs:STUBINFO_UPL_SIZE, %ecx
+    movl %fs:STUBINFO_MEM_BASE, %edx
+    pushl $DL_ELFLOAD
+    call ctrl
+    popl %ecx
+    // failure is not fatal, just no upl
+    jc 555f
+    movl %eax, %fs:STUBINFO_UENTRY
+    call uplt_init
+555:
+    movl $1, elfload
+    jmp 11b
+222:
     movl $err2_str, %edx
     jmp perr
 
@@ -289,33 +331,40 @@ perr:
     movl $0, %ecx
     movl %fs:STUBINFO_MEM_BASE, %edx
     movl %fs:STUBINFO_CPL_FD, %esi
-    movl $-1, %edi  // no user payload
+    pushl $DL_SET_SYMTAB
     call ctrl
+    popl %eax
     jc 2b
     jmp 11b
 
 ctrl:
+    pushl %ebp
+    movl %esp, %ebp
     pushal
     movl %esp, %edx
     movl __plt_handle, %eax
     movl $0, %ebx
     movb $AUX_CORE, %bl
     movb $DL_API_VER, %bh
-    movl $DL_SET_SYMTAB, %ecx
+    movl 8(%ebp), %ecx
     movl %cs, %esi
     lcalll *__plt_ctrl
     testl %eax, %eax
     jnz 1f
     popal
+    popl %ebp
     clc
     ret
 1:
     popal
+    popl %ebp
     stc
     ret
 
 .global plt_done
 plt_done:
+    cmpl $0, elfload
+    jne 1f
     // close lib
     movl __plt_handle, %eax
     movl $PLT_CLOSE_CMD, %ebx
@@ -332,6 +381,11 @@ plt_done:
     movw shm_block2 + SHM_HANDLE, %di
     movw shm_block2 + SHM_HANDLE + 2, %si
     int $0x31
+    ret
+1:
+    movl __plt_handle, %eax
+    movl $PLT_ECLOSE_CMD, %ebx
+    lcalll *__plt_open
     ret
 
 .bss

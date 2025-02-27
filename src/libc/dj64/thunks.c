@@ -260,6 +260,7 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
     }
     switch (fn) {
     case DL_SET_SYMTAB: {
+        __label__ err;
         struct udisp *u = &udisps[handle];
         uint32_t flags = regs->eax;
         int have_core = (flags & 0x4000);
@@ -268,8 +269,6 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         uint32_t mem_base = regs->edx;
         int32_t cpl_fd = (regs->esi == (uint32_t)-1 ? -1 :
                 dj64api->uget(regs->esi));
-        int32_t upl_fd = (regs->edi == (uint32_t)-1 ? -1 :
-                dj64api->uget(regs->edi));
         void *eh = NULL;
         int ret;
 
@@ -302,23 +301,6 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
             u->eops->close(eh);
         } else if (have_core) {
             return -1;
-        } else {
-            if (upl_fd != -1) {
-                eh = u->eops->open_dyn(upl_fd);
-                if (!eh)
-                    return -1;
-                if (u->at) {
-                    ret = process_athunks(u->at, mem_base, u->eops, eh);
-                    if (ret)
-                        goto err;
-                }
-                if (u->pt) {
-                    ret = process_pthunks(u->pt, u->eops, eh);
-                    if (ret)
-                        goto err;
-                }
-                u->eops->close(eh);
-            }
         }
         if (!have_core) {
             if (cpl_fd == -1)
@@ -339,6 +321,43 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         return 0;
     err:
         u->eops->close(eh);
+        break;
+    }
+
+    case DL_ELFLOAD: {
+        __label__ err;
+        struct udisp *u = &udisps[handle];
+        uint32_t addr = regs->ebx;
+        uint32_t size = regs->ecx;
+        uint32_t mem_base = regs->edx;
+        void *eh = NULL;
+        int ret;
+        uint32_t esize, entry;
+        char *elf = dj64api->elfparse64(0, addr, size, mem_base, &esize,
+                &entry);
+        if (!elf)
+            return -1;
+        eh = u->eops->open(elf, esize);
+        if (!eh)
+            goto err2;
+        if (u->at) {
+            ret = process_athunks(u->at, mem_base, u->eops, eh);
+            if (ret)
+                goto err;
+        }
+        if (u->pt) {
+            ret = process_pthunks(u->pt, u->eops, eh);
+            if (ret)
+                goto err;
+        }
+        u->eops->close(eh);
+        dj64api->free(elf);
+        regs->eax = entry;
+        return 0;
+    err:
+        u->eops->close(eh);
+    err2:
+        dj64api->free(elf);
         break;
     }
     }
