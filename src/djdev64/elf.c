@@ -165,7 +165,13 @@ int djelf_reloc(void *arg, char *addr, uint32_t size, uint32_t va,
     int offs;
     int i;
 
+    if (elf_kind(state->elf) != ELF_K_ELF)
+        return -1;
     gelf_getehdr(state->elf, &ehdr);
+    if (ehdr.e_ident[EI_CLASS] != ELFCLASS32) {
+        fprintf(stderr, "bad ELF class %i\n", ehdr.e_ident[EI_CLASS]);
+        return -1;
+    }
     for (i = 0; i < ehdr.e_phnum; i++) {
         gelf_getphdr(state->elf, i, &phdr);
         if (phdr.p_type != PT_LOAD)
