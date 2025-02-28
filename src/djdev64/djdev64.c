@@ -49,6 +49,7 @@ static const struct elf_ops eops = {
     djelf_open_dyn,
     djelf_close,
     djelf_getsymoff,
+    djelf_reloc,
 };
 
 #define __S(x) #x

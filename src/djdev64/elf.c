@@ -156,7 +156,7 @@ uint32_t djelf_getsymoff(void *arg, const char *name)
     return do_getsymoff(state, name);
 }
 
-int djelf_reloc(void *arg, char *addr, uint32_t size, uint32_t va,
+int djelf_reloc(void *arg, uint8_t *addr, uint32_t size, uint32_t va,
         uint32_t *r_entry)
 {
     struct elfstate *state = (struct elfstate *)arg;

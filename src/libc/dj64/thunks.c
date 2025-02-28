@@ -333,13 +333,16 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         void *eh = NULL;
         int ret;
         uint32_t esize, entry;
-        char *elf = dj64api->elfparse64(regs->eax, addr, size, mem_base,
-                &esize, &entry);
+        char *elf = dj64api->elfparse64(regs->eax, &esize);
         if (!elf)
             return -1;
         eh = u->eops->open(elf, esize);
         if (!eh)
             goto err2;
+        ret = u->eops->reloc(eh, djaddr2ptr2(mem_base + addr, size),
+                size, addr, &entry);
+        if (ret)
+            goto err;
         if (u->at) {
             ret = process_athunks(u->at, mem_base, u->eops, eh);
             if (ret)
