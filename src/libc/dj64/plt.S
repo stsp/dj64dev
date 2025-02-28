@@ -344,7 +344,7 @@ ctrl:
     movl %esp, %edx
     movl __plt_handle, %eax
     movl $0, %ebx
-    movb $AUX_CORE, %bl
+    movb $AUX_USER, %bl
     movb $DL_API_VER, %bh
     movl 8(%ebp), %ecx
     movl %cs, %esi

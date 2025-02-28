@@ -44,7 +44,7 @@
 #ifdef _IN_DJ64
 #define __CALL(n, s, l, f) dj64_asm_call(n, s, l, f)
 #else
-#define __CALL(n, s, l, f) dj64_asm_call_u(_handle, n, s, l, f)
+#define __CALL(n, s, l, f) dj64_asm_call_u(_handle, _libid, n, s, l, f)
 #endif
 #define __CSTK(l) dj64_clean_stk(l)
 
@@ -82,6 +82,7 @@
 
 #ifndef _IN_DJ64
 static int _handle;
+static int _libid;
 #define STATIC static
 #else
 #define STATIC
@@ -109,6 +110,6 @@ STATIC struct athunks pthunks = {
 __attribute__((constructor))
 static void init(void)
 {
-    register_pthunks(&pthunks, &_handle);
+    register_pthunks(&pthunks, &_handle, &_libid, DJ64_DYNAPI_VER);
 }
 #endif

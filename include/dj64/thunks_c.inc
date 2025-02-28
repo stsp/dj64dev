@@ -39,7 +39,7 @@ static dj64dispatch_t DJ64_DISPATCH_FN;
 __attribute__((constructor))
 static void init(void)
 {
-    register_dispatch_fn(DJ64_DISPATCH_FN);
+    register_dispatch_fn(DJ64_DISPATCH_FN, DJ64_DYNAPI_VER);
 }
 #endif
 

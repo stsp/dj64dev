@@ -60,6 +60,6 @@ STATIC struct athunks asm_thunks = {
 __attribute__((constructor))
 static void init(void)
 {
-    register_athunks(&asm_thunks);
+    register_athunks(&asm_thunks, DJ64_DYNAPI_VER);
 }
 #endif
