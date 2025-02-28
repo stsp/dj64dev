@@ -53,8 +53,14 @@ XCPPFLAGS = $(shell pkg-config --variable=xcppflags dj64)
 ASCPPFLAGS = $(shell pkg-config --variable=cppflags dj64)
 
 LD = $(CC)
-# stub version 5
-#DJ64_XLDFLAGS = -V 5
+
+ifeq ($(DJ64COMPACT_VA),)
+LOADADDR = 0x08148000
+else
+LOADADDR = 0x08068000
+DJ64_XLDFLAGS += -f 0x20
+endif
+
 # freebsd's dlopen() ignores link order and binds to libc the symbols
 # defined in libdj64.so. Use static linking as a work-around.
 ifneq ($(filter freebsd%,$(MACH)),)
@@ -99,7 +105,7 @@ ifeq ($(DJ64STATIC),1)
 XLDFLAGS += $(shell pkg-config --static --libs dj64static)
 DJ64_XLDFLAGS += -f 0x4000
 else
-XLDFLAGS += $(shell pkg-config --variable=crt0 dj64) $(XLD_IMB)=0x08148000
+XLDFLAGS += $(shell pkg-config --variable=crt0 dj64) $(XLD_IMB)=$(LOADADDR)
 endif
 $(XELF).elf: $(AS_OBJECTS) $(PLT_O)
 	$(XLD) $^ $(XLDFLAGS) -o $@
