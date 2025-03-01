@@ -118,7 +118,6 @@ void *djelf_open_dyn(int fd)
     fstat(fd, &st);
     addr = (char *)mmap(NULL, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE,
         fd, 0);
-    close(fd);
     if (addr == MAP_FAILED) {
         perror("mmap()");
         return NULL;

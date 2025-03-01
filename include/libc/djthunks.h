@@ -29,5 +29,7 @@ uint32_t djptr2addr(const uint8_t *ptr);
 uint32_t djthunk_get(const char *name);
 uint32_t djthunk_get_h(int handle, const char *name);
 void *djsbrk(int increment);
+int djelf_run(int eid);
+int djelf_load(int num, int libid, int *r_fd);
 
 #endif

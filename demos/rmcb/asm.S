@@ -2,8 +2,8 @@
 #include "asm.h"
 
 .bss
-.global __ds
-__ds: .long 0
+.global __rmcb_ds
+__rmcb_ds: .long 0
 .ifndef _DJ64
 /* We need emergency stack because __dpmi_int() alters SS in djgpp.
  * That was eventually fixed in dj64, hence the ifdef. */

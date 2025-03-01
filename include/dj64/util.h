@@ -22,13 +22,15 @@
 #include <stdint.h>
 #include <stdarg.h>
 
+#define DJ64_DYNAPI_VER 2
+
 #define PRINTF(n) __attribute__((format(printf, n, n + 1)))
 void djloudprintf(const char *format, ...) PRINTF(1);
 void djlogprintf(const char *format, ...) PRINTF(1);
 void djloudvprintf(const char *format, va_list vl);
 
 typedef uint32_t (dj64dispatch_t)(int fn, uint8_t *sp, int *r_len);
-void register_dispatch_fn(dj64dispatch_t *fn);
+void register_dispatch_fn(dj64dispatch_t *fn, int ver);
 
 struct athunk {
     const char *name;
@@ -38,8 +40,9 @@ struct athunks {
     int num;
     uint32_t *tab;
 };
-void register_athunks(struct athunks *at);
-void register_pthunks(struct athunks *pt, int *handle_p);
+void register_athunks(struct athunks *at, int ver);
+void register_pthunks(struct athunks *pt, int *handle_p, int *libid_p,
+        int ver);
 
 #define _countof(array) (sizeof(array) / sizeof(array[0]))
 

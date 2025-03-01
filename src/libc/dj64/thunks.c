@@ -52,11 +52,12 @@
 
 int __crt0_startup_flags;
 
+#define MAX_DISPS 5
 struct udisp {
-    dj64dispatch_t *disp;
+    dj64dispatch_t *disp[MAX_DISPS];
     const struct elf_ops *eops;
-    struct athunks *at;
-    struct athunks *pt;
+    struct athunks *at[MAX_DISPS];
+    struct athunks *pt[MAX_DISPS];
     struct athunks core_at;
     struct athunks core_pt;
     unsigned cs;
@@ -78,6 +79,11 @@ static dj64dispatch_t *disp_fn;
 static struct athunks *u_athunks;
 static struct athunks *u_pthunks;
 static int *u_handle_p;
+static int *u_libid_p;
+
+static int fatalerr;
+static int dynapi_mism;
+static int req_da_ver;
 
 struct ctx_hooks {
     void (*init)(int);
@@ -135,7 +141,7 @@ uint32_t djptr2addr(const uint8_t *ptr)
     return dj64api->ptr2addr(ptr);
 }
 
-static int _dj64_call(struct udisp *u, int libid, int fn, dpmi_regs *regs,
+static int _dj64_call(struct udisp *u, int fn, dpmi_regs *regs,
     uint8_t *sp, unsigned esi, dj64dispatch_t *disp, int handle)
 {
     int len;
@@ -157,7 +163,7 @@ static int _dj64_call(struct udisp *u, int libid, int fn, dpmi_regs *regs,
         return (rc == ASM_NORET ? DJ64_RET_NORET : DJ64_RET_ABORT);
     }
     u->noret_jmp = &noret;
-    res = (libid ? disp : dj64_thunk_call)(fn, sp, &len);
+    res = disp(fn, sp, &len);
     *regs = u->s_regs;
     switch (len) {
     case 0:
@@ -185,6 +191,7 @@ static int dj64_call(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
 
     sp += sizeof(*regs) + 8;  // skip regs, ebp, eip to get stack args
     assert(handle < MAX_HANDLES);
+    assert(libid < MAX_DISPS);
     u = &udisps[handle];
     assert(u->recur_cnt < MAX_RECUR);
     u->recur_cnt++;
@@ -192,7 +199,7 @@ static int dj64_call(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         chooks[i].restore(handle);
     saved_noret = u->noret_jmp;
     last_objcnt = u->objcnt;
-    ret = _dj64_call(u, libid, fn, regs, sp, esi, u->disp, handle);
+    ret = _dj64_call(u, fn, regs, sp, esi, u->disp[libid], handle);
     assert(u->objcnt == last_objcnt);  // make sure no leaks, esp on NORETURN
     u->noret_jmp = saved_noret;
     if (ret == DJ64_RET_OK) {
@@ -250,6 +257,8 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
 {
     dpmi_regs *regs = (dpmi_regs *)sp;
     int ver = libid >> 8;
+    libid &= 0xff;
+    assert(libid < MAX_DISPS);
     assert(handle < MAX_HANDLES);
     if (ver != DL_API_VER) {
         djloudprintf("dj64: API version mismatch, got %i want %i\n",
@@ -267,8 +276,7 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         uint32_t addr = regs->ebx;
         uint32_t size = regs->ecx;
         uint32_t mem_base = regs->edx;
-        int32_t cpl_fd = (regs->esi == (uint32_t)-1 ? -1 :
-                dj64api->uget(regs->esi));
+        int32_t cpl_fd = regs->esi;
         void *eh = NULL;
         int ret;
 
@@ -288,13 +296,13 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
                 if (ret)
                     goto err;
             }
-            if (u->at) {
-                ret = process_athunks(u->at, mem_base, u->eops, eh);
+            if (u->at[libid]) {
+                ret = process_athunks(u->at[libid], mem_base, u->eops, eh);
                 if (ret)
                     goto err;
             }
-            if (u->pt) {
-                ret = process_pthunks(u->pt, u->eops, eh);
+            if (u->pt[libid]) {
+                ret = process_pthunks(u->pt[libid], u->eops, eh);
                if (ret)
                     goto err;
             }
@@ -305,7 +313,7 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         if (!have_core) {
             if (cpl_fd == -1)
                 return -1;
-            eh = u->eops->open_dyn(cpl_fd);
+            eh = u->eops->open_dyn(handle, cpl_fd);
             if (!eh)
                 return -1;
             ret = process_athunks(&u->core_at, mem_base, u->eops, eh);
@@ -324,6 +332,7 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         break;
     }
 
+    case DL_ELFLOAD_FD:
     case DL_ELFLOAD: {
         __label__ err;
         struct udisp *u = &udisps[handle];
@@ -333,7 +342,12 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         void *eh = NULL;
         int ret;
         uint32_t esize, entry;
-        char *elf = dj64api->elfparse64(regs->eax, &esize);
+        char *elf;
+
+        if (fn == DL_ELFLOAD)
+            elf = dj64api->elfparse64(regs->eax, &esize);
+        else
+            elf = u->eops->elfparse64_fd(handle, regs->eax, &esize);
         if (!elf)
             return -1;
         eh = u->eops->open(elf, esize);
@@ -343,13 +357,13 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
                 size, addr, &entry);
         if (ret)
             goto err;
-        if (u->at) {
-            ret = process_athunks(u->at, mem_base, u->eops, eh);
+        if (u->at[libid]) {
+            ret = process_athunks(u->at[libid], mem_base, u->eops, eh);
             if (ret)
                 goto err;
         }
-        if (u->pt) {
-            ret = process_pthunks(u->pt, u->eops, eh);
+        if (u->pt[libid]) {
+            ret = process_pthunks(u->pt[libid], u->eops, eh);
             if (ret)
                 goto err;
         }
@@ -374,23 +388,31 @@ dj64cdispatch_t **DJ64_INIT_FN(int handle, const struct elf_ops *ops,
 {
     int i;
     struct udisp *u;
+    int disp_id = 1;  // hard-code
 
     assert(handle < MAX_HANDLES);
     u = &udisps[handle];
-    u->disp = disp_fn;
-    disp_fn = NULL;
+    memset(u->disp, 0, sizeof(u->disp));
+    u->disp[0] = dj64_thunk_call;
+    u->disp[disp_id] = disp_fn;
     u->eops = ops;
     u->main = main;
     u->full_init = full_init;
 
-    u->at = u_athunks;
-    u_athunks = NULL;
+    u->at[0] = &u->core_at;
+    u->pt[0] = &u->core_pt;
 
-    u->pt = u_pthunks;
+    u->at[disp_id] = u_athunks;
+    u->pt[disp_id] = u_pthunks;
     if (u_handle_p)
         *u_handle_p = handle;
+    if (u_libid_p)
+        *u_libid_p = disp_id;
+    disp_fn = NULL;
+    u_athunks = NULL;
     u_pthunks = NULL;
     u_handle_p = NULL;
+    u_libid_p = NULL;
 
     u->core_at = asm_thunks;
     u->core_at.tab = dj64api->malloc(sizeof(asm_thunks.tab[0]) * asm_thunks.num);
@@ -401,6 +423,27 @@ dj64cdispatch_t **DJ64_INIT_FN(int handle, const struct elf_ops *ops,
         chooks[i].init(handle);
 
     return dops;
+}
+
+void DJ64_INIT2_FN(int handle, int disp_id)
+{
+    struct udisp *u;
+
+    assert(handle < MAX_HANDLES);
+    assert(disp_id > 1 && disp_id < MAX_DISPS);
+    u = &udisps[handle];
+    u->disp[disp_id] = disp_fn;
+    u->at[disp_id] = u_athunks;
+    u->pt[disp_id] = u_pthunks;
+    if (u_handle_p)
+        *u_handle_p = handle;
+    if (u_libid_p)
+        *u_libid_p = disp_id;
+    disp_fn = NULL;
+    u_athunks = NULL;
+    u_pthunks = NULL;
+    u_handle_p = NULL;
+    u_libid_p = NULL;
 }
 
 void DJ64_DONE_FN(int handle)
@@ -425,6 +468,13 @@ int DJ64_INIT_ONCE_FN(const struct dj64_api *api, int api_ver)
         ret++;
     dj64api = api;
     dj64api_ver = api_ver;
+
+    if (fatalerr) {
+        if (dynapi_mism)
+            djloudprintf("dj64 dynapi version mismatch: need %i got %i\n",
+                    DJ64_DYNAPI_VER, req_da_ver);
+        return -1;
+    }
     return ret;
 }
 
@@ -475,8 +525,8 @@ uint64_t dj64_asm_call(int num, uint8_t *sp, uint8_t len, int flags)
     return ret;
 }
 
-uint64_t dj64_asm_call_u(int handle, int num, uint8_t *sp, uint8_t len,
-        int flags)
+uint64_t dj64_asm_call_u(int handle, int libid, int num, uint8_t *sp,
+        uint8_t len, int flags)
 {
     int i;
     int ret;
@@ -484,13 +534,13 @@ uint64_t dj64_asm_call_u(int handle, int num, uint8_t *sp, uint8_t len,
 
     assert(handle < MAX_HANDLES);
     u = &udisps[handle];
-    if (!u->pt) {
+    if (!u->pt[libid]) {
         djloudprintf("no user thunks\n");
         return ASM_CALL_ABORT;
     }
     for (i = 0; i < num_chooks; i++)
         chooks[i].save();
-    ret = do_asm_call(u, u->pt, u->cs, num, sp, len, flags);
+    ret = do_asm_call(u, u->pt[libid], u->cs, num, sp, len, flags);
     /* asm call can recursively invoke dj64, so restore context here */
     for (i = 0; i < num_chooks; i++)
         chooks[i].restore(handle);
@@ -579,23 +629,43 @@ void dj64_rm_dosobj(const void *data, uint32_t fa)
     do_rm_dosobj(u, fa);
 }
 
-void register_dispatch_fn(dj64dispatch_t *fn)
+void register_dispatch_fn(dj64dispatch_t *fn, int ver)
 {
+    req_da_ver = ver;
+    if (ver != DJ64_DYNAPI_VER) {
+        fatalerr++;
+        dynapi_mism++;
+        return;
+    }
     assert(!disp_fn);
     disp_fn = fn;
 }
 
-void register_athunks(struct athunks *at)
+void register_athunks(struct athunks *at, int ver)
 {
+    req_da_ver = ver;
+    if (ver != DJ64_DYNAPI_VER) {
+        fatalerr++;
+        dynapi_mism++;
+        return;
+    }
     assert(!u_athunks);
     u_athunks = at;
 }
 
-void register_pthunks(struct athunks *pt, int *handle_p)
+void register_pthunks(struct athunks *pt, int *handle_p, int *libid_p,
+        int ver)
 {
+    req_da_ver = ver;
+    if (ver != DJ64_DYNAPI_VER) {
+        fatalerr++;
+        dynapi_mism++;
+        return;
+    }
     assert(!u_pthunks);
     u_pthunks = pt;
     u_handle_p = handle_p;
+    u_libid_p = libid_p;
 }
 
 void crt1_startup(int handle)
@@ -623,15 +693,19 @@ static uint32_t do_thunk_get(const struct athunks *at, const char *name)
 
 uint32_t djthunk_get_h(int handle, const char *name)
 {
+    int i;
     struct udisp *u;
     uint32_t ret = (uint32_t)-1;
 
     assert(handle < MAX_HANDLES);
     u = &udisps[handle];
-    if (u->at)
-        ret = do_thunk_get(u->at, name);
-    if (ret == (uint32_t)-1)
-        ret = do_thunk_get(&u->core_at, name);
+    for (i = 0; i < MAX_DISPS; i++) {
+        if (u->at[i]) {
+            ret = do_thunk_get(u->at[i], name);
+            if (ret != (uint32_t)-1)
+                break;
+        }
+    }
     assert(ret != (uint32_t)-1);
     return ret;
 }
@@ -660,9 +734,19 @@ void *djsbrk(int increment)
     return dj64api->malloc(increment);
 }
 
-int elfload(int num)
+int djelf_load(int num, int libid, int *r_fd)
 {
-    if (dj64api_ver < 15)
+    if (dj64api_ver < 19)
         return -1;
-    return dj64api->elfload(num);
+    return dj64api->elfload(num, dj64api->get_handle(), libid, r_fd);
+}
+
+int djelf_run(int eid)
+{
+    struct udisp *u;
+
+    if (dj64api_ver < 19)
+        return -1;
+    u = &udisps[dj64api->get_handle()];
+    return u->eops->run64(eid);
 }

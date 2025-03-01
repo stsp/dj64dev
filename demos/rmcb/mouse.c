@@ -113,7 +113,7 @@ int mouse_init(void)
 #else
     mouse_regs = (__dpmi_regs *) malloc(sizeof(__dpmi_regs));
 #endif
-    __dpmi_allocate_real_mode_callback(my_mouse_handler, mouse_regs,
+    __dpmi_allocate_real_mode_callback(rmcb_mouse_handler, mouse_regs,
 				       &newm);
     r.x.ax = 0x14;
     r.x.cx = MEV_MASK;

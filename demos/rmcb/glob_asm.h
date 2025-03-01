@@ -1,2 +1,2 @@
-__ASM(unsigned short, _ds) SEMIC
-__ASM_FUNC(my_mouse_handler) SEMIC
+__ASM(unsigned short, _rmcb_ds) SEMIC
+__ASM_FUNC(rmcb_mouse_handler) SEMIC

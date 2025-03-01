@@ -25,12 +25,12 @@
 #include <string.h>
 #include <unistd.h>
 #include "djdev64/djdev64.h"
+#include "elf_priv.h"
 
 static const char *sec_name = ".dj64startup";
 
-char *djelf64_parse(const char *path, uint32_t *r_size)
+static char *do_parse(int fd, uint32_t *r_size)
 {
-    int fd;
     Elf *e;
     char *ret;
     char *name;
@@ -41,10 +41,8 @@ char *djelf64_parse(const char *path, uint32_t *r_size)
 
     if (elf_version(EV_CURRENT) == EV_NONE)
         return NULL;
-    if ((fd = open(path, O_RDONLY | O_CLOEXEC)) < 0)
-        return NULL;
     if ((e = elf_begin(fd, ELF_C_READ, NULL)) == NULL)
-        goto err1;
+        return NULL;
     if (elf_kind(e) != ELF_K_ELF)
         goto err2;
     if (elf_getshdrstrndx(e, &shstrndx) != 0)
@@ -59,15 +57,14 @@ char *djelf64_parse(const char *path, uint32_t *r_size)
             break;
     }
     if (!scn) {
-        fprintf(stderr, "dj64-specific sections not found in %s\n", path);
+//        fprintf(stderr, "dj64-specific sections not found\n");
         goto err2;
     }
     data = elf_getdata(scn, NULL);
     if (!data) {
-        fprintf(stderr, "failed to get section data for %s\n", path);
+        fprintf(stderr, "failed to get section data\n");
         goto err2;
     }
-    close(fd);
     *r_size = data->d_size;
     ret = malloc(data->d_size);
     memcpy(ret, data->d_buf, data->d_size);
@@ -76,7 +73,21 @@ char *djelf64_parse(const char *path, uint32_t *r_size)
 
 err2:
     elf_end(e);
-err1:
-    close(fd);
     return NULL;
+}
+
+char *djelf64_parse(const char *path, uint32_t *r_size)
+{
+    char *ret;
+    int fd = open(path, O_RDONLY | O_CLOEXEC);
+    if (fd == -1)
+        return NULL;
+    ret = do_parse(fd, r_size);
+    close(fd);
+    return ret;
+}
+
+char *djelf64_parse_fd(int fd, uint32_t *r_size)
+{
+    return do_parse(fd, r_size);
 }

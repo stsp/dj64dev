@@ -47,6 +47,7 @@
 #define FLG1_OFF STFLAGS_OFF
 #define FLG2_OFF (STFLAGS_OFF + 1)
 
+#define STFLG1_COMPACT 0x20  // compact 32bit VA layout
 #define STFLG1_STATIC  0x40  // static linking
 /* 2 flags below are chosen for compatibility between v4 and v5 stubs.
  * They can't be set together, and as such, when we have a core payload,
@@ -182,6 +183,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     _GO32_StubInfo *stubinfo_p;
     struct ldops *ops = NULL;
     int STFLAGS_OFF = 0x2c;
+    int compact_va = 0;
     uint8_t stub_ver = 0;
 #define BARE_STUB() (stub_ver == 0)
 
@@ -278,6 +280,9 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 if (stub_ver < 6 || !(buf[FLG2_OFF] & STFLG2_EMBOV))
                     noffset += coffsize;
             }
+            if (buf[FLG1_OFF] & STFLG1_COMPACT)
+                compact_va = 1;
+
             memcpy(&nsize, &buf[0x20 - moff], sizeof(nsize));
             if (nsize)
                 noffset2 = noffset + nsize;
@@ -373,7 +378,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     if (va_size > MB)
         exit(EXIT_FAILURE);
     /* if we load 2 payloads, use larger estimate */
-    if (dyn && (pl32 || BARE_STUB())) {
+    if ((dyn && pl32) || BARE_STUB() || compact_va) {
         stubinfo.initial_size = VA_SZ;
         stubinfo.upl_base = va + MB;
         stubinfo.upl_size = VA_SZ - MB;
@@ -407,6 +412,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
         if (va_size2 > MB)
             exit(EXIT_FAILURE);
         if (va2 < va + va_size || va2 + va_size2 - va > VA_SZ)
+            exit(EXIT_FAILURE);
+        if (compact_va && va2 + va_size2 - va > MB)
             exit(EXIT_FAILURE);
         ops->read_sections(handle, lin2ptr(mem_base), ifile, coffset);
         ops->close(handle);

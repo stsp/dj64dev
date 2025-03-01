@@ -26,14 +26,15 @@
 #define DJ64F_NOMANGLE (1 << 17)
 
 int djdev64_open(const char *path, const struct dj64_api *api, int api_ver,
-        unsigned flags);
+        unsigned flags, const struct djdev64_api *devapi);
 int djdev64_call(int handle, int libid, int fn, unsigned esi,
         unsigned char *sp);
 int djdev64_ctrl(int handle, int libid, int fn, unsigned esi,
         unsigned char *sp);
 void djdev64_close(int handle);
 
-int djdev64_exec(const char *path, unsigned flags, int argc, char **argv);
+int djdev64_exec(const char *path, int handle, int libid, unsigned flags,
+        int argc, char **argv);
 
 char *djelf64_parse(const char *path, uint32_t *r_size);
 
