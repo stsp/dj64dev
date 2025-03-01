@@ -740,13 +740,3 @@ int djelf_load(int num, int libid, int *r_fd)
         return -1;
     return dj64api->elfload(num, dj64api->get_handle(), libid, r_fd);
 }
-
-int djelf_run(int eid)
-{
-    struct udisp *u;
-
-    if (dj64api_ver < 19)
-        return -1;
-    u = &udisps[dj64api->get_handle()];
-    return u->eops->run64(eid);
-}

@@ -84,7 +84,6 @@ static const struct elf_ops eops = {
     djelf_getsymoff,
     djelf_reloc,
     do_elfparse64,
-    djelf64_run,
 };
 
 #define __S(x) #x

@@ -37,5 +37,6 @@ int djdev64_exec(const char *path, int handle, int libid, unsigned flags,
         int argc, char **argv);
 
 char *djelf64_parse(const char *path, uint32_t *r_size);
+int djelf64_run(int eid);
 
 #endif
