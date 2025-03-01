@@ -30,13 +30,6 @@
 #include <stubinfo.h>
 #include <go64.h>
 
-#ifndef PAGE_SIZE
-#define PAGE_SIZE 4096
-#endif
-#define _PAGE_MASK	(~(PAGE_SIZE-1))
-/* to align the pointer to the (next) page boundary */
-#define PAGE_ALIGN(addr)	(((addr)+PAGE_SIZE-1)&_PAGE_MASK)
-
 // https://github.com/vonj/snippets.org/blob/master/strrpbrk.c
 static char *strrpbrk(const char *szString, const char *szChars)
 {
