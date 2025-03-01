@@ -10,7 +10,7 @@ int main()
     int ok;
 
     /* our rm cb needs to know DS */
-    _ds = _my_ds();
+    _rmcb_ds = _my_ds();
 
     ok = mouse_init();
     if (!ok)

@@ -20,6 +20,7 @@
 #include <setjmp.h>
 #include <dlfcn.h>
 #include "djdev64/djdev64.h"
+#include "elf_priv.h"
 
 struct exec_info {
     /* volatile because of longjmp() vs auto storage */
@@ -28,35 +29,65 @@ struct exec_info {
     jmp_buf exit_jmp;
 };
 
-static void exit_exec(void *handle, int rc);
-
-int djdev64_exec(const char *path, unsigned flags, int argc, char **argv)
-{
-    void *dlobj = NULL;
+struct exec_handle {
+    void *dlobj;
     int (*m)(int, char **);
     int (*ae2)(void(*)(void*,int),void*);
-    struct exec_info ei;
-    int ret = -1, rc;
+    int argc;
+    char **argv;
+};
+static struct exec_handle ehands[1];  // expand if more than 1 ever needed
+
+static void exit_exec(void *handle, int rc);
+
+int djdev64_exec(const char *path, int handle, int libid, unsigned flags,
+        int argc, char **argv)
+{
+    struct exec_handle *eh = &ehands[0];
+    dj64init2_t *i2;
 
 #ifdef RTLD_DEEPBIND
-    dlobj = dlopen(path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND);
+    eh->dlobj = dlopen(path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND);
 #endif
-    if (!dlobj) {
+    if (!eh->dlobj) {
         printf("error loading %s: %s\n", path, dlerror());
         return -1;
     }
-    m = dlsym(dlobj, "main");
-    if (!m) {
+    eh->m = dlsym(eh->dlobj, "main");
+    if (!eh->m) {
         printf("error: can't find \"main\"\n");
         goto out;
     }
-    ae2 = dlsym(dlobj, "atexit2");
-    if (!ae2) {
+    eh->ae2 = dlsym(eh->dlobj, "atexit2");
+    if (!eh->ae2) {
         printf("error: can't find \"atexit2\"\n");
         goto out;
     }
+    i2 = dlsym(eh->dlobj, "dj64init2");
+    if (!i2) {
+        printf("error: can't find \"dj64init2\"\n");
+        goto out;
+    }
 
-    rc = ae2(exit_exec, &ei);
+    i2(handle, libid);
+    eh->argc = argc;
+    eh->argv = argv;
+    return 0;
+out:
+    dlclose(eh->dlobj);
+    return -1;
+}
+
+int djelf64_run(int eid)
+{
+    struct exec_handle *eh;
+    struct exec_info ei;
+    int ret = -1, rc;
+
+    if (eid != 0)
+        return -1;
+    eh = &ehands[eid];
+    rc = eh->ae2(exit_exec, &ei);
     if (rc == -1) {
         printf("error: atexit2() failed\n");
         goto out;
@@ -64,10 +95,10 @@ int djdev64_exec(const char *path, unsigned flags, int argc, char **argv)
     if (setjmp(ei.exit_jmp))
         ret = ei.exit_code;
     else
-        ret = (unsigned char)m(argc, argv);
-    ae2(NULL, NULL);
+        ret = (unsigned char)eh->m(eh->argc, eh->argv);
+    eh->ae2(NULL, NULL);
 out:
-    dlclose(dlobj);
+    dlclose(eh->dlobj);
     return ret;
 }
 

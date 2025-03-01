@@ -54,7 +54,7 @@ static char *strrpbrk(const char *szString, const char *szChars)
 
 int elfexec(const char *path, int argc, char **argv)
 {
-    int err, fd, len, errn;
+    int err, fd, len, errn, eid, ret;
     const char *p;
     unsigned fname;
     __dpmi_paddr api;
@@ -80,7 +80,7 @@ int elfexec(const char *path, int argc, char **argv)
     memset(&regs, 0, sizeof(regs));
     regs.d.ebx = 3;  // get version
     pltcall32(&regs, api);
-    if (regs.d.eax < 2) {
+    if (regs.d.eax < 3) {
         fprintf(stderr, "unsupported DJ64 version %i\n", regs.d.eax);
         return -1;
     }
@@ -125,12 +125,53 @@ int elfexec(const char *path, int argc, char **argv)
     dm.size = shmi.size;
     err = __dpmi_free_physical_address_mapping(&dm);
     assert(!err);
-    memset(&regs, 0, sizeof(regs));
-    regs.d.ebx = 2;  // exec
+
+    regs.d.ebx = 2 | (ELFEXEC_LIBID << 16);  // exec
+    regs.d.ecx = 0;  // argc - unsupp
+    regs.d.edx = 0;  // argv - unsupp
     regs.x.di = shmi.handle & 0xffff;
     regs.x.si = shmi.handle >> 16;
     pltcall32(&regs, api);
+    if (regs.x.flags & 1)
+        return -1;
+    eid = regs.d.eax;
+    memset(&regs, 0, sizeof(regs));
+    regs.d.ebx = 6;  // memfd
+    regs.x.di = shmi.handle & 0xffff;
+    regs.x.si = shmi.handle >> 16;
+    pltcall32(&regs, api);
+    // eax == fd
+    regs.d.ebx = _stubinfo->upl_base;
+    regs.d.ecx = _stubinfo->upl_size;
+    regs.d.edx = _stubinfo->mem_base;
+    pltctrl32(&regs, 2, ELFEXEC_LIBID);
+    if (!(regs.x.flags & 1)) {
+        // eax == uentry
+        regs.d.ebx = ELFEXEC_LIBID;
+        upltinit32(&regs);
+    }
+    ret = djelf_run(eid);
     __dpmi_free_shared_memory(shmi.handle);
     /* returning only 16bit AX allows to distinguish with -1 returns above */
-    return regs.x.ax;
+    return ret;
+}
+
+int elfload(int num)
+{
+    __dpmi_regs regs;
+    int fd;
+    int rc = djelf_load(num, ELFEXEC_LIBID, &fd);
+    if (rc == -1)
+        return -1;
+    regs.d.eax = fd;
+    regs.d.ebx = _stubinfo->upl_base;
+    regs.d.ecx = _stubinfo->upl_size;
+    regs.d.edx = _stubinfo->mem_base;
+    pltctrl32(&regs, 2, ELFEXEC_LIBID);
+    if (!(regs.x.flags & 1)) {
+        // eax == uentry
+        regs.d.ebx = ELFEXEC_LIBID;
+        upltinit32(&regs);
+    }
+    return djelf_run(rc);
 }

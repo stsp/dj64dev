@@ -39,17 +39,52 @@ struct dj64handle {
     dj64cdispatch_t *ctrl;
     dj64done_t *done;
     char *path;
+    const struct djdev64_api *api;
 };
 static struct dj64handle dlhs[HNDL_MAX];
 
 static pthread_mutex_t init_mtx = PTHREAD_MUTEX_INITIALIZER;
 
+static void *do_open_dyn(int handle, int hfd)
+{
+    int fd;
+    void *ret;
+    struct dj64handle *h;
+    if (handle >= handles)
+        return NULL;
+    h = &dlhs[handle];
+    fd = h->api->uget(hfd);
+    if (fd == -1)
+        return NULL;
+    ret = djelf_open_dyn(fd);
+    close(fd);
+    return ret;
+}
+
+static char *do_elfparse64(int handle, int hfd, uint32_t *r_size)
+{
+    int fd;
+    char *ret;
+    struct dj64handle *h;
+    if (handle >= handles)
+        return NULL;
+    h = &dlhs[handle];
+    fd = h->api->uget(hfd);
+    if (fd == -1)
+        return NULL;
+    ret = djelf64_parse_fd(fd, r_size);
+    close(fd);
+    return ret;
+}
+
 static const struct elf_ops eops = {
     djelf_open,
-    djelf_open_dyn,
+    do_open_dyn,
     djelf_close,
     djelf_getsymoff,
     djelf_reloc,
+    do_elfparse64,
+    djelf64_run,
 };
 
 #define __S(x) #x
@@ -137,7 +172,7 @@ err_free:
 #define FLG_STATIC 0x40
 
 static int _djdev64_open(const char *path, const struct dj64_api *api,
-    int api_ver, unsigned flags)
+    int api_ver, unsigned flags, const struct djdev64_api *devapi)
 {
     int rc;
     dj64init_t *init;
@@ -262,6 +297,7 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
     h->ctrl = cdisp[1];
     h->done = done;
     h->path = path2;
+    h->api = devapi;
     return handles++;
 
 err_close:
@@ -276,7 +312,7 @@ err_close:
 }
 
 int djdev64_open(const char *path, const struct dj64_api *api, int api_ver,
-    unsigned flags)
+    unsigned flags, const struct djdev64_api *devapi)
 {
     int ret;
 
@@ -284,7 +320,7 @@ int djdev64_open(const char *path, const struct dj64_api *api, int api_ver,
      * register the dispatch fn, which is stored in a global pointer until
      * init() is called. Also we increment handles non-atomically. */
     pthread_mutex_lock(&init_mtx);
-    ret = _djdev64_open(path, api, api_ver, flags);
+    ret = _djdev64_open(path, api, api_ver, flags, devapi);
     pthread_mutex_unlock(&init_mtx);
     return ret;
 }

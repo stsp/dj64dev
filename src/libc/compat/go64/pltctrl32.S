@@ -1,6 +1,6 @@
 #include <libc/asmdefs.h>
 
-	FUNC(_pltcall32)
+	FUNC(_pltctrl32)
 	ENTER
 	pushal
 	movl ARG1, %ebx
@@ -9,8 +9,11 @@
 .endr
 	movl %ebp, 8(%esp)  // keep ebp untouched
 	popal
-	movl __plt_handle, %eax
-	lcalll *ARG2
+	pushl ARG3
+	pushl ARG2
+	call ctrl
+	popl %ecx
+	popl %ecx
 	pushf
 	pushal
 	movl ARG1, %ebx
