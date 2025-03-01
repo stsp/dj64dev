@@ -21,7 +21,7 @@ all: Makefile.conf dj64 djdev64
 	@echo "Done building. You may need to run \"sudo make install\" now."
 	@echo "You can first run \"sudo make uninstall\" to purge the prev install."
 
-Makefile.conf: Makefile.conf.in configure
+Makefile.conf config.status: Makefile.conf.in configure
 	./configure
 
 configure: configure.ac
@@ -30,10 +30,16 @@ configure: configure.ac
 subs:
 	$(MAKE) -C src
 
+%.pc: %.pc.in config.status
+	./config.status
+
+src/gcc.opt: src/gcc.opt.in config.status
+	./config.status
+
 djdev64: djdev64.pc djstub64.pc
 	$(MAKE) -C src/djdev64
 
-dj64: dj64.pc dj64_s.pc dj64static.pc subs
+dj64: dj64.pc dj64_s.pc dj64static.pc src/gcc.opt subs
 
 install_dj64:
 	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/lib
@@ -88,7 +94,7 @@ uninstall:
 clean: demos_clean
 	$(MAKE) -C src clean
 	$(MAKE) -C src/djdev64 clean
-	$(RM) *.pc Makefile.conf configure
+	$(RM) *.pc
 	$(RM) -r lib
 
 deb:
