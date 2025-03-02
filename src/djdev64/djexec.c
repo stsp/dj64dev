@@ -33,15 +33,12 @@ struct exec_handle {
     void *dlobj;
     int (*m)(int, char **);
     int (*ae2)(void(*)(void*,int),void*);
-    int argc;
-    char **argv;
 };
 static struct exec_handle ehands[1];  // expand if more than 1 ever needed
 
 static void exit_exec(void *handle, int rc);
 
-int djdev64_exec(const char *path, int handle, int libid, unsigned flags,
-        int argc, char **argv)
+int djdev64_exec(const char *path, int handle, int libid, unsigned flags)
 {
     struct exec_handle *eh = &ehands[0];
     dj64init2_t *i2;
@@ -70,15 +67,13 @@ int djdev64_exec(const char *path, int handle, int libid, unsigned flags,
     }
 
     i2(handle, libid);
-    eh->argc = argc;
-    eh->argv = argv;
     return 0;
 out:
     dlclose(eh->dlobj);
     return -1;
 }
 
-int djelf64_run(int eid)
+int djelf64_run(int eid, int argc, char **argv)
 {
     struct exec_handle *eh;
     struct exec_info ei;
@@ -95,7 +90,7 @@ int djelf64_run(int eid)
     if (setjmp(ei.exit_jmp))
         ret = ei.exit_code;
     else
-        ret = (unsigned char)eh->m(eh->argc, eh->argv);
+        ret = (unsigned char)eh->m(argc, argv);
     eh->ae2(NULL, NULL);
 out:
     dlclose(eh->dlobj);
