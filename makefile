@@ -59,6 +59,7 @@ install_dj64:
 	$(INSTALL) -m 0644 dj64.pc $(DESTDIR)$(prefix)/share/pkgconfig
 	$(INSTALL) -m 0644 dj64_s.pc $(DESTDIR)$(prefix)/share/pkgconfig
 	$(INSTALL) -m 0644 dj64static.pc $(DESTDIR)$(prefix)/share/pkgconfig
+	$(INSTALL) -m 0644 dj64host.pc $(DESTDIR)$(prefix)/share/pkgconfig
 
 install_djdev64:
 	$(INSTALL) -d $(DESTDIR)$(prefix)/share

@@ -83,6 +83,7 @@ RP += -Wl,-rpath=$(PREFIX)/i386-pc-dj64/lib64
 endif
 # sort removes duplicates
 DJLDFLAGS = $(shell pkg-config --libs dj64) $(sort $(RP)) $(LDFLAGS)
+DJHOSTLDFLAGS = $(shell pkg-config --libs dj64host) $(sort $(RP)) $(LDFLAGS)
 endif
 DJ64_XLIB = libtmp.so
 ifneq ($(AS_OBJECTS),)
@@ -150,6 +151,9 @@ endif
 
 $(DJ64_XLIB): $(OBJECTS) $(XELF)
 	$(LD) $^ $(DJLDFLAGS) -o $@
+
+host.elf: $(OBJECTS) $(XELF)
+	$(LD) $^ $(DJHOSTLDFLAGS) -o $@
 
 %.o: %.c
 	$(CC) $(DJ64CFLAGS) $(XCPPFLAGS) $(CFLAGS) -I. -o $@ -c $<

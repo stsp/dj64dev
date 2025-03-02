@@ -1,0 +1,6 @@
+Name: dj64host
+Description: dj64 host-based compilation
+Version: @VERSION@
+prefix=@prefix@
+Cflags:
+Libs: -L${prefix}/i386-pc-dj64/lib64 -ldj64

@@ -4,6 +4,7 @@ AC_CONFIG_FILES([Makefile.conf src/gcc.opt
   dj64.pc
   dj64_s.pc
   dj64static.pc
+  dj64host.pc
   djdev64.pc
   djstub64.pc
 ])
