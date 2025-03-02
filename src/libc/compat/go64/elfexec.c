@@ -120,8 +120,6 @@ int elfexec(const char *path, int argc, char **argv)
     assert(!err);
 
     regs.d.ebx = 2 | (ELFEXEC_LIBID << 16);  // exec
-    regs.d.ecx = 0;  // argc - unsupp
-    regs.d.edx = 0;  // argv - unsupp
     regs.x.di = shmi.handle & 0xffff;
     regs.x.si = shmi.handle >> 16;
     pltcall32(&regs, api);
@@ -144,8 +142,9 @@ int elfexec(const char *path, int argc, char **argv)
         upltinit32(&regs);
     }
     memset(&regs, 0, sizeof(regs));
-    regs.d.eax = eid;
-    regs.d.ebx = 7;  // run
+    regs.d.ebx = 7 | (eid << 16);  // run
+    regs.d.ecx = 0;  // argc - unsupp
+    regs.d.edx = 0;  // argv - unsupp
     pltcall32(&regs, api);
     /* returning only 16bit AX allows to distinguish with -1 returns above */
     if (regs.x.flags & 1)
@@ -180,8 +179,9 @@ int elfload(int num)
         upltinit32(&regs);
     }
     memset(&regs, 0, sizeof(regs));
-    regs.d.eax = eid;
-    regs.d.ebx = 7;  // run
+    regs.d.ebx = 7 | (eid << 16);  // run
+    regs.d.ecx = 0;  // argc - unsupp
+    regs.d.edx = 0;  // argv - unsupp
     pltcall32(&regs, api);
     /* returning only 16bit AX allows to distinguish with -1 returns above */
     if (regs.x.flags & 1)
