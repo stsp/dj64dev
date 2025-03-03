@@ -85,6 +85,7 @@ This package contains tools and headers for building dj64-enabled programs.
 %{_prefix}/i386-pc-dj64/lib64/*.so
 %{_prefix}/i386-pc-dj64/share/*
 %{_datadir}/pkgconfig/dj64.pc
+%{_datadir}/pkgconfig/dj64host.pc
 %{_docdir}/dj64
 %end
 

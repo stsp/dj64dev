@@ -3,4 +3,5 @@ usr/i386-pc-dj64/lib/*.o
 usr/i386-pc-dj64/lib64/*.so
 usr/i386-pc-dj64/share/*
 usr/share/pkgconfig/dj64.pc
+usr/share/pkgconfig/dj64host.pc
 usr/share/doc/dj64/*
