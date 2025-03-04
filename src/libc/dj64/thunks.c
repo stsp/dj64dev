@@ -392,7 +392,6 @@ dj64cdispatch_t **DJ64_INIT_FN(int handle, const struct elf_ops *ops,
 
     assert(handle < MAX_HANDLES);
     u = &udisps[handle];
-    memset(u->disp, 0, sizeof(u->disp));
     u->disp[0] = dj64_thunk_call;
     u->disp[disp_id] = disp_fn;
     u->eops = ops;
@@ -734,9 +733,25 @@ void *djsbrk(int increment)
     return dj64api->malloc(increment);
 }
 
-int djelf_load(int num, int libid, int *r_fd)
+int djelf_load(int num, int libid)
 {
     if (dj64api_ver < 19)
         return -1;
-    return dj64api->elfload(num, dj64api->get_handle(), libid, r_fd);
+    return dj64api->elfload(num, dj64api->get_handle(), libid);
+}
+
+int djelf_getfd(int num)
+{
+    if (dj64api_ver < 12)
+        return -1;
+    return dj64api->getfd(num);
+}
+
+int djelf_exec(void)
+{
+    struct udisp *u;
+    if (dj64api_ver < 22)
+        return -1;
+    u = &udisps[dj64api->get_handle()];
+    return u->eops->exec();
 }

@@ -160,8 +160,20 @@ int elfload(int num)
     __dpmi_paddr api;
     __dpmi_regs regs;
     int fd, ret, err;
-    int eid = djelf_load(num, ELFEXEC_LIBID, &fd);
+    int eid = -1;
+
+    switch (num) {
+        case 0:
+            eid = djelf_load(num, ELFEXEC_LIBID);
+            break;
+        case 1:
+            eid = djelf_exec();
+            break;
+    }
     if (eid == -1)
+        return -1;
+    fd = djelf_getfd(num);
+    if (fd == -1)
         return -1;
     err = __dpmi_get_vendor_specific_api_entry_point("DJ64", &api);
     if (err) {
@@ -172,10 +184,10 @@ int elfload(int num)
     regs.d.ebx = _stubinfo->upl_base;
     regs.d.ecx = _stubinfo->upl_size;
     regs.d.edx = _stubinfo->mem_base;
-    pltctrl32(&regs, 2, ELFEXEC_LIBID);
+    pltctrl32(&regs, 2, ELFEXEC_LIBID + num);
     if (!(regs.x.flags & 1)) {
         // eax == uentry
-        regs.d.ebx = ELFEXEC_LIBID;
+        regs.d.ebx = ELFEXEC_LIBID + num;
         upltinit32(&regs);
     }
     memset(&regs, 0, sizeof(regs));

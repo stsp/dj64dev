@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <setjmp.h>
 #include <dlfcn.h>
@@ -43,6 +43,7 @@ int djdev64_exec(const char *path, int handle, int libid, unsigned flags)
     struct exec_handle *eh = &ehands[0];
     dj64init2_t *i2;
 
+    eh->dlobj = NULL;
 #ifdef RTLD_DEEPBIND
     eh->dlobj = dlopen(path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND);
 #endif
@@ -73,6 +74,30 @@ out:
     return -1;
 }
 
+int djelf64_exec_self(void)
+{
+    struct exec_handle *eh = &ehands[0];
+
+    eh->dlobj = NULL;
+    eh->m = NULL;
+#ifdef RTLD_DEFAULT
+    eh->m = dlsym(RTLD_DEFAULT, "main");
+#endif
+    if (!eh->m) {
+        printf("error: can't find \"main\"\n");
+        return -1;
+    }
+    eh->ae2 = NULL;
+#ifdef RTLD_DEFAULT
+    eh->ae2 = dlsym(RTLD_DEFAULT, "atexit2");
+#endif
+    if (!eh->ae2) {
+        printf("error: can't find \"atexit2\"\n");
+        return -1;
+    }
+    return 0;
+}
+
 int djelf64_run(int eid, int argc, char **argv)
 {
     struct exec_handle *eh;
@@ -93,7 +118,8 @@ int djelf64_run(int eid, int argc, char **argv)
         ret = (unsigned char)eh->m(argc, argv);
     eh->ae2(NULL, NULL);
 out:
-    dlclose(eh->dlobj);
+    if (eh->dlobj)
+        dlclose(eh->dlobj);
     return ret;
 }
 

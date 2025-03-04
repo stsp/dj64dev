@@ -8,8 +8,8 @@ makemake.exe: makemake.c
 subs:
 	$(MAKE) -C libc
 
-.PHONY : clean
-clean : makemake.exe
+.PHONY: clean
+clean: makemake.exe
 	$(MAKE) -C libc clean
 	$(RM) makefile.sub
 	$(RM) makemake.exe
