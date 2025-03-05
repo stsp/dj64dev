@@ -30,7 +30,6 @@ uint32_t djthunk_get(const char *name);
 uint32_t djthunk_get_h(int handle, const char *name);
 void *djsbrk(int increment);
 int djelf_load(int num, int libid);
-int djelf_getfd(int num);
 int djelf_exec(void);
 
 #endif

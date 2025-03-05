@@ -3,4 +3,4 @@ Description: dj64 host-based compilation
 Version: @VERSION@
 prefix=@prefix@
 Cflags:
-Libs: ${prefix}/i386-pc-dj64/lib64/emumain.o -Wl,--wrap=main -ldosemu2
+Libs: ${prefix}/i386-pc-dj64/lib64/emumain.o -rdynamic -Wl,--wrap=main -ldosemu2

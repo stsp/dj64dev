@@ -64,8 +64,6 @@ struct dj64_api {
     void *(*malloc)(size_t size);
     void (*free)(void *ptr);
     int (*elfload)(int num, int handle, int libid);
-    int (*getfd)(int num);
-    char *(*elfparse64)(int num, uint32_t *r_size);
 };
 
 struct djdev64_api {
@@ -83,7 +81,8 @@ struct elf_ops {
     uint32_t (*getsym)(void *arg, const char *name);
     int (*reloc)(void *arg, uint8_t *addr, uint32_t size, uint32_t va,
         uint32_t *r_entry);
-    char *(*elfparse64_fd)(int handle, int hfd, uint32_t *r_size);
+    char *(*elfparse64)(int eid, uint32_t *r_size);
+    char *(*elfparse64_h)(int handle, uint32_t *r_size);
     int (*exec)(void);
 };
 
