@@ -6,7 +6,6 @@ AC_CONFIG_FILES([
   dj64.pc
   dj64_s.pc
   dj64static.pc
-  dj64host.pc
   djdev64.pc
   djstub64.pc
 ])
