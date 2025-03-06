@@ -1,9 +1,9 @@
 include ../Makefile.conf
 
-all : config makemake.exe subs
+all: makemake.exe subs
 
-makemake.exe : makemake.c
-	$(CC_FOR_BUILD) -O2 -Wall makemake.c -o makemake.exe
+makemake.exe: makemake.c
+	$(CC_FOR_BUILD) -O2 -Wall -o $@ $^
 
 subs:
 	$(MAKE) -C libc
@@ -11,8 +11,5 @@ subs:
 .PHONY : clean
 clean : makemake.exe
 	$(MAKE) -C libc clean
-	$(RM) gcc.opt makefile.sub
+	$(RM) makefile.sub
 	$(RM) makemake.exe
-
-config:
-	$(MAKE) -f makefile.cfg

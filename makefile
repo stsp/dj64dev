@@ -33,13 +33,10 @@ subs:
 %.pc: %.pc.in config.status
 	./config.status
 
-src/gcc.opt: src/gcc.opt.in config.status
-	./config.status
-
 djdev64: djdev64.pc djstub64.pc
 	$(MAKE) -C src/djdev64
 
-dj64: dj64.pc dj64_s.pc dj64static.pc src/gcc.opt subs
+dj64: dj64.pc dj64_s.pc dj64static.pc dj64host.pc subs
 
 install_dj64:
 	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/lib

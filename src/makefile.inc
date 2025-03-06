@@ -21,7 +21,7 @@ CPPFLAGS += -DDJ64 -D_IN_DJ64 -D__DJGPP__ -nostdinc
 
 # Moved setting of $(GCC{L}_OPT) to top of file
 #
-XGCC = $(CC) @$(TOP)/../gcc.opt $(CFLAGS)
+XGCC = $(CC) $(CFLAGS)
 XCPP = $(CPP) -I . -I $(TOP)/../../include $(CPPFLAGS)
 CROSS_ASCPP = $(CPP) -x assembler-with-cpp $(1) | $(CROSS_AS) $(CROSS_ASFLAGS) -
 XASCPP = $(call CROSS_ASCPP, -I $(TOP)/../../include $(1))
