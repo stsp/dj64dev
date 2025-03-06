@@ -345,14 +345,14 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         char *elf;
 
         if (fn == DL_ELFLOAD)
-            elf = dj64api->elfparse64(regs->eax, &esize);
+            elf = u->eops->elfparse64_h(handle, &esize);
         else
-            elf = u->eops->elfparse64_fd(handle, regs->eax, &esize);
+            elf = u->eops->elfparse64(regs->eax, &esize);
         if (!elf)
             return -1;
         eh = u->eops->open(elf, esize);
         if (!eh)
-            goto err2;
+            return -1;
         ret = u->eops->reloc(eh, djaddr2ptr2(mem_base + addr, size),
                 size, addr, &entry);
         if (ret)
@@ -368,13 +368,10 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
                 goto err;
         }
         u->eops->close(eh);
-        dj64api->free(elf);
         regs->eax = entry;
         return 0;
     err:
         u->eops->close(eh);
-    err2:
-        dj64api->free(elf);
         break;
     }
     }
@@ -392,7 +389,6 @@ dj64cdispatch_t **DJ64_INIT_FN(int handle, const struct elf_ops *ops,
 
     assert(handle < MAX_HANDLES);
     u = &udisps[handle];
-    memset(u->disp, 0, sizeof(u->disp));
     u->disp[0] = dj64_thunk_call;
     u->disp[disp_id] = disp_fn;
     u->eops = ops;
@@ -734,9 +730,18 @@ void *djsbrk(int increment)
     return dj64api->malloc(increment);
 }
 
-int djelf_load(int num, int libid, int *r_fd)
+int djelf_load(int num, int libid)
 {
     if (dj64api_ver < 19)
         return -1;
-    return dj64api->elfload(num, dj64api->get_handle(), libid, r_fd);
+    return dj64api->elfload(num, dj64api->get_handle(), libid);
+}
+
+int djelf_exec(void)
+{
+    struct udisp *u;
+    if (dj64api_ver < 22)
+        return -1;
+    u = &udisps[dj64api->get_handle()];
+    return u->eops->exec();
 }

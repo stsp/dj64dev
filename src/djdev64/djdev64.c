@@ -35,6 +35,8 @@ static int handles;
 #define HNDL_MAX 5
 struct dj64handle {
     void *dlobj;
+    char *estart;
+    char *eend;
     dj64cdispatch_t *cdisp;
     dj64cdispatch_t *ctrl;
     dj64done_t *done;
@@ -61,20 +63,14 @@ static void *do_open_dyn(int handle, int hfd)
     return ret;
 }
 
-static char *do_elfparse64(int handle, int hfd, uint32_t *r_size)
+static char *do_elfparse64(int handle, uint32_t *r_size)
 {
-    int fd;
-    char *ret;
     struct dj64handle *h;
     if (handle >= handles)
         return NULL;
     h = &dlhs[handle];
-    fd = h->api->uget(hfd);
-    if (fd == -1)
-        return NULL;
-    ret = djelf64_parse_fd(fd, r_size);
-    close(fd);
-    return ret;
+    *r_size = h->eend - h->estart;
+    return h->estart;
 }
 
 static const struct elf_ops eops = {
@@ -83,7 +79,9 @@ static const struct elf_ops eops = {
     djelf_close,
     djelf_getsymoff,
     djelf_reloc,
+    djelf64_parse,
     do_elfparse64,
+    djelf64_exec_self,
 };
 
 #define __S(x) #x
@@ -292,6 +290,8 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
 
     h = &dlhs[handles];
     h->dlobj = dlh;
+    h->estart = dlsym(dlh, "_binary_tmp_o_elf_start");
+    h->eend = dlsym(dlh, "_binary_tmp_o_elf_end");
     h->cdisp = cdisp[0];
     h->ctrl = cdisp[1];
     h->done = done;

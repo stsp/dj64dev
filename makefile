@@ -36,7 +36,7 @@ subs:
 djdev64: djdev64.pc djstub64.pc
 	$(MAKE) -C src/djdev64
 
-dj64: dj64.pc dj64_s.pc dj64static.pc dj64host.pc subs
+dj64: dj64.pc dj64_s.pc dj64static.pc subs
 
 install_dj64:
 	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/lib
@@ -56,7 +56,6 @@ install_dj64:
 	$(INSTALL) -m 0644 dj64.pc $(DESTDIR)$(datadir)/pkgconfig
 	$(INSTALL) -m 0644 dj64_s.pc $(DESTDIR)$(datadir)/pkgconfig
 	$(INSTALL) -m 0644 dj64static.pc $(DESTDIR)$(datadir)/pkgconfig
-	$(INSTALL) -m 0644 dj64host.pc $(DESTDIR)$(datadir)/pkgconfig
 
 install_djdev64:
 	$(INSTALL) -d $(DESTDIR)$(datadir)

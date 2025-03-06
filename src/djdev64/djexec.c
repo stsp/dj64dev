@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <setjmp.h>
 #include <dlfcn.h>
@@ -33,6 +33,8 @@ struct exec_handle {
     void *dlobj;
     int (*m)(int, char **);
     int (*ae2)(void(*)(void*,int),void*);
+    char *estart;
+    char *eend;
 };
 static struct exec_handle ehands[1];  // expand if more than 1 ever needed
 
@@ -43,6 +45,7 @@ int djdev64_exec(const char *path, int handle, int libid, unsigned flags)
     struct exec_handle *eh = &ehands[0];
     dj64init2_t *i2;
 
+    eh->dlobj = NULL;
 #ifdef RTLD_DEEPBIND
     eh->dlobj = dlopen(path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND);
 #endif
@@ -50,6 +53,8 @@ int djdev64_exec(const char *path, int handle, int libid, unsigned flags)
         printf("error loading %s: %s\n", path, dlerror());
         return -1;
     }
+    eh->estart = dlsym(eh->dlobj, "_binary_tmp_o_elf_start");
+    eh->eend = dlsym(eh->dlobj, "_binary_tmp_o_elf_end");
     eh->m = dlsym(eh->dlobj, "main");
     if (!eh->m) {
         printf("error: can't find \"main\"\n");
@@ -73,6 +78,41 @@ out:
     return -1;
 }
 
+int djelf64_exec_self(void)
+{
+#ifdef RTLD_DEFAULT
+    struct exec_handle *eh = &ehands[0];
+
+    eh->dlobj = NULL;
+    eh->estart = dlsym(RTLD_DEFAULT, "_binary_tmp_o_elf_start");
+    eh->eend = dlsym(RTLD_DEFAULT, "_binary_tmp_o_elf_end");
+    eh->m = dlsym(RTLD_DEFAULT, "main");
+    if (!eh->m) {
+        printf("error: can't find \"main\"\n");
+        return -1;
+    }
+    eh->ae2 = dlsym(RTLD_DEFAULT, "atexit2");
+    if (!eh->ae2) {
+        printf("error: can't find \"atexit2\"\n");
+        return -1;
+    }
+    return 0;
+#else
+    return -1;
+#endif
+}
+
+char *djelf64_parse(int eid, uint32_t *r_size)
+{
+    struct exec_handle *eh;
+
+    if (eid != 0)
+        return NULL;
+    eh = &ehands[eid];
+    *r_size = eh->eend - eh->estart;
+    return eh->estart;
+}
+
 int djelf64_run(int eid, int argc, char **argv)
 {
     struct exec_handle *eh;
@@ -93,7 +133,8 @@ int djelf64_run(int eid, int argc, char **argv)
         ret = (unsigned char)eh->m(argc, argv);
     eh->ae2(NULL, NULL);
 out:
-    dlclose(eh->dlobj);
+    if (eh->dlobj)
+        dlclose(eh->dlobj);
     return ret;
 }
 

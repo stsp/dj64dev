@@ -25,7 +25,7 @@
 
 typedef int (dj64cdispatch_t)(int handle, int libid, int fn, unsigned esi,
         uint8_t *sp);
-#define DJ64_API_VER 21
+#define DJ64_API_VER 22
 #define DJ64_API_MIN_VER 19
 enum { DJ64_PRINT_LOG, DJ64_PRINT_TERMINAL, DJ64_PRINT_SCREEN };
 
@@ -63,8 +63,7 @@ struct dj64_api {
     void (*exit)(int rc);
     void *(*malloc)(size_t size);
     void (*free)(void *ptr);
-    int (*elfload)(int num, int handle, int libid, int *r_fd);
-    char *(*elfparse64)(int num, uint32_t *r_size);
+    int (*elfload)(int num, int handle, int libid);
 };
 
 struct djdev64_api {
@@ -82,7 +81,9 @@ struct elf_ops {
     uint32_t (*getsym)(void *arg, const char *name);
     int (*reloc)(void *arg, uint8_t *addr, uint32_t size, uint32_t va,
         uint32_t *r_entry);
-    char *(*elfparse64_fd)(int handle, int hfd, uint32_t *r_size);
+    char *(*elfparse64)(int eid, uint32_t *r_size);
+    char *(*elfparse64_h)(int handle, uint32_t *r_size);
+    int (*exec)(void);
 };
 
 typedef dj64cdispatch_t **(dj64init_t)(int handle, const struct elf_ops *ops,

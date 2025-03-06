@@ -126,16 +126,10 @@ int elfexec(const char *path, int argc, char **argv)
     if (regs.x.flags & 1)
         return -1;
     eid = regs.d.eax;
-    memset(&regs, 0, sizeof(regs));
-    regs.d.ebx = 6;  // memfd
-    regs.x.di = shmi.handle & 0xffff;
-    regs.x.si = shmi.handle >> 16;
-    pltcall32(&regs, api);
-    // eax == fd
     regs.d.ebx = _stubinfo->upl_base;
     regs.d.ecx = _stubinfo->upl_size;
     regs.d.edx = _stubinfo->mem_base;
-    pltctrl32(&regs, 2, ELFEXEC_LIBID);
+    pltctrl32(&regs, 2, ELFEXEC_LIBID);  // DL_ELFLOAD_FD
     if (!(regs.x.flags & 1)) {
         // eax == uentry
         regs.d.ebx = ELFEXEC_LIBID;
@@ -159,8 +153,17 @@ int elfload(int num)
 {
     __dpmi_paddr api;
     __dpmi_regs regs;
-    int fd, ret, err;
-    int eid = djelf_load(num, ELFEXEC_LIBID, &fd);
+    int ret, err;
+    int eid = -1;
+
+    switch (num) {
+        case 0:
+            eid = djelf_load(num, ELFEXEC_LIBID);
+            break;
+        case 1:
+            eid = djelf_exec();
+            break;
+    }
     if (eid == -1)
         return -1;
     err = __dpmi_get_vendor_specific_api_entry_point("DJ64", &api);
@@ -168,14 +171,14 @@ int elfload(int num)
         fprintf(stderr, "DJ64 support missing\n");
         return -1;
     }
-    regs.d.eax = fd;
+    regs.d.eax = eid;
     regs.d.ebx = _stubinfo->upl_base;
     regs.d.ecx = _stubinfo->upl_size;
     regs.d.edx = _stubinfo->mem_base;
-    pltctrl32(&regs, 2, ELFEXEC_LIBID);
+    pltctrl32(&regs, 2, ELFEXEC_LIBID + num);  // DL_ELFLOAD_FD
     if (!(regs.x.flags & 1)) {
         // eax == uentry
-        regs.d.ebx = ELFEXEC_LIBID;
+        regs.d.ebx = ELFEXEC_LIBID + num;
         upltinit32(&regs);
     }
     memset(&regs, 0, sizeof(regs));

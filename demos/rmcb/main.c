@@ -5,12 +5,18 @@
 #include "asm.h"
 #include "mouse.h"
 
-int main()
+int main(int argc, char **argv)
 {
     int ok;
 
     /* our rm cb needs to know DS */
     _rmcb_ds = _my_ds();
+
+    if (argc > 1) {
+        int i;
+        for (i = 0; i < argc; i++)
+            puts(argv[i]);
+    }
 
     ok = mouse_init();
     if (!ok)
