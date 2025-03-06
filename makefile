@@ -79,6 +79,7 @@ uninstall:
 	$(RM) -r $(DESTDIR)$(prefix)/i386-pc-dj64
 	$(RM) -r $(DESTDIR)$(prefix)/include/djdev64
 	$(RM) $(DESTDIR)$(prefix)/share/pkgconfig/dj64.pc
+	$(RM) $(DESTDIR)$(prefix)/share/pkgconfig/dj64_s.pc
 	$(RM) $(DESTDIR)$(prefix)/share/pkgconfig/dj64static.pc
 	$(RM) $(DESTDIR)$(prefix)/share/pkgconfig/djdev64.pc
 	$(RM) $(DESTDIR)$(prefix)/share/pkgconfig/djstub64.pc
