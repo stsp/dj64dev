@@ -86,9 +86,9 @@ int djelf64_exec_self(void)
     eh->dlobj = NULL;
     eh->estart = dlsym(RTLD_DEFAULT, "_binary_tmp_o_elf_start");
     eh->eend = dlsym(RTLD_DEFAULT, "_binary_tmp_o_elf_end");
-    eh->m = dlsym(RTLD_DEFAULT, "main");
+    eh->m = dlsym(RTLD_DEFAULT, "dj64_startup_hook");
     if (!eh->m) {
-        printf("error: can't find \"main\"\n");
+        printf("error: can't find \"dj64_startup_hook\"\n");
         return -1;
     }
     eh->ae2 = dlsym(RTLD_DEFAULT, "atexit2");
