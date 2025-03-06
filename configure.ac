@@ -19,7 +19,7 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AX_PROG_CC_FOR_BUILD
 
-CFLAGS="$CFLAGS \
+DJ64_CFLAGS="$CFLAGS \
 -fno-common \
 -fpic \
 -ffreestanding \
@@ -41,6 +41,7 @@ CFLAGS="$CFLAGS \
 -Wno-unneeded-internal-declaration \
 -Wno-unknown-warning-option \
 -Wsign-compare"
+AC_SUBST(DJ64_CFLAGS)
 
 machine=`$CC -dumpmachine | cut -d- -f1 | sed 's/i.86/i386/'`
 
