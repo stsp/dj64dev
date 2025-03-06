@@ -33,8 +33,8 @@
  */
 static struct rerr {
 	int code;
-	char *name;
-	char *explain;
+	const char *name;
+	const char *explain;
 } rerrs[] = {
 	{REG_OKAY,	"REG_OKAY",	"no errors detected"},
 	{REG_NOMATCH,	"REG_NOMATCH",	"regexec() failed to match"},
@@ -64,10 +64,10 @@ static struct rerr {
 size_t
 regerror(int errcode, const regex_t *preg, char *errbuf, size_t errbuf_size)
 {
-	register struct rerr *r;
-	register size_t len;
-	register int target = errcode &~ REG_ITOA;
-	register char *s;
+	struct rerr *r;
+	size_t len;
+	int target = errcode &~ REG_ITOA;
+	const char *s;
 	char convbuf[50];
 
 	if (errcode == REG_ATOI)
@@ -105,7 +105,7 @@ regerror(int errcode, const regex_t *preg, char *errbuf, size_t errbuf_size)
  - regatoi - internal routine to implement REG_ATOI
  == static char *regatoi(const regex_t *preg, char *localbuf);
  */
-static char *
+static const char *
 regatoi(const regex_t *preg, char *localbuf)
 {
 	register struct rerr *r;

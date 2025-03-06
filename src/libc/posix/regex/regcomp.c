@@ -22,8 +22,8 @@
  * other clumsinesses
  */
 struct parse {
-	char *next;		/* next character in RE */
-	char *end;		/* end of string (-> NUL normally) */
+	const char *next;	/* next character in RE */
+	const char *end;	/* end of string (-> NUL normally) */
 	int error;		/* has an error been seen? */
 	sop *strip;		/* malloced strip */
 	sopno ssize;		/* malloced strip size (allocated) */
@@ -56,9 +56,9 @@ static char nuls[10];		/* place to point scanner in event of error */
 #define	NEXTn(n)	(p->next += (n))
 #define	GETNEXT()	(*p->next++)
 #define	SETERROR(e)	seterr(p, (e))
-#define	REQUIRE(co, e)	((co) || SETERROR(e))
-#define	MUSTSEE(c, e)	(REQUIRE(MORE() && PEEK() == (c), e))
-#define	MUSTEAT(c, e)	(REQUIRE(MORE() && GETNEXT() == (c), e))
+#define	REQUIRE(co, e)	if (!(co)) SETERROR(e)
+#define	MUSTSEE(c, e)	REQUIRE(MORE() && PEEK() == (c), e)
+#define	MUSTEAT(c, e)	REQUIRE(MORE() && GETNEXT() == (c), e)
 #define	MUSTNOTSEE(c, e)	(REQUIRE(!MORE() || PEEK() != (c), e))
 #define	EMIT(op, sopnd)	doemit(p, (sop)(op), (size_t)(sopnd))
 #define	INSERT(op, pos)	doinsert(p, (sop)(op), HERE()-(pos)+1, pos)
@@ -127,7 +127,7 @@ regcomp(regex_t *preg, const char *pattern, int cflags)
 
 	/* set things up */
 	p->g = g;
-	p->next = (char *)pattern;	/* convenience; we do not modify it */
+	p->next = (const char *)pattern;	/* convenience; we do not modify it */
 	p->end = p->next + len;
 	p->error = 0;
 	p->ncsalloc = 0;
@@ -708,11 +708,11 @@ p_b_term(struct parse *p, cset *cs)
 static void
 p_b_cclass(struct parse *p, cset *cs)
 {
-	register char *sp = p->next;
-	register struct cclass *cp;
-	register size_t len;
-	register char *u;
-	register char c;
+	const char *sp = p->next;
+	struct cclass *cp;
+	size_t len;
+	const char *u;
+	char c;
 
 	while (MORE() && isalpha(PEEK()))
 		NEXT();
@@ -774,9 +774,9 @@ p_b_symbol(struct parse *p)
 static char			/* value of collating element */
 p_b_coll_elem(struct parse *p, int endc)
 {
-	register char *sp = p->next;
-	register struct cname *cp;
-	register int len;
+	const char *sp = p->next;
+	struct cname *cp;
+	int len;
 
 	while (MORE() && !SEETWO(endc, ']'))
 		NEXT();
@@ -819,8 +819,8 @@ othercase(int ch)
 static void
 bothcases(struct parse *p, int ch)
 {
-	register char *oldnext = p->next;
-	register char *oldend = p->end;
+	const char *oldnext = p->next;
+	const char *oldend = p->end;
 	char bracket[3];
 
 	assert(othercase(ch) != ch);	/* p_bracket() would recurse */
@@ -862,8 +862,8 @@ ordinary(struct parse *p, int ch)
 static void
 nonnewline(struct parse *p)
 {
-	register char *oldnext = p->next;
-	register char *oldend = p->end;
+	const char *oldnext = p->next;
+	const char *oldend = p->end;
 	char bracket[4];
 
 	p->next = bracket;
@@ -1021,9 +1021,9 @@ allocset(struct parse *p)
 static void
 freeset(struct parse *p, cset *cs)
 {
-	register int i;
-	register cset *top = &p->g->sets[p->g->ncsets];
-	register size_t css = (size_t)p->g->csetsize;
+	unsigned int i;
+	cset *top = &p->g->sets[p->g->ncsets];
+	size_t css = (size_t)p->g->csetsize;
 
 	for (i = 0; i < css; i++)
 		CHsub(cs, i);
@@ -1044,11 +1044,11 @@ freeset(struct parse *p, cset *cs)
 static int			/* set number */
 freezeset(struct parse *p, cset *cs)
 {
-	register uch h = cs->hash;
-	register int i;
-	register cset *top = &p->g->sets[p->g->ncsets];
-	register cset *cs2;
-	register size_t css = (size_t)p->g->csetsize;
+	uch h = cs->hash;
+	unsigned int i;
+	cset *top = &p->g->sets[p->g->ncsets];
+	cset *cs2;
+	size_t css = (size_t)p->g->csetsize;
 
 	/* look for an earlier one which is the same */
 	for (cs2 = &p->g->sets[0]; cs2 < top; cs2++)
@@ -1076,8 +1076,8 @@ freezeset(struct parse *p, cset *cs)
 static int			/* character; there is no "none" value */
 firstch(struct parse *p, cset *cs)
 {
-	register int i;
-	register size_t css = (size_t)p->g->csetsize;
+	unsigned int i;
+	size_t css = (size_t)p->g->csetsize;
 
 	for (i = 0; i < css; i++)
 		if (CHIN(cs, i))
@@ -1093,9 +1093,9 @@ firstch(struct parse *p, cset *cs)
 static int
 nch(struct parse *p, cset *cs)
 {
-	register int i;
-	register size_t css = (size_t)p->g->csetsize;
-	register int n = 0;
+	unsigned int i;
+	size_t css = (size_t)p->g->csetsize;
+	int n = 0;
 
 	for (i = 0; i < css; i++)
 		if (CHIN(cs, i))
@@ -1109,9 +1109,9 @@ nch(struct parse *p, cset *cs)
  ==	register char *cp);
  */
 static void
-mcadd(struct parse *p, cset *cs, char *cp)
+mcadd(struct parse *p, cset *cs, const char *cp)
 {
-	register size_t oldend = cs->smultis;
+	size_t oldend = cs->smultis;
 
 	cs->smultis += strlen(cp) + 1;
 	if (cs->multis == NULL)
@@ -1127,6 +1127,7 @@ mcadd(struct parse *p, cset *cs, char *cp)
 	cs->multis[cs->smultis - 1] = '\0';
 }
 
+#if 0
 /*
  - mcsub - subtract a collating element from a cset
  == static void mcsub(register cset *cs, register char *cp);
@@ -1178,6 +1179,7 @@ mcfind(cset *cs, char *cp)
 			return(p);
 	return(NULL);
 }
+#endif
 
 /*
  - mcinvert - invert the list of collating elements in a cset
