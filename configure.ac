@@ -40,7 +40,8 @@ DJ64_CFLAGS="$CFLAGS \
 -Wno-array-bounds \
 -Wno-unneeded-internal-declaration \
 -Wno-unknown-warning-option \
--Wsign-compare"
+-Wsign-compare \
+-Wno-error=maybe-uninitialized"
 AC_SUBST(DJ64_CFLAGS)
 
 machine=`$CC -dumpmachine | cut -d- -f1 | sed 's/i.86/i386/'`

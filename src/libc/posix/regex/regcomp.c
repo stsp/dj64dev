@@ -1418,13 +1418,13 @@ stripsnug(struct parse *p, struct re_guts *g)
 static void
 findmust(struct parse *p, struct re_guts *g)
 {
-	register sop *scan;
+	sop *scan;
 	sop *start;
-	register sop *newstart;
-	register sopno newlen;
-	register sop s;
-	register char *cp;
-	register sopno i;
+	sop *newstart;
+	sopno newlen;
+	sop s;
+	char *cp;
+	sopno i;
 
 	/* avoid making error situations worse */
 	if (p->error != 0)
@@ -1492,15 +1492,15 @@ findmust(struct parse *p, struct re_guts *g)
 
 /*
  - pluscount - count + nesting
- == static sopno pluscount(register struct parse *p, register struct re_guts *g);
+ == static sopno pluscount(struct parse *p, struct re_guts *g);
  */
 static sopno			/* nesting depth */
 pluscount(struct parse *p, struct re_guts *g)
 {
-	register sop *scan;
-	register sop s;
-	register sopno plusnest = 0;
-	register sopno maxnest = 0;
+	sop *scan;
+	sop s;
+	sopno plusnest = 0;
+	sopno maxnest = 0;
 
 	if (p->error != 0)
 		return(0);	/* there may not be an OEND */
