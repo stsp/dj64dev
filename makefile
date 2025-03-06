@@ -1,7 +1,7 @@
 TOP ?= .
-include Makefile.conf
+-include Makefile.conf
 export prefix
-export PKG_CONFIG_PATH := $(PKG_CONFIG_PATH):$(datarootdir)/pkgconfig:$(libdir)/pkgconfig
+export PKG_CONFIG_PATH := $(PKG_CONFIG_PATH):$(datadir)/pkgconfig:$(libdir)/pkgconfig
 
 DJLIBC = $(TOP)/lib/libc.a
 DJCRT0 = $(TOP)/lib/crt0.elf
@@ -51,20 +51,20 @@ install_dj64:
 	cp -r $(TOP)/include $(DESTDIR)$(prefix)/i386-pc-dj64
 	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/share
 	$(INSTALL) -m 0644 dj64.mk $(DESTDIR)$(prefix)/i386-pc-dj64/share
-	$(INSTALL) -d $(DESTDIR)$(prefix)/share
-	$(INSTALL) -d $(DESTDIR)$(prefix)/share/pkgconfig
-	$(INSTALL) -m 0644 dj64.pc $(DESTDIR)$(prefix)/share/pkgconfig
-	$(INSTALL) -m 0644 dj64_s.pc $(DESTDIR)$(prefix)/share/pkgconfig
-	$(INSTALL) -m 0644 dj64static.pc $(DESTDIR)$(prefix)/share/pkgconfig
-	$(INSTALL) -m 0644 dj64host.pc $(DESTDIR)$(prefix)/share/pkgconfig
+	$(INSTALL) -d $(DESTDIR)$(datadir)
+	$(INSTALL) -d $(DESTDIR)$(datadir)/pkgconfig
+	$(INSTALL) -m 0644 dj64.pc $(DESTDIR)$(datadir)/pkgconfig
+	$(INSTALL) -m 0644 dj64_s.pc $(DESTDIR)$(datadir)/pkgconfig
+	$(INSTALL) -m 0644 dj64static.pc $(DESTDIR)$(datadir)/pkgconfig
+	$(INSTALL) -m 0644 dj64host.pc $(DESTDIR)$(datadir)/pkgconfig
 
 install_djdev64:
-	$(INSTALL) -d $(DESTDIR)$(prefix)/share
-	$(INSTALL) -d $(DESTDIR)$(prefix)/share/pkgconfig
-	$(INSTALL) -m 0644 djdev64.pc $(DESTDIR)$(prefix)/share/pkgconfig
-	$(INSTALL) -m 0644 djstub64.pc $(DESTDIR)$(prefix)/share/pkgconfig
-	$(INSTALL) -d $(DESTDIR)$(prefix)/include/djdev64
-	cp -rL $(TOP)/src/djdev64/include/djdev64 $(DESTDIR)$(prefix)/include
+	$(INSTALL) -d $(DESTDIR)$(datadir)
+	$(INSTALL) -d $(DESTDIR)$(datadir)/pkgconfig
+	$(INSTALL) -m 0644 djdev64.pc $(DESTDIR)$(datadir)/pkgconfig
+	$(INSTALL) -m 0644 djstub64.pc $(DESTDIR)$(datadir)/pkgconfig
+	$(INSTALL) -d $(DESTDIR)$(includedir)/djdev64
+	cp -rL $(TOP)/src/djdev64/include/djdev64 $(DESTDIR)$(includedir)
 	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -m 0755 $(DJDEV64LIB) $(DESTDIR)$(libdir)
 	cp -fP $(DJDEV64DEVL) $(DESTDIR)$(libdir)
@@ -77,12 +77,12 @@ install: install_dj64 install_djdev64 install_demos
 
 uninstall:
 	$(RM) -r $(DESTDIR)$(prefix)/i386-pc-dj64
-	$(RM) -r $(DESTDIR)$(prefix)/include/djdev64
-	$(RM) $(DESTDIR)$(prefix)/share/pkgconfig/dj64.pc
-	$(RM) $(DESTDIR)$(prefix)/share/pkgconfig/dj64_s.pc
-	$(RM) $(DESTDIR)$(prefix)/share/pkgconfig/dj64static.pc
-	$(RM) $(DESTDIR)$(prefix)/share/pkgconfig/djdev64.pc
-	$(RM) $(DESTDIR)$(prefix)/share/pkgconfig/djstub64.pc
+	$(RM) -r $(DESTDIR)$(includedir)/djdev64
+	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj64.pc
+	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj64_s.pc
+	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj64static.pc
+	$(RM) $(DESTDIR)$(datadir)/pkgconfig/djdev64.pc
+	$(RM) $(DESTDIR)$(datadir)/pkgconfig/djstub64.pc
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJDEV64DEVL))
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJDEV64LIB))
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJSTUB64DEVL))
