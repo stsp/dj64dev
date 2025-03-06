@@ -4,6 +4,10 @@
 dj64dev is a development suite that allows to cross-build 64-bit programs
 for DOS. It consists of 2 parts: dj64 tool-chain and djdev64 suite.
 
+Also the [host addon](https://github.com/stsp/dj64dev-host-addon)
+is available that allows to build the DOS programs for host, using
+the DOS emulator to handle the DOS-specific functionality.
+
 ### dj64 tool-chain
 dj64 is a 64-bit tool-chain that compiles the djgpp-buildable
 sources for DOS. There are the following differences with djgpp:
