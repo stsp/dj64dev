@@ -82,7 +82,10 @@ int djelf64_exec_self(void)
 {
 #ifdef RTLD_DEFAULT
     struct exec_handle *eh = &ehands[0];
+    void **dlh = dlsym(RTLD_DEFAULT, "dj64_dl_handle_self");
 
+    if (!dlh)
+        return -1;
     eh->dlobj = NULL;
     eh->estart = dlsym(RTLD_DEFAULT, "_binary_tmp_o_elf_start");
     eh->eend = dlsym(RTLD_DEFAULT, "_binary_tmp_o_elf_end");
@@ -91,7 +94,7 @@ int djelf64_exec_self(void)
         printf("error: can't find \"dj64_startup_hook\"\n");
         return -1;
     }
-    eh->ae2 = dlsym(RTLD_DEFAULT, "atexit2");
+    eh->ae2 = dlsym(*dlh, "atexit2");
     if (!eh->ae2) {
         printf("error: can't find \"atexit2\"\n");
         return -1;
