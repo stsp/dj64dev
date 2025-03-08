@@ -22,6 +22,8 @@
 #include "djdev64/djdev64.h"
 #include "elf_priv.h"
 
+#define DJ64_ELFEXEC_VERSION 2
+
 struct exec_info {
     /* volatile because of longjmp() vs auto storage */
     /* unsigned char to not clash with go64/dj64 errors */
@@ -83,9 +85,14 @@ int djelf64_exec_self(void)
 #ifdef RTLD_DEFAULT
     struct exec_handle *eh = &ehands[0];
     void **dlh = dlsym(RTLD_DEFAULT, "dj64_dl_handle_self");
+    int *ee_ver = dlsym(RTLD_DEFAULT, "dj64_elfexec_version");
 
-    if (!dlh)
+    if (!dlh || !ee_ver)
         return -1;
+    if (*ee_ver != DJ64_ELFEXEC_VERSION) {
+        fprintf(stderr, "wrong elfexec version, want %i got %i\n",
+                DJ64_ELFEXEC_VERSION, *ee_ver);
+    }
     eh->dlobj = NULL;
     eh->estart = dlsym(RTLD_DEFAULT, "_binary_tmp_o_elf_start");
     eh->eend = dlsym(RTLD_DEFAULT, "_binary_tmp_o_elf_end");
