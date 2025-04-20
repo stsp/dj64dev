@@ -1,14 +1,11 @@
 TOP = ../..
+include $(TOP)/Makefile.conf
 prefix ?= /usr/local
 PKG_CONFIG ?= pkg-config
 SOURCES = djdev64.c elf.c djexec.c
 OBJECTS = $(SOURCES:.c=.o)
-LIBELF := $(shell $(PKG_CONFIG) --silence-errors --libs libelf)
-ifeq ($(LIBELF),)
-$(error libelf not installed)
-endif
 CFLAGS += -iquote include -fpic -ggdb3 -Wall -Wmissing-prototypes -Og -MD \
-  $(shell $(PKG_CONFIG) --cflags libelf)
+  $(LIBELF_CFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -32,7 +29,8 @@ $(LIBDIR):
 	mkdir $@
 
 $(LIB): $(OBJECTS) | $(LIBDIR)
-	$(CC) $(LDFLAGS) -shared -Wl,-Bsymbolic -Wl,-soname=$(LIBN) -o $@ $^ $(LIBELF)
+	$(CC) $(LDFLAGS) -shared -Wl,-Bsymbolic -Wl,-soname=$(LIBN) -o $@ $^ \
+  $(LIBELF_LIBS)
 
 $(LIBDIR)/libdjdev64.so: $(LIB)
 	ln -sf $(LIBN) $@

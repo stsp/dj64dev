@@ -23,6 +23,8 @@ if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR(Install pkg-config and retry.)
 fi
 
+PKG_CHECK_MODULES([LIBELF], [libelf],, [AC_MSG_ERROR([libelf not installed])])
+
 DJ64_CFLAGS="$CFLAGS \
 -fno-common \
 -fpic \
