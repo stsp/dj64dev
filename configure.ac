@@ -18,6 +18,11 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AX_PROG_CC_FOR_BUILD
 
+AC_CHECK_PROGS([PKG_CONFIG], [pkg-config])
+if test -z "$PKG_CONFIG"; then
+  AC_MSG_ERROR(Install pkg-config and retry.)
+fi
+
 DJ64_CFLAGS="$CFLAGS \
 -fno-common \
 -fpic \
