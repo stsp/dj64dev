@@ -2,3 +2,6 @@
 
 %:
 	dh $@ --no-parallel
+
+override_dh_autoreconf:
+	dh_autoreconf ./autogen.sh
