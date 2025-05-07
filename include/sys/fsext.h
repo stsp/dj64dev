@@ -50,6 +50,9 @@ typedef enum {
   __FSEXT_fchmod
 } __FSEXT_Fnumber;
 
+extern int __lsck_socket_fsext (__FSEXT_Fnumber func_number,
+				int *rv, va_list args);
+
 /* _ready gets passed a fd and should return a mask of these,
    as if we were emulating "int ready(int fd)" */
 #define __FSEXT_ready_read	1

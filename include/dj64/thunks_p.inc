@@ -58,6 +58,7 @@
 #define __CNV_PTR_CPVOID(t, d, f, l, t0) t d = PTR_DATA(f)
 #define __CNV_PTR_VOID(t, d, f, l, t0) t d = dj64_obj_init(f, l)
 #define __CNV_PTR_CVOID(t, d, f, l, t0) t d = dj64_obj_init(f, l)
+#define __CNV_PTR_OVOID(t, d, f, l, t0) t d = dj64_obj_oinit(f, l)
 #define __CNV_SIMPLE(t, d, f, l, t0) t d = (f)
 
 #define _CNV(c, t, at, l, n) c(at, _a##n, a##n, l, t)
@@ -76,6 +77,7 @@
 #define U__CNV_PTR_CPVOID(f, d, l)
 #define U__CNV_PTR_VOID(f, d, l) dj64_obj_done(f, d, l)
 #define U__CNV_PTR_CVOID(f, d, l) dj64_rm_dosobj(f, d)
+#define U__CNV_PTR_OVOID(f, d, l) dj64_obj_done(f, d, l)
 #define U__CNV_SIMPLE(f, d, l)
 
 #define _UCNV(c, l, n) U##c(a##n, _a##n, l)

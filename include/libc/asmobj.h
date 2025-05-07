@@ -140,3 +140,5 @@ t *__##x(void) \
 #endif
 
 #define __out
+#define _V_FW(n)
+#define _V_BW(n)
