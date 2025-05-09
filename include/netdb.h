@@ -64,6 +64,7 @@
 #define _NETDB_H_
 
 #include <lsck/errno.h>
+#include <sys/socket.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -160,6 +161,9 @@ extern void        endnetent (void);
 extern void        endprotoent (void);
 extern void        endservent (void);
 /*extern void      endrpcent  (void);*/
+extern int getaddrinfo(const char *restrict host, const char *restrict serv,
+    const struct addrinfo *restrict hint, struct addrinfo **restrict res);
+extern void freeaddrinfo(struct addrinfo *res);
 extern struct hostent  *gethostbyaddr (const char *, int, int);
 extern struct hostent  *gethostbyname (const char *);
 extern struct hostent  *gethostent (void);
