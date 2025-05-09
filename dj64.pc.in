@@ -8,4 +8,4 @@ xcppflags=${cppflags} -imacros ${prefix}/i386-pc-dj64/include/dj64/a_mac.h
 crt0=${prefix}/i386-pc-dj64/lib/uplt.o
 extras=${prefix}/share/dj64-extras
 Cflags: -fpic -fno-stack-protector
-Libs: -L${prefix}/i386-pc-dj64/lib64 -ldj64 -shared -Wl,-Bsymbolic -Wl,--no-undefined -Wl,--as-needed
+Libs: -L${prefix}/i386-pc-dj64/lib64 -Wl,--no-as-needed -ldj64 -shared -Wl,-Bsymbolic -Wl,--no-undefined -Wl,--as-needed
