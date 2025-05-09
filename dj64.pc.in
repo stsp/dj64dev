@@ -2,10 +2,11 @@ Name: dj64
 Description: dj64 dev suit
 Version: @VERSION@
 prefix=@prefix@
-makeinc=${prefix}/i386-pc-dj64/share/dj64.mk
-cppflags=-I${prefix}/i386-pc-dj64/include -DDJ64 -nostdinc
-xcppflags=${cppflags} -imacros ${prefix}/i386-pc-dj64/include/dj64/a_mac.h
-crt0=${prefix}/i386-pc-dj64/lib/uplt.o
+dj64prefix=${prefix}/i386-pc-dj64
+makeinc=${dj64prefix}/share/dj64.mk
+cppflags=-I${dj64prefix}/include -DDJ64 -nostdinc
+xcppflags=${cppflags} -imacros ${dj64prefix}/include/dj64/a_mac.h
+crt0=${dj64prefix}/lib/uplt.o
 extras=${prefix}/share/dj64-extras
 Cflags: -fpic -fno-stack-protector
-Libs: -L${prefix}/i386-pc-dj64/lib64 -Wl,--no-as-needed -ldj64 -shared -Wl,-Bsymbolic -Wl,--no-undefined -Wl,--as-needed
+Libs: -L${dj64prefix}/lib64 -Wl,--no-as-needed -ldj64 -shared -Wl,-Bsymbolic -Wl,--no-undefined -Wl,--as-needed
