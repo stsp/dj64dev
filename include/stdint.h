@@ -44,10 +44,13 @@ __extension__ typedef unsigned long long int uint64_t;
 
 typedef long int intptr_t;
 typedef unsigned long int uintptr_t;
-
+#ifdef _LP64
+__extension__ typedef signed long int intmax_t;
+__extension__ typedef unsigned long int uintmax_t;
+#else
 __extension__ typedef signed long long int intmax_t;
 __extension__ typedef unsigned long long int uintmax_t;
-
+#endif
 /* ANSI/ISO C99 says these should not be visible in C++ unless
    explicitly requested.  */
 
