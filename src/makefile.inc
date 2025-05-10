@@ -33,8 +33,8 @@ XASCPP = $(call CROSS_ASCPP, -I $(TOP)/../../include $(1))
 # https://stackoverflow.com/questions/73162200/bash-set-eo-pipefail-not-immediately-exiting
 %.o : %.c
 	$(XCPP) -CC -g0 -MD $< | \
-	  sed -E -e 's/^\*\/#/\*\/\n#/' -e 's/^\*\/ *;/\*\/\n;\n/' >$@.c
-	$(XGCC) -xc $@.c -c $(EXTRA_CFLAGS) -o $@
+	  sed -E -e 's/^\*\/#/\*\/\n#/' -e 's/^\*\/ *;/\*\/\n;\n/' >$@.C
+	$(XGCC) -xc $@.C -c $(EXTRA_CFLAGS) -o $@
 %.o : %.S
 	$(call XASCPP,$<) -o $@
 %.o : %.s
@@ -69,7 +69,7 @@ makefile.oho: makefile
 endif
 
 clean ::
-	-$(RM) *.o *.d *.o.c *.i makefile.oh makefile.oho
+	-$(RM) *.o *.d *.o.C *.i makefile.oh makefile.oho
 
 DEPS := $(wildcard *.d)
 ifneq ($(DEPS),)
