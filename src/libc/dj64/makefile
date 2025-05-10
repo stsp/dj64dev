@@ -21,7 +21,9 @@ endif
 thunk_syms.s: thunk_syms.ss
 	$(P)/sanitize_arch.sh $< >$@
 thunk_syms.o: thunk_syms.s
-	$(CROSS_AS) $(CROSS_ASFLAGS) $< -o $@
+	$(CROSS_AS) $(CROSS_ASFLAGS) $< -o $@_
+	strip --remove-section=.note.gnu.property --strip-debug -o $@ $@_ 2>/dev/null
+	$(RM) $@_
 
 ALL_AS_OBJS = $(addprefix ../,$(file < $(TOP)/makefile.rfo))
 libc_tmp.a : $(TOP)/makefile.rfo thunk_syms.o $(ALL_AS_OBJS)
