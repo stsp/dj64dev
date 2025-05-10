@@ -141,10 +141,10 @@ Perror( FILE *file, const char *string, int error )
 }
 #endif	/* ndef DEBUG */
 
-typedef res_sendhookact (*res_send_qhook)();
-typedef res_sendhookact (*res_send_rhook)();
+//typedef res_sendhookact (*res_send_qhook)();
+//typedef res_sendhookact (*res_send_rhook)();
 
-/* typedef res_sendhookact (*res_send_qhook)__P((struct sockaddr_in * const *ns,
+typedef res_sendhookact (*res_send_qhook)__P((struct sockaddr_in * const *ns,
                                               const u_char **query,
                                               int *querylen,
                                               u_char *ans,
@@ -156,7 +156,7 @@ typedef res_sendhookact (*res_send_rhook)__P((const struct sockaddr_in *ns,
                                               int querylen,
                                               u_char *ans,
                                               int anssiz,
-                                              int *resplen)); */
+                                              int *resplen));
 
 static res_send_qhook Qhook = NULL;
 static res_send_rhook Rhook = NULL;
