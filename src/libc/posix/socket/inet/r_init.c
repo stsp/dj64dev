@@ -132,8 +132,7 @@ struct __res_state _res = {0};
 /* End RD */
 
 static void
-res_setoptions(options, source)
-	char *options, *source;
+res_setoptions(char *options, const char *source)
 {
 	char *cp = options;
 	int i;
@@ -177,7 +176,7 @@ res_setoptions(options, source)
 }
 
 static u_int16_t
-res_randomid()
+res_randomid(void)
 {
 	struct timeval now;
 
@@ -188,8 +187,7 @@ res_randomid()
 #ifdef RESOLVSORT
 /* XXX - should really support CIDR which means explicit masks always. */
 static u_int32_t
-net_mask(in)		/* XXX - should really use system's version of this */
-	struct in_addr in;
+net_mask(struct in_addr in)		/* XXX - should really use system's version of this */
 {
 	register u_int32_t i = ntohl(in.s_addr);
 
@@ -223,7 +221,7 @@ net_mask(in)		/* XXX - should really use system's version of this */
  * Return 0 if completes successfully, -1 on error
  */
 int
-res_init()
+res_init(void)
 {
 	register FILE *fp;
 	register char *cp, **pp;

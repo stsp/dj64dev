@@ -47,6 +47,7 @@ DJ64_CFLAGS="$CFLAGS \
 -Wno-unneeded-internal-declaration \
 -Wno-unknown-warning-option \
 -Wsign-compare \
+-Wold-style-definition \
 -Wno-error=maybe-uninitialized"
 AC_SUBST(DJ64_CFLAGS)
 

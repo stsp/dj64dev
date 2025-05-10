@@ -49,8 +49,7 @@ static char *serv_aliases[MAXALIASES];
 int _serv_stayopen;
 
 void
-setservent(f)
-	int f;
+setservent(int f)
 {
  	char *x;
 
@@ -81,7 +80,7 @@ setservent(f)
 }
 
 void
-endservent()
+endservent(void)
 {
 	if (servf) {
 		fclose(servf);
@@ -96,7 +95,7 @@ endservent()
 
 /* RD: Modified not to use gotos & commented. */
 
-struct servent *getservent()
+struct servent *getservent(void)
 {
 	char *p;
 	register char *cp, **q;

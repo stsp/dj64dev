@@ -9,7 +9,7 @@
 static char msg[] = "Abort!\r\n";
 
 void
-abort()
+abort(void)
 {
   _write(STDERR_FILENO, msg, sizeof(msg)-1);
   raise(SIGABRT);	/* this will generate traceback and won't return */

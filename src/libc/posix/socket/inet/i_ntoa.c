@@ -40,8 +40,7 @@
 #include "i_priv.h"
 
 char *
-inet_ntoa(in)
-	struct in_addr in;
+inet_ntoa(struct in_addr in)
 {
 	static char b[18];
 	register char *p;

@@ -35,7 +35,7 @@ static struct lconv __lconv_ = {
   CHAR_MAX
 };
 
-struct lconv *localeconv()
+struct lconv *localeconv(void)
 {
   return &__lconv_;
 }

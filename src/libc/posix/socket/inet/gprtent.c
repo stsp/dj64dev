@@ -47,8 +47,7 @@ static char *proto_aliases[MAXALIASES];
 int _proto_stayopen;
 
 void
-setprotoent(f)
-	int f;
+setprotoent(int f)
 {
  /* IM: added correct PROTODB */
  	char *x;
@@ -81,7 +80,7 @@ setprotoent(f)
 
 
 void
-endprotoent()
+endprotoent(void)
 {
 	if (protof) {
 		fclose(protof);
@@ -91,7 +90,7 @@ endprotoent()
 }
 
 struct protoent *
-getprotoent()
+getprotoent(void)
 {
 	char *p;
 	register char *cp, **q;
