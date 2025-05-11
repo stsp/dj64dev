@@ -134,7 +134,7 @@ $(NC_BUILD):
 ncurses: dj64.pc | $(NC_BUILD)
 	cd $(NC_BUILD) && \
 	  CPPFLAGS="$(L_CPPFLAGS)" \
-	  CFLAGS="$(L_CFLAGS) $(CFLAGS)" \
+	  CFLAGS="$(CFLAGS) $(L_CFLAGS)" \
 	  LIBS="$(L_LIBS)" \
 	  LDFLAGS="$(L_LDFLAGS)" \
   ../configure --host=x86_64-pc-linux-gnu \
