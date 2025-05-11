@@ -1,4 +1,5 @@
 usr/i386-pc-dj64/include
+usr/i386-pc-dj64/bin/ncursesw6-config
 usr/i386-pc-dj64/lib/*.o
 usr/i386-pc-dj64/lib64/*.so
 usr/i386-pc-dj64/lib64/libformw.a

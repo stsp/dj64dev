@@ -81,6 +81,7 @@ This package contains tools and headers for building dj64-enabled programs.
 %files dj64-devel
 %defattr(-,root,root)
 %{_prefix}/i386-pc-dj64/include
+%{_prefix}/i386-pc-dj64/bin/ncursesw6-config
 %{_prefix}/i386-pc-dj64/lib/*.o
 %{_prefix}/i386-pc-dj64/lib64/*.so
 %{_prefix}/i386-pc-dj64/lib64/libformw.a
