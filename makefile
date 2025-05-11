@@ -131,7 +131,7 @@ L_LDFLAGS = $(shell PKG_CONFIG_PATH=. pkg-config --libs-only-other dj64) \
   -Wl,-rpath=$(R_LIBDIR) -nostdlib
 $(NC_BUILD):
 	mkdir -p $@
-ncurses: dj64.pc | $(NC_BUILD)
+$(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD)
 	cd $(NC_BUILD) && \
 	  CPPFLAGS="$(L_CPPFLAGS)" \
 	  CFLAGS="$(CFLAGS) $(L_CFLAGS)" \
@@ -147,4 +147,6 @@ ncurses: dj64.pc | $(NC_BUILD)
     --disable-database \
     --without-tests \
     --without-progs
+
+ncurses: $(NC_BUILD)/Makefile
 	$(MAKE) -C $(NC_BUILD)
