@@ -83,6 +83,10 @@ This package contains tools and headers for building dj64-enabled programs.
 %{_prefix}/i386-pc-dj64/include
 %{_prefix}/i386-pc-dj64/lib/*.o
 %{_prefix}/i386-pc-dj64/lib64/*.so
+%{_prefix}/i386-pc-dj64/lib64/libformw.a
+%{_prefix}/i386-pc-dj64/lib64/libmenuw.a
+%{_prefix}/i386-pc-dj64/lib64/libncursesw.a
+%{_prefix}/i386-pc-dj64/lib64/libpanelw.a
 %{_prefix}/i386-pc-dj64/share/*
 %{_datadir}/pkgconfig/dj64.pc
 %{_docdir}/dj64
@@ -100,7 +104,7 @@ May be needed on non-glibc systems.
 %files dj64-devel-static
 %defattr(-,root,root)
 %{_prefix}/i386-pc-dj64/lib/libc.a
-%{_prefix}/i386-pc-dj64/lib64/*.a
+%{_prefix}/i386-pc-dj64/lib64/libdj64_s.a
 %{_datadir}/pkgconfig/dj64_s.pc
 %{_datadir}/pkgconfig/dj64static.pc
 %end

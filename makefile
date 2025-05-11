@@ -1,4 +1,5 @@
 TOP ?= .
+ATOP = $(abspath $(TOP))
 -include Makefile.conf
 export prefix
 export PKG_CONFIG_PATH := $(PKG_CONFIG_PATH):$(datadir)/pkgconfig:$(libdir)/pkgconfig
@@ -13,10 +14,11 @@ DJDEV64LIB = $(TOP)/lib/libdjdev64.so.*.*
 DJDEV64DEVL = $(TOP)/lib/libdjdev64.so
 DJSTUB64LIB = $(TOP)/lib/libdjstub64.so.*.*
 DJSTUB64DEVL = $(TOP)/lib/libdjstub64.so
+NC_BUILD = contrib/ncurses/build
 
-.PHONY: subs dj64 djdev64 demos
+.PHONY: subs dj64 djdev64 demos ncurses
 
-all: Makefile.conf dj64 djdev64
+all: Makefile.conf dj64 djdev64 ncurses
 	@echo
 	@echo "Done building. You may need to run \"sudo make install\" now."
 	@echo "You can first run \"sudo make uninstall\" to purge the prev install."
@@ -56,6 +58,7 @@ install_dj64:
 	$(INSTALL) -m 0644 dj64.pc $(DESTDIR)$(datadir)/pkgconfig
 	$(INSTALL) -m 0644 dj64_s.pc $(DESTDIR)$(datadir)/pkgconfig
 	$(INSTALL) -m 0644 dj64static.pc $(DESTDIR)$(datadir)/pkgconfig
+	$(MAKE) -C $(NC_BUILD) install
 
 install_djdev64:
 	$(INSTALL) -d $(DESTDIR)$(datadir)
@@ -75,6 +78,7 @@ install: install_dj64 install_djdev64 install_demos
 	@echo "Done installing. You may need to run \"sudo ldconfig\" now."
 
 uninstall:
+	$(MAKE) -C $(NC_BUILD) uninstall
 	$(RM) -r $(DESTDIR)$(prefix)/i386-pc-dj64
 	$(RM) -r $(DESTDIR)$(includedir)/djdev64
 	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj64.pc
@@ -94,6 +98,7 @@ clean: demos_clean
 	$(MAKE) -C src/djdev64 clean
 	$(RM) *.pc
 	$(RM) -r lib
+	$(RM) -r $(NC_BUILD)
 
 deb:
 	debuild -i -us -uc -b && $(MAKE) clean >/dev/null
@@ -116,3 +121,30 @@ demos_clean:
 
 install_demos:
 	$(MAKE) -C demos src_install
+
+L_CPPFLAGS = $(shell PKG_CONFIG_PATH=. pkg-config --variable=xcppflags --define-variable=dj64prefix=$(ATOP) dj64)
+L_CFLAGS = $(shell PKG_CONFIG_PATH=. pkg-config --cflags dj64)
+L_LIBS = $(shell PKG_CONFIG_PATH=. pkg-config --libs-only-L --libs-only-l --define-variable=libdir=$(ATOP)/lib dj64)
+R_PREFIX = $(shell PKG_CONFIG_PATH=. pkg-config --variable=dj64prefix dj64)
+R_LIBDIR = $(shell PKG_CONFIG_PATH=. pkg-config --variable=libdir dj64)
+L_LDFLAGS = $(shell PKG_CONFIG_PATH=. pkg-config --libs-only-other dj64) \
+  -Wl,-rpath=$(R_LIBDIR) -nostdlib
+$(NC_BUILD):
+	mkdir -p $@
+ncurses: dj64.pc | $(NC_BUILD)
+	cd $(NC_BUILD) && \
+	  CPPFLAGS="$(L_CPPFLAGS)" \
+	  CFLAGS="$(L_CFLAGS) $(CFLAGS)" \
+	  LIBS="$(L_LIBS)" \
+	  LDFLAGS="$(L_LDFLAGS)" \
+  ../configure --host=x86_64-pc-linux-gnu \
+    --prefix=$(R_PREFIX) \
+    --libdir=$(R_LIBDIR) \
+    --without-manpages \
+    --without-cxx \
+    --without-debug \
+    --with-fallbacks=vt100,ansi,cygwin,linux,djgpp,djgpp203,djgpp204 \
+    --disable-database \
+    --without-tests \
+    --without-progs
+	$(MAKE) -C $(NC_BUILD)

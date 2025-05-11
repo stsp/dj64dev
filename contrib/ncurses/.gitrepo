@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/ingydotnet/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/stsp/ncurses.git
+	branch = master
+	commit = 70ab4fd6ee899bc319b91c91852f7c2c18687e49
+	parent = 8f297e020f3a585f5e9888115916add7b6e11b8e
+	method = merge
+	cmdver = 0.4.6
