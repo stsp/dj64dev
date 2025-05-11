@@ -1,4 +1,4 @@
 usr/i386-pc-dj64/lib/libc.a
-usr/i386-pc-dj64/lib64/*.a
+usr/i386-pc-dj64/lib64/libdj64_s.a
 usr/share/pkgconfig/dj64_s.pc
 usr/share/pkgconfig/dj64static.pc
