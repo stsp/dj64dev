@@ -1,0 +1,14 @@
+export CPPFLAGS="`pkg-config --variable=xcppflags dj64`"
+export CFLAGS="`pkg-config --cflags dj64` -g3"
+export LIBS="`pkg-config --libs-only-L --libs-only-l dj64`"
+export LDFLAGS="-Wl,-rpath=/usr/local/i386-pc-dj64/lib64 \
+  -Wl,-rpath=/usr/i386-pc-dj64/lib64 \
+  -nostdlib `pkg-config --libs-only-other dj64`"
+./configure --host=x86_64-pc-linux-gnu \
+  --prefix=`pkg-config --variable=dj64prefix dj64` \
+  --libdir=`pkg-config --variable=libdir dj64` \
+  --without-manpages \
+  --without-cxx \
+  --without-debug \
+  --with-fallbacks=vt100,ansi,cygwin,linux,djgpp,djgpp203,djgpp204 \
+  --disable-database
