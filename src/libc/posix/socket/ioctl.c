@@ -218,7 +218,7 @@ int ioctlsocket_emulated (LSCK_SOCKET * lsd, int request, int *param)
 		}
 
 		ifr = (struct ifreq *) param;
-		bzero (ifr, sizeof (ifr));
+		bzero (ifr, sizeof (*ifr));
 		sin = (struct sockaddr_in *) &lsd->sockname;
 
 		/* Scan the interface to find the netmask for the socket
