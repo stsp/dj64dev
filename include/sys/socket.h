@@ -30,7 +30,7 @@
 #define __libsocket_socket_h__
 
 #include <sys/types.h>
-
+#include <sys/ioctl.h>
 #include <lsck/bsdtypes.h>
 #include <lsck/errno.h>
 
@@ -236,22 +236,6 @@ extern "C"
 #ifndef FNDELAY
 #define FNDELAY O_NONBLOCK
 #endif
-
-#ifndef _IO
-
-#define IOCPARM_MASK    0x7f            /* parameters must be < 128 bytes */
-#define IOC_VOID        0x20000000      /* no parameters */
-#define IOC_OUT         0x40000000      /* copy out parameters */
-#define IOC_IN          0x80000000      /* copy in parameters */
-#define IOC_INOUT       (IOC_IN|IOC_OUT)
-                                        /* 0x20000000 distinguishes new &
-                                           old ioctl's */
-
-#define _IO(x,y)        (IOC_VOID|((x)<<8)|(y))
-#define _IOR(x,y,t)     (IOC_OUT|((sizeof(t)&IOCPARM_MASK)<<16)|((x)<<8)|(y))
-#define _IOW(x,y,t)     (IOC_IN|((sizeof(t)&IOCPARM_MASK)<<16)|((x)<<8)|(y))
-
-#endif	/* _IO */
 
 #ifndef FIONREAD
 #define FIONREAD    _IOR('f', 127, int)    /* get # bytes to read */
