@@ -87,8 +87,8 @@
 static int service_order[SERVICE_MAX + 1];
 static int service_done = 0;
 
-static const char AskedForGot[] =
-			  "gethostby*.getanswer: asked for \"%s\", got \"%s\"";
+//static const char AskedForGot[] =
+//			  "gethostby*.getanswer: asked for \"%s\", got \"%s\"";
 
 static char *h_addr_ptrs[MAXADDRS + 1];
 
