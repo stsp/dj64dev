@@ -40,9 +40,9 @@ size_t mbsrtowcs (wchar_t *__restrict, const char **__restrict, size_t, mbstate_
 wint_t btowc (int);
 int wctob (wint_t);
 #elif defined __GNUC__ || defined _MSC_VER || defined __WATCOMC__
-#include <wchar.h>
+#include <_wchar.h>
 #elif __STDC_VERSION__ >= 199901L && !defined __VBCC__
-#include <wchar.h>
+#include <_wchar.h>
 #else
 typedef uint32_t wint_t;
 
