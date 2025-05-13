@@ -9,6 +9,7 @@ export LDFLAGS="-Wl,-rpath=/usr/local/i386-pc-dj64/lib64 \
   --libdir=`pkg-config --variable=libdir dj64` \
   --without-manpages \
   --without-cxx \
+  --without-ada \
   --without-debug \
   --with-fallbacks=vt100,ansi,cygwin,linux,djgpp,djgpp203,djgpp204 \
   --disable-database
