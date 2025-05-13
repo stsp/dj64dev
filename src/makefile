@@ -1,11 +1,11 @@
 include ../Makefile.conf
 
-all: makemake.exe subs
+all: subs
 
 makemake.exe: makemake.c
 	$(CC_FOR_BUILD) -O2 -Wall -o $@ $^
 
-subs:
+subs: makemake.exe
 	$(MAKE) -C libc
 
 .PHONY: clean
