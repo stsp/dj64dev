@@ -124,12 +124,12 @@ install_demos:
 
 $(DJ64DEVL): subs
 
-L_CPPFLAGS = $(shell PKG_CONFIG_LIBDIR=$(ATOP) PKG_CONFIG_PATH="" pkg-config --variable=xcppflags --define-variable=dj64prefix=$(ATOP) dj64)
-L_CFLAGS = $(shell PKG_CONFIG_LIBDIR=$(ATOP) PKG_CONFIG_PATH="" pkg-config --cflags dj64)
-L_LIBS = $(shell PKG_CONFIG_LIBDIR=$(ATOP) PKG_CONFIG_PATH="" pkg-config --libs-only-L --libs-only-l --define-variable=libdir=$(ATOP)/lib dj64)
-R_PREFIX = $(shell PKG_CONFIG_LIBDIR=$(ATOP) PKG_CONFIG_PATH="" pkg-config --variable=dj64prefix dj64)
-R_LIBDIR = $(shell PKG_CONFIG_LIBDIR=$(ATOP) PKG_CONFIG_PATH="" pkg-config --variable=libdir dj64)
-L_LDFLAGS = $(shell PKG_CONFIG_LIBDIR=$(ATOP) PKG_CONFIG_PATH="" pkg-config --libs-only-other dj64) \
+L_CPPFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=xcppflags --define-variable=dj64prefix=$(ATOP) dj64)
+L_CFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --cflags dj64)
+L_LIBS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-L --libs-only-l --define-variable=libdir=$(ATOP)/lib dj64)
+R_PREFIX = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=dj64prefix dj64)
+R_LIBDIR = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=libdir dj64)
+L_LDFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-other dj64) \
   -Wl,-rpath=$(R_LIBDIR) -nostdlib
 $(NC_BUILD):
 	mkdir -p $@
