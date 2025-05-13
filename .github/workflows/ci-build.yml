@@ -25,10 +25,10 @@ jobs:
 
     - name: Build
       run: |
-        make
+        make -j 9
         sudo make install
 
     - name: Set up test environment
       run: |
         ./ci_test_prereq.sh
-        make demos
+        make demos -j 9
