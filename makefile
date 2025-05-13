@@ -142,6 +142,7 @@ $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD)
     --libdir=$(R_LIBDIR) \
     --without-manpages \
     --without-cxx \
+    --without-ada \
     --without-debug \
     --with-fallbacks=vt100,ansi,cygwin,linux,djgpp,djgpp203,djgpp204 \
     --disable-database \
