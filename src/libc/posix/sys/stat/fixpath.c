@@ -348,6 +348,9 @@ __canonicalize_path(const char *in, char *out, size_t path_max)
 void
 _fixpath(const char *in, char *out)
 {
+  out[0] = '\0';
+  if (!in || !in[0])
+    return;
   __canonicalize_path(in, out, FILENAME_MAX);
 }
 
