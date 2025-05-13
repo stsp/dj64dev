@@ -122,6 +122,8 @@ demos_clean:
 install_demos:
 	$(MAKE) -C demos src_install
 
+$(DJ64DEVL): subs
+
 L_CPPFLAGS = $(shell PKG_CONFIG_LIBDIR=$(ATOP) PKG_CONFIG_PATH="" pkg-config --variable=xcppflags --define-variable=dj64prefix=$(ATOP) dj64)
 L_CFLAGS = $(shell PKG_CONFIG_LIBDIR=$(ATOP) PKG_CONFIG_PATH="" pkg-config --cflags dj64)
 L_LIBS = $(shell PKG_CONFIG_LIBDIR=$(ATOP) PKG_CONFIG_PATH="" pkg-config --libs-only-L --libs-only-l --define-variable=libdir=$(ATOP)/lib dj64)
@@ -131,7 +133,7 @@ L_LDFLAGS = $(shell PKG_CONFIG_LIBDIR=$(ATOP) PKG_CONFIG_PATH="" pkg-config --li
   -Wl,-rpath=$(R_LIBDIR) -nostdlib
 $(NC_BUILD):
 	mkdir -p $@
-$(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD)
+$(NC_BUILD)/Makefile: dj64.pc $(DJ64DEVL) | $(NC_BUILD)
 	cd $(NC_BUILD) && \
 	  CPPFLAGS="$(L_CPPFLAGS)" \
 	  CFLAGS="$(CFLAGS) $(L_CFLAGS)" \
