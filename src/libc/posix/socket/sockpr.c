@@ -28,6 +28,7 @@
 
 #include <sys/socket.h>
 #include <lsck/errno.h>
+#include <lsck/lsck.h>
 
 #include <lsck/if.h>
 
@@ -47,6 +48,13 @@ int socketpair (int domain, int type, int protocol, int sv[2])
 	LSCK_SOCKET *my_lsd[2] = { NULL, NULL };
 	LSCK_IF     *my_if     = NULL;
 	int          olderrno, ret, i;
+
+	if (!__lsck_init ()) {
+		/* TODO: Not sure which error to return here. */
+		errno = ENODEV;
+		/*errno = EPROTONOSUPPORT; */
+		return (-1);
+	}
 
 	/* Check to see if we can create socket pairs first. Find the
 	 * interface that supports the protocol combo and __x_socketpair(). */

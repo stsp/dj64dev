@@ -73,6 +73,13 @@ int gethostname (char *buf, int size)
 		return (-1);
 	}
 
+	if (!__lsck_init ()) {
+		/* TODO: Not sure which error to return here. */
+		errno = ENODEV;
+		/*errno = EPROTONOSUPPORT; */
+		return (-1);
+	}
+
 	/* Try to get the host name. Try to obtain it from the following
 	 * sources:
 	 *

@@ -29,6 +29,7 @@
 
 #include <lsck/if.h>
 #include <lsck/errno.h>
+#include <lsck/lsck.h>
 
 extern LSCK_IF *__lsck_interface[LSCK_MAX_IF + 1];
 static struct if_nameindex __lsck_if_nameindex[LSCK_MAX_IF + 1];
@@ -41,6 +42,13 @@ static int build_if_nameindex (void)
 {
     static int built_if_nameindex = 0;
     int i, count;
+
+    if (!__lsck_init ()) {
+	/* TODO: Not sure which error to return here. */
+	errno = ENODEV;
+	/*errno = EPROTONOSUPPORT; */
+	return (-1);
+    }
 
     /* Already done it */
     if (built_if_nameindex)

@@ -82,6 +82,23 @@ extern void __lsck_debug_enable   (void);
 extern void __lsck_debug_disable  (void);
 extern int  __lsck_debug_enabled  (void);
 
+struct driver_info_rec {
+    uint32_t myip;
+    uint32_t netmask;
+    uint32_t gateway;
+    uint32_t dnsserver;
+    uint32_t timeserver;
+    uint16_t mtu;
+    uint8_t def_ttl;
+    uint8_t def_tos;
+    uint16_t tcp_mss;
+    uint16_t tcp_rwin;
+    uint16_t debug;
+    char domain[255];
+};
+
+extern struct driver_info_rec driver_info;
+
 #ifdef __cplusplus
 }
 #endif

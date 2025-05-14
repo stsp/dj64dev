@@ -26,9 +26,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <sys/farptr.h>
 #include <dpmi.h>
-
+#include <go32.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <net/if.h>		       /* For IFNAMSIZ def */
@@ -87,6 +87,41 @@ static int csock_inited = 0;
 /* IP information */
 #define DHCP_IP "0.0.0.0"
 
+struct driver_info_rec driver_info;
+
+struct driver_head {
+    uint8_t jmp[3];
+    char id[9];
+};
+
+static int init_trumpet(void)
+{
+#define MK_FOFF(s,o) ((int)((((unsigned long)(unsigned short)(s)) << 4) + \
+                      (unsigned short)(o)))
+	int i;
+	__dpmi_regs r = {};
+
+	for (i = 0x60; i < 0x80; i++) {
+		ULONG32 ivec = _farpeekl(_dos_ds, i * 4);
+		ULONG32 lina;
+		struct driver_head dh;
+		if (!ivec)
+			continue;
+		lina = ((ivec & 0xffff0000) >> 12) + (ivec & 0xffff);
+		dosmemget(lina, sizeof(dh), &dh);
+		if (strcmp(dh.id, "TCP_DRVR") == 0)
+			break;
+	}
+	if (i == 0x80)
+		return -1;
+	r.x.ax = 0xff;
+	__dpmi_int(i, &r);
+	if ((r.x.flags & 1) || r.h.al)
+		return -1;
+	dosmemget(MK_FOFF(r.x.es, r.x.di), sizeof(driver_info), &driver_info);
+	return 0;
+}
+
 /* ----------------
  * - __csock_init -
  * ---------------- */
@@ -96,7 +131,7 @@ LSCK_IF *__csock_init (void)
 	LSCK_IF_ADDR_INET *inet = NULL;
 	char *cfg = NULL;
 	char enabled_buf[6];	/* 5 letters/digits + nul = 5 bytes */
-	int win_version, ret;
+	int win_ver, ret;
 
 	if (csock_inited)
 		return (&__csock_interface);
@@ -121,10 +156,10 @@ LSCK_IF *__csock_init (void)
 		return (NULL);
 	}
 
-	win_version = __get_windows_version();
+	win_ver = __get_windows_version();
 
 	if (__lsck_debug_enabled ()) {
-		switch (win_version) {
+		switch (win_ver) {
 		case WIN_311:
 			/* TODO: Does SOCK.VXD work with Windows 3.x? */
 			printf("csock: Windows 3.x detected\n");
@@ -150,9 +185,13 @@ LSCK_IF *__csock_init (void)
 	}
 
 	/* No Windows => no Winsock => fail! */
-	switch(win_version) {
+	switch(win_ver) {
 	/* Unsupported */
 	case WIN_NONE:
+	    ret = init_trumpet();
+	    if (ret < 0)
+		return NULL;
+	    break;
 	case WIN_NT:
 	    return (NULL);
 	    break;

@@ -31,7 +31,7 @@
 #include <unistd.h>
 
 #include <arpa/inet.h>
-
+#include <lsck/windows.h>
 #include <lsck/lsck.h>
 #include <lsck/ini.h>
 #include <lsck/if.h>
@@ -81,70 +81,85 @@ LSCK_IF_ADDR_INET *__lsck_if_addr_inet_getconfig (const char *section)
     if (inet == NULL) return (NULL);
     bzero (inet, sizeof (LSCK_IF_ADDR_INET));
 
-    cfg = __lsck_config_getfile();
-    if (cfg == NULL) return (NULL);
-
 #define BAD_IP      "0.0.0.0"
 
-    /* IP address */
-    GetPrivateProfileString (section, "IPAddress", BAD_IP,
+    if (win_version != WIN_NONE) {
+	cfg = __lsck_config_getfile();
+	if (cfg == NULL) return (NULL);
+
+	/* IP address */
+	GetPrivateProfileString (section, "IPAddress", BAD_IP,
 			     addrbuf, sizeof (addrbuf), cfg);
-    ret = (strcmp (addrbuf, BAD_IP) == 0);
+	ret = (strcmp (addrbuf, BAD_IP) == 0);
 
-    if (!ret)
-	ret = (inet_aton (addrbuf, &inet->addr) == 0);
+	if (!ret)
+	    ret = (inet_aton (addrbuf, &inet->addr) == 0);
 
-    if (ret) {
-	free (inet);
-	return (NULL);
-    }
-    /* Network mask */
-    GetPrivateProfileString (section, "IPMask", BAD_IP,
+	if (ret) {
+	    free (inet);
+	    return (NULL);
+	}
+	/* Network mask */
+	GetPrivateProfileString (section, "IPMask", BAD_IP,
 			     addrbuf, sizeof (addrbuf), cfg);
-    ret = (strcmp (addrbuf, BAD_IP) == 0);
+	ret = (strcmp (addrbuf, BAD_IP) == 0);
 
-    if (!ret)
-	ret = (inet_aton (addrbuf, &inet->netmask) == 0);
+	if (!ret)
+	    ret = (inet_aton (addrbuf, &inet->netmask) == 0);
 
-    if (ret) {
-	free (inet);
-	return (NULL);
-    }
-    /* Gateway */
-    GetPrivateProfileString (section, "Gateway", BAD_IP,
+	if (ret) {
+	    free (inet);
+	    return (NULL);
+	}
+	/* Gateway */
+	GetPrivateProfileString (section, "Gateway", BAD_IP,
 			     addrbuf, sizeof (addrbuf), cfg);
-    if ((strcmp (addrbuf, BAD_IP) != 0)
-	&& (inet_aton (addrbuf, &inet->gw) != 0)) {
-	inet->gw_present = 1;
-    }
-    /* DNS */
-    for (i = 0; i < LSCK_IF_ADDR_INET_DNS_MAX; i++) {
-	sprintf (dnskey, "DNS%iAddress", i + 1);
-	GetPrivateProfileString (section, dnskey, BAD_IP,
+	if ((strcmp (addrbuf, BAD_IP) != 0)
+	    && (inet_aton (addrbuf, &inet->gw) != 0)) {
+	    inet->gw_present = 1;
+	}
+	/* DNS */
+	for (i = 0; i < LSCK_IF_ADDR_INET_DNS_MAX; i++) {
+	    sprintf (dnskey, "DNS%iAddress", i + 1);
+	    GetPrivateProfileString (section, dnskey, BAD_IP,
 				 addrbuf, sizeof (addrbuf), cfg);
 
-	if (strcmp (addrbuf, BAD_IP) == 0)
-	    break;
-	if (inet_aton (addrbuf, &inet->dns[i]) == 0)
-	    break;
-    }
+	    if (strcmp (addrbuf, BAD_IP) == 0)
+		break;
+	    if (inet_aton (addrbuf, &inet->dns[i]) == 0)
+		break;
+	}
 
-    /* Hardware */
-    inet->hw_type = LSCK_IF_HW_TYPE_ETHERNET;
-    inet->hw_addrlen = LSCK_IF_HW_ADDRLEN_ETHERNET;
+	/* Hardware */
+	inet->hw_type = LSCK_IF_HW_TYPE_ETHERNET;
+	inet->hw_addrlen = LSCK_IF_HW_ADDRLEN_ETHERNET;
 
-    /* Host and domain name */
-    GetPrivateProfileString ("main", "hostname", NULL,
+	/* Host and domain name */
+	GetPrivateProfileString ("main", "hostname", NULL,
 			     hostname, sizeof (hostname), cfg);
 
-    if (*hostname != '\0') {
-	p = strchr (hostname, '.');
-	if (p != NULL) {
-	    *p = '\0';
-	    p++;
+	if (*hostname != '\0') {
+	    p = strchr (hostname, '.');
+	    if (p != NULL) {
+		*p = '\0';
+		p++;
+	    }
+	    strcpy (inet->hostname, hostname);
+	    strcpy (inet->domainname, p);
 	}
-	strcpy (inet->hostname, hostname);
-	strcpy (inet->domainname, p);
+    } else {
+	inet->addr.s_addr = driver_info.myip;
+	inet->netmask.s_addr = driver_info.netmask;
+	if (driver_info.gateway) {
+		inet->gw_present = 1;
+		inet->gw.s_addr = driver_info.gateway;
+	}
+	inet->dns[0].s_addr = driver_info.dnsserver;
+	strlcpy(inet->domainname, driver_info.domain,
+			sizeof(inet->domainname));
+	/* Hardware */
+	inet->hw_type = LSCK_IF_HW_TYPE_ETHERNET;
+	inet->hw_addrlen = LSCK_IF_HW_ADDRLEN_ETHERNET;
     }
     /* Done */
     return (inet);

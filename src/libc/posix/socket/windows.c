@@ -33,6 +33,7 @@
 #include <dos.h>
 
 #include <lsck/windows.h>
+int win_version;
 
 /* -------------------------
  * - __get_windows_version -
@@ -41,7 +42,6 @@
 int __get_windows_version (void)
 {
 	__dpmi_regs r;
-	int win_version;
 
 	/* Get the windows version with INT 0x2F sub-function 0x160A,
 	 * Windows 3.1+ installation check. This version check isn't

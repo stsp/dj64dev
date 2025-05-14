@@ -46,6 +46,8 @@ enum {
 
 extern int __get_windows_version (void);
 
+extern int win_version;
+
 #ifdef __cplusplus
 }
 #endif

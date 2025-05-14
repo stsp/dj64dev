@@ -184,6 +184,13 @@ char **__lsck_getdnsaddrs (void)
     char **dnsaddrs = NULL;
     int i, j, k, count;
 
+    if (!__lsck_init ()) {
+	/* TODO: Not sure which error to return here. */
+	errno = ENODEV;
+	/*errno = EPROTONOSUPPORT; */
+	return NULL;
+    }
+
     /* Get all the DNS addresses. */
     count = 0;
 
