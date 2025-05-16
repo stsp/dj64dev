@@ -108,8 +108,8 @@ struct ifaddr
 
 struct ifmap
   {
-    unsigned long int mem_start;
-    unsigned long int mem_end;
+    unsigned int mem_start;
+    unsigned int mem_end;
     unsigned short int base_addr;
     unsigned char irq;
     unsigned char dma;

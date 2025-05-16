@@ -100,7 +100,7 @@ typedef enum { res_goahead, res_nextns, res_modified, res_done, res_error }
 struct __res_state {
         int     retrans;                /* retransmition time interval */
         int     retry;                  /* number of times to retransmit */
-        unsigned long  options;                /* option flags - see below. */
+        unsigned options;                /* option flags - see below. */
         int     nscount;                /* number of name servers */
         struct sockaddr_in
                 nsaddr_list[MAXNS];     /* address of name server */
@@ -108,13 +108,13 @@ struct __res_state {
         unsigned short id;                     /* current packet id */
         char    *dnsrch[MAXDNSRCH+1];   /* components of domain to search */
         char    defdname[MAXDNAME];     /* default domain */
-        unsigned long  pfcode;                 /* RES_PRF_ flags - see below. */
+        unsigned pfcode;                 /* RES_PRF_ flags - see below. */
         unsigned ndots:4;               /* threshold for initial abs. query */
         unsigned nsort:4;               /* number of elements in sort_list[] */
         char    unused[3];
         struct {
                 struct in_addr  addr;
-                unsigned long int       mask;
+                unsigned int       mask;
         } sort_list[MAXRESOLVSORT];
 };
 

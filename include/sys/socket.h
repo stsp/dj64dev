@@ -275,7 +275,7 @@ extern "C"
 /* --- Types --- */
 
 #ifndef __libsocket_socklen_t
-typedef unsigned long socklen_t;
+typedef unsigned socklen_t;
 #define __libsocket_socklen_t
 #endif	/* __libsocket_socklen_t */
 

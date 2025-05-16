@@ -162,10 +162,10 @@ _Static_assert(sizeof(struct sockaddr_in) == __SOCK_SIZE__, "bad sock size");
 #define IN_BADCLASS(a)          ((((long int) (a)) & 0xf0000000) == 0xf0000000)
 
 /* Address to accept any incoming messages. */
-#define INADDR_ANY              ((unsigned long int) 0x00000000)
+#define INADDR_ANY              ((unsigned int) 0x00000000)
 
 /* Address to send to all hosts. */
-#define INADDR_BROADCAST        ((unsigned long int) 0xffffffff)
+#define INADDR_BROADCAST        ((unsigned int) 0xffffffff)
 
 /* Address indicating an error return. */
 #define INADDR_NONE             0xffffffff

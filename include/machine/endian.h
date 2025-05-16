@@ -58,9 +58,9 @@
 #include <sys/cdefs.h>
 
 __BEGIN_DECLS
-unsigned long   htonl __P((unsigned long));
+unsigned int    htonl __P((unsigned int));
 unsigned short  htons __P((unsigned short));
-unsigned long   ntohl __P((unsigned long));
+unsigned int    ntohl __P((unsigned int));
 unsigned short  ntohs __P((unsigned short));
 __END_DECLS
 
