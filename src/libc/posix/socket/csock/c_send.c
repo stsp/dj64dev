@@ -60,18 +60,10 @@ ssize_t __csock_send (LSCK_SOCKET *lsd,
 	if (ret < 0) {
 		if (-ret < CSOCK_ERR_MIN) ret = -ret; /* TDI error code */
 		errno = __csock_errno (ret);
-		ret = -1;
+		return -1;
 	}
 
-	/* NOTE: SOCK.VXD returns the sent length in EAX & ECX. ECX, however,
-	 * is bitwise OR'd with some kind of status byte, so it's value may
-	 * differ from the actual sent length. So, use EAX here. */
-
-	/*else {
-	  ret = sentlen;
-	  }*/
-
-	return (ret);
+	return sentlen;
 }
 
 /* ------------------
