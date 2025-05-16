@@ -24,13 +24,11 @@
 
 #include <stdint.h>
 
-void dosobj_init(void *ptr, int size);
-void dosobj_reinit(void *ptr, int size);
+void dosobj_init(void);
 void dosobj_free(void);
-uint32_t mk_dosobj(uint16_t len);
-void pr_dosobj(uint32_t fa, const void *data, uint16_t len);
-void cp_dosobj(void *data, uint32_t fa, uint16_t len);
+uint32_t mk_dosobj(uint32_t len);
+void pr_dosobj(uint32_t fa, const void *data, uint32_t len);
+void cp_dosobj(void *data, uint32_t fa, uint32_t len);
 void rm_dosobj(uint32_t fa);
-void dosobj_dump(void);
 
 #endif

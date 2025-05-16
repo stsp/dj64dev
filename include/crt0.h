@@ -68,7 +68,6 @@ char **__crt0_glob_function(char *_arg);
 
 #ifdef _IN_DJ64
 EXTERN ASM(int, _crt0_startup_flags);
-EXTERN ASM_ARR(unsigned char, dosobj_page, 4096);
 #else
 extern int _crt0_startup_flags;
 #endif

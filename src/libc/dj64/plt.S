@@ -409,8 +409,3 @@ dj64_plt_call:
     movl $AUX_USER, %ebx
     call_plt
     ret
-
-.bss
-
-.global _dosobj_page
-_dosobj_page: .space 4096

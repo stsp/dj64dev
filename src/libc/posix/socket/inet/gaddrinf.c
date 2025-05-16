@@ -28,7 +28,7 @@ int getaddrinfo(const char *restrict host, const char *restrict serv,
     const struct addrinfo *restrict hint, struct addrinfo **restrict res)
 {
 	struct addrinfo *ret = malloc(sizeof(*ret));
-	struct sockaddr_in *sin = (struct sockaddr_in *)ret->ai_addr;
+	struct sockaddr_in *sin = malloc(sizeof(*sin));
 	struct hostent *h = gethostbyname(host);
 
 	if (!h)
@@ -39,6 +39,7 @@ int getaddrinfo(const char *restrict host, const char *restrict serv,
 	ret->ai_protocol = IPPROTO_TCP;
 	ret->ai_addrlen = sizeof(struct sockaddr_in);
 	sin->sin_addr = *(struct in_addr *)h->h_addr;
+	ret->ai_addr = (struct sockaddr *)sin;
 	ret->ai_canonname = strdup(h->h_name);
 	ret->ai_next = NULL;
 	*res = ret;
@@ -48,5 +49,6 @@ int getaddrinfo(const char *restrict host, const char *restrict serv,
 void freeaddrinfo(struct addrinfo *res)
 {
 	free(res->ai_canonname);
+	free(res->ai_addr);
 	free(res);
 }
