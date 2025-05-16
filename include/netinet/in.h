@@ -99,7 +99,7 @@ typedef unsigned short in_port_t;
 #endif	/* __libsocket_in_port_t */
 
 #ifndef __libsocket_in_addr_t
-typedef unsigned long in_addr_t;
+typedef unsigned in_addr_t;
 #define __libsocket_in_addr_t
 #endif	/* __libsocket_in_addr_t */
 
@@ -129,6 +129,7 @@ struct sockaddr_in {
 			    sizeof(in_port_t)
 			    - sizeof(struct in_addr)];
 }; /* RD: Pack it for transmission/usage! */
+_Static_assert(sizeof(struct sockaddr_in) == __SOCK_SIZE__, "bad sock size");
 #define sin_zero __pad /* for BSD UNIX comp. -FvK      */
 
 /*

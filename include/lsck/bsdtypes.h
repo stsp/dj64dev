@@ -34,10 +34,10 @@
 extern "C" {
 #endif
 
-typedef unsigned long int   u_int32_t;
+typedef unsigned int        u_int32_t;
 typedef unsigned short      u_int16_t;
 
-typedef unsigned long       u_long;
+typedef unsigned int        u_long;
 typedef unsigned int        u_int;
 typedef unsigned short      u_short;
 typedef unsigned char       u_char;

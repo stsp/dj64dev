@@ -78,7 +78,7 @@ typedef unsigned short in_port_t;
 #endif	/* __libsocket_in_port_t */
 
 #ifndef __libsocket_in_addr_t
-typedef unsigned long in_addr_t;
+typedef unsigned in_addr_t;
 #define __libsocket_in_addr_t
 #endif	/* __libsocket_in_addr_t */
 

@@ -21,7 +21,7 @@
 extern int _net_stayopen;
 
 struct netent *
-getnetbyaddr(unsigned long net, int type)
+getnetbyaddr(unsigned net, int type)
 {
 	register struct netent *p;
 

@@ -830,7 +830,7 @@ getanswer( const querybuf *answer, int anslen, const char *qname,
 				buflen -= nn;
 			}
 
-			bp += sizeof(align) - ((u_long)bp % sizeof(align));
+			bp += sizeof(align) - ((uintptr_t)bp % sizeof(align));
 
 			if (bp + n >= &hostbuf[sizeof hostbuf]) {
 #ifdef DEBUG
