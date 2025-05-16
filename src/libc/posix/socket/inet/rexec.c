@@ -97,7 +97,7 @@ retry:
 		char num[32];
 		int s2;
 		/* Richard Dawe (libsocket): int -> size_t */
-		size_t sin2len;
+		socklen_t sin2len;
 
 		s2 = socket(AF_INET, SOCK_STREAM, 0);
 		if (s2 < 0) {
@@ -126,7 +126,7 @@ retry:
 		(void) write(s, num, strlen(num)+1);
 		{
                   /* Richard Dawe (libsocket): int -> size_t */
-                  size_t len = sizeof (from);
+                  socklen_t len = sizeof (from);
 		  s3 = accept(s2, (struct sockaddr *)&from, &len);
 		  close(s2);
 		  if (s3 < 0) {

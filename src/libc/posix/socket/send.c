@@ -45,7 +45,7 @@ ssize_t send (int s, const void *msg, size_t len, unsigned int flags)
  * ---------- */
 
 ssize_t sendto (int s, const void *msg, size_t len, unsigned int flags,
-                struct sockaddr *to, size_t tolen)
+                struct sockaddr *to, socklen_t tolen)
 {
     LSCK_SOCKET *lsd;
     ssize_t ret;

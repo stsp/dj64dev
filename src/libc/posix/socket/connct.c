@@ -37,11 +37,11 @@
  * - connect -
  * ----------- */
 
-int connect (int s, struct sockaddr *serv_addr, size_t addrlen)
+int connect (int s, struct sockaddr *serv_addr, socklen_t addrlen)
 {
 	LSCK_SOCKET *lsd;
 	int ret;
-	size_t sock_addrlen;
+	socklen_t sock_addrlen;
 
 	/* Find the socket descriptor */
 	lsd = __fd_to_lsd (s);

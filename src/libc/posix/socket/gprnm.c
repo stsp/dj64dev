@@ -36,7 +36,7 @@
  * - getpeername -
  * --------------- */
 
-int getpeername (int s, struct sockaddr *name, size_t *namelen)
+int getpeername (int s, struct sockaddr *name, socklen_t *namelen)
 {
     LSCK_SOCKET *lsd;
     int ret = -1;		/* Fail by default */

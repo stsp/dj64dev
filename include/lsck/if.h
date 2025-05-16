@@ -89,12 +89,12 @@ typedef struct _LSCK_SOCKET {
 	/* Socket local name */
 	struct sockaddr sockname;
 	char pad1[__SOCKADDR_PAD_SIZE];
-	size_t socknamelen;
+	socklen_t socknamelen;
 
 	/* Socket peer name */
 	struct sockaddr peername;
 	char pad2[__SOCKADDR_PAD_SIZE];
-	size_t peernamelen;
+	socklen_t peernamelen;
 
 	/* Status information */
 	unsigned char bound:1;		/* Socket has been bound     */
@@ -199,23 +199,23 @@ typedef struct _LSCK_IF {
 			    int /* type */,
 			    int /* protocol */);
 
-        int (*addrlen_check) (LSCK_SOCKET * /* lsd */, size_t /* addrlen */);
+        int (*addrlen_check) (LSCK_SOCKET * /* lsd */, socklen_t /* addrlen */);
 	/* TODO: route_check */
 
         int (*bind) (LSCK_SOCKET *     /* lsd */,
 		     struct sockaddr * /* addr */,
-		     size_t            /* addrlen */);
+		     socklen_t            /* addrlen */);
 
         int (*listen) (LSCK_SOCKET * /* lsd */, int /* backlog */);
 
         int (*accept) (LSCK_SOCKET *     /* lsd */,
 		       LSCK_SOCKET *     /* nsd */,
 		       struct sockaddr * /* addr */,
-		       size_t *          /* addrlen */);
+		       socklen_t *          /* addrlen */);
 
         int (*connect) (LSCK_SOCKET *     /* lsd */,
 			struct sockaddr * /* addr */,
-			size_t            /* addrlen */);
+			socklen_t            /* addrlen */);
 
         ssize_t (*recv) (LSCK_SOCKET * /* lsd */,
 			 void *        /* buf */,
@@ -227,7 +227,7 @@ typedef struct _LSCK_IF {
 			     size_t            /* len */,
 			     unsigned int      /* flags */,
 			     struct sockaddr * /* from */,
-			     size_t *          /* fromlen */);
+			     socklen_t *          /* fromlen */);
 
         ssize_t (*send) (LSCK_SOCKET * /* lsd */,
 			 const void *  /* buf */,
@@ -239,29 +239,29 @@ typedef struct _LSCK_IF {
 			   size_t            /* len */,
 			   unsigned int      /* flags */,
 			   struct sockaddr * /* to */,
-			   size_t            /* tolen */);
+			   socklen_t            /* tolen */);
 
         int (*getsockname) (LSCK_SOCKET * /* lsd */,
 			    struct sockaddr * /* name */,
-			    size_t * /* namelen */);
+			    socklen_t * /* namelen */);
 
         int (*getpeername) (LSCK_SOCKET *     /* lsd */,
 			    struct sockaddr * /* name */,
-			    size_t *          /* namelen */);
+			    socklen_t *          /* namelen */);
 
         int (*getsockopt) (LSCK_SOCKET * /* lsd */,
 			   int *         /* rv */,
 			   int           /* level */,
 			   int           /* optname */,
 			   void *        /* optval */,
-			   size_t *      /* optlen */);
+			   socklen_t *      /* optlen */);
 
         int (*setsockopt) (LSCK_SOCKET * /* lsd */,
 			   int *         /* rv */,
 			   int           /* level */,
 			   int           /* optname */,
 			   const void *  /* optval */,
-			   size_t        /* optlen */);
+			   socklen_t        /* optlen */);
 
         int (*shutdown) (LSCK_SOCKET * /* lsd */, int /* how */);
 

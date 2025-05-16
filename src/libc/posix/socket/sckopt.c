@@ -36,22 +36,22 @@
 
 /* Emulation functions */
 int getsockopt_emulated (LSCK_SOCKET *lsd, int level, int optname,
-			 void *optval, size_t *optlen);
+			 void *optval, socklen_t *optlen);
 
 int setsockopt_emulated (LSCK_SOCKET *lsd, int level, int optname,
-			 const void *optval, size_t optlen);
+			 const void *optval, socklen_t optlen);
 
 /* --------------
  * - getsockopt -
  * -------------- */
 
-int getsockopt (int s, int level, int optname, void *optval, size_t *optlen)
+int getsockopt (int s, int level, int optname, void *optval, socklen_t *optlen)
 {
 	LSCK_SOCKET *lsd;
 	void   *my_optval = optval;
-	size_t *my_optlen = optlen;
+	socklen_t *my_optlen = optlen;
 	char    buf[16];		/* Temp. buffer if optval == NULL  */
-	size_t  buflen = sizeof(buf);	/* Temp. buffer size               */
+	socklen_t  buflen = sizeof(buf);	/* Temp. buffer size               */
 	int handled = 0;		/* If interface handled, set to 1. */
 	int rv;
 	int ret = -1;			/* Fail by default                 */
@@ -104,7 +104,7 @@ int getsockopt (int s, int level, int optname, void *optval, size_t *optlen)
  * ----------------------- */
 
 int getsockopt_emulated (LSCK_SOCKET *lsd, int level, int optname,
-			 void *optval, size_t *optlen)
+			 void *optval, socklen_t *optlen)
 {
 	int *i_optval = (int *) optval;
 	int ret = 0;	/* Succeed by default. */
@@ -154,7 +154,7 @@ int getsockopt_emulated (LSCK_SOCKET *lsd, int level, int optname,
  * -------------- */
 
 int setsockopt (int s, int level, int optname, const void *optval,
-                size_t optlen)
+                socklen_t optlen)
 {
 	LSCK_SOCKET *lsd;
 	int handled = 0;	/* If the interface handled it, set to 1. */
@@ -199,7 +199,7 @@ int setsockopt (int s, int level, int optname, const void *optval,
  * ----------------------- */
 
 int setsockopt_emulated (LSCK_SOCKET *lsd, int level, int optname,
-			 const void *optval, size_t optlen)
+			 const void *optval, socklen_t optlen)
 {
 	errno = ENOPROTOOPT;
 	return(-1);

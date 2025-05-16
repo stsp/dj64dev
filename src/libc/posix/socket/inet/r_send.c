@@ -528,7 +528,7 @@ res_send( const u_char *buf, int buflen, u_char *ans, int anssiz )
 			struct sockaddr_in from;
 
 			/* Richard Dawe (libsocket): int -> size_t */
-			size_t fromlen;
+			socklen_t fromlen;
 
 			if ((s < 0) || vc) {
 				if (vc)

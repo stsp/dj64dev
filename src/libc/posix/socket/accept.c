@@ -50,7 +50,7 @@ extern LSCK_SOCKET *__lsck_socket[__LSCK_NUM_SOCKET];
  * - accept -
  * ---------- */
 
-int accept (int s, struct sockaddr *addr, size_t *addrlen)
+int accept (int s, struct sockaddr *addr, socklen_t *addrlen)
 {
 	LSCK_SOCKET *lsd;		/* Current socket descriptor */
 	LSCK_SOCKET *nsd;		/* New socket descriptor     */

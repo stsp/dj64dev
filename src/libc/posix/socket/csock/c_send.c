@@ -80,13 +80,13 @@ ssize_t __csock_send (LSCK_SOCKET *lsd,
 
 ssize_t __csock_sendto (LSCK_SOCKET *lsd,
                         const void *msg, size_t len, unsigned int flags,
-		        struct sockaddr *to, size_t tolen)
+		        struct sockaddr *to, socklen_t tolen)
 {
 	LSCK_SOCKET_CSOCK *csock = (LSCK_SOCKET_CSOCK *) lsd->idata;
 	ssize_t ret;
 	ULONG32 sentlen;
 	struct sockaddr_in bind_sin;
-	size_t bind_sin_len;
+	socklen_t bind_sin_len;
 	struct sockaddr_in *to_sa = (struct sockaddr_in *) to;
 
 	/* If this is a datagram socket, bind to a local address, if

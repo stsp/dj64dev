@@ -79,7 +79,7 @@ extern int __csock_proto_check (int /* domain */,
 				int /* protocol */);
 
 extern int __csock_addrlen_check (LSCK_SOCKET * /* lsd */,
-				  size_t /* addrlen */);
+				  socklen_t /* addrlen */);
 
 extern int __csock_socket (LSCK_SOCKET * /* lsd */);
 
@@ -89,18 +89,18 @@ extern int __csock_close (LSCK_SOCKET * /* lsd */);
 
 extern int __csock_bind (LSCK_SOCKET *     /* lsd */,
                          struct sockaddr * /* my_addr */,
-			 size_t            /* addrlen */);
+			 socklen_t            /* addrlen */);
 
 extern int __csock_accept (LSCK_SOCKET *     /* lsd */,
 			   LSCK_SOCKET *     /* nsd */,
 			   struct sockaddr * /* sockaddr */,
-			   size_t *          /* addrlen */);
+			   socklen_t *          /* addrlen */);
 
 extern int __csock_listen (LSCK_SOCKET * /* lsd */, int /* backlog */);
 
 extern int __csock_connect (LSCK_SOCKET *     /* lsd */,
 			    struct sockaddr * /* serv_addr */,
-			    size_t            /* addrlen */);
+			    socklen_t            /* addrlen */);
 
 extern ssize_t __csock_recv (LSCK_SOCKET * /* lsd */,
 			     void *        /* buf */,
@@ -112,7 +112,7 @@ extern ssize_t __csock_recvfrom (LSCK_SOCKET *     /* lsd */,
 				 size_t            /* len */,
                                  unsigned int      /* flags */,
                                  struct sockaddr * /* from */,
-				 size_t *          /* fromlen */);
+				 socklen_t *          /* fromlen */);
 
 extern ssize_t __csock_send (LSCK_SOCKET * /* lsd */,
 			     const void *  /* msg */,
@@ -124,15 +124,15 @@ extern ssize_t __csock_sendto (LSCK_SOCKET *     /* lsd */,
 			       size_t            /* len */,
                                unsigned int      /* flags */,
                                struct sockaddr * /* to */,
-			       size_t            /* tolen */);
+			       socklen_t            /* tolen */);
 
 extern int __csock_getpeername (LSCK_SOCKET *     /* lsd */,
                                 struct sockaddr * /* name */,
-				size_t *          /* namelen */);
+				socklen_t *          /* namelen */);
 
 extern int __csock_getsockname (LSCK_SOCKET *     /* lsd */,
 				struct sockaddr * /* name */,
-				size_t *          /* namelen */);
+				socklen_t *          /* namelen */);
 
 extern int __csock_shutdown (LSCK_SOCKET * /* lsd */, int /* how */);
 
@@ -157,7 +157,7 @@ extern int __csock_getsockopt (LSCK_SOCKET * /* lsd */,
 			       int           /* level */,
 			       int           /* optname */,
                                void *        /* optval */,
-			       size_t *      /* optlen */);
+			       socklen_t *      /* optlen */);
 
 /* File descriptor tracking */
 extern void __csock_fd_set_usage (int /* fd */, int /* flag */);

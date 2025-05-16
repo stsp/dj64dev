@@ -66,7 +66,7 @@ ssize_t __csock_recv (LSCK_SOCKET *lsd,
 
 ssize_t __csock_recvfrom (LSCK_SOCKET *lsd,
                           void *buf, size_t len, unsigned int flags,
-		          struct sockaddr *from, size_t *fromlen)
+		          struct sockaddr *from, socklen_t *fromlen)
 {
 	LSCK_SOCKET_CSOCK *csock = (LSCK_SOCKET_CSOCK *) lsd->idata;
 	ssize_t ret;

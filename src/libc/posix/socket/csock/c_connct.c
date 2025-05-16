@@ -34,7 +34,7 @@
  * ------------------- */
 
 int __csock_connect (LSCK_SOCKET *lsd,
-                     struct sockaddr *serv_addr, size_t addrlen)
+                     struct sockaddr *serv_addr, socklen_t addrlen)
 {
 	LSCK_SOCKET_CSOCK *csock = (LSCK_SOCKET_CSOCK *) lsd->idata;
 	struct sockaddr_in *sai = (struct sockaddr_in *) serv_addr;

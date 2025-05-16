@@ -40,7 +40,7 @@
 
 int
 __csock_accept (LSCK_SOCKET *lsd, LSCK_SOCKET *nsd,
-		struct sockaddr *addr, size_t *addrlen)
+		struct sockaddr *addr, socklen_t *addrlen)
 {
   LSCK_SOCKET_CSOCK *csock    = (LSCK_SOCKET_CSOCK *) lsd->idata;
   LSCK_SOCKET_CSOCK *ncsock   = NULL;

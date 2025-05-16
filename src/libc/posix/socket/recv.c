@@ -80,7 +80,7 @@ ssize_t recv (int s, void *buf, size_t len, unsigned int flags)
  * ------------ */
 
 ssize_t recvfrom (int s, void *buf, size_t len, unsigned int flags,
-                  struct sockaddr *from, size_t *fromlen)
+                  struct sockaddr *from, socklen_t *fromlen)
 {
     LSCK_SOCKET *lsd;
     ssize_t ret;

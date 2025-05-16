@@ -31,7 +31,7 @@
  * - __csock_bind -
  * ---------------- */
 
-int __csock_bind (LSCK_SOCKET * lsd, struct sockaddr *my_addr, size_t addrlen)
+int __csock_bind (LSCK_SOCKET * lsd, struct sockaddr *my_addr, socklen_t addrlen)
 {
 	LSCK_SOCKET_CSOCK *csock = (LSCK_SOCKET_CSOCK *) lsd->idata;
 	struct sockaddr_in *my_sa = (struct sockaddr_in *) my_addr;

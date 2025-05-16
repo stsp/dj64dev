@@ -37,12 +37,12 @@
  * - bind -
  * -------- */
 
-int bind (int s, struct sockaddr *my_addr, size_t addrlen)
+int bind (int s, struct sockaddr *my_addr, socklen_t addrlen)
 {
 	/* Cope with long addresses. */
 	char             buf[__SOCKADDR_MAX_SIZE];
 	struct sockaddr *bound_addr    = (struct sockaddr *) buf;
-	size_t           bound_addrlen = sizeof(buf);
+	socklen_t           bound_addrlen = sizeof(buf);
 
 	LSCK_SOCKET *lsd;
 	int ret;

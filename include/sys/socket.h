@@ -327,25 +327,25 @@ struct cmsghdr {
 
 extern int socket (int, int, int);
 extern int socketpair (int, int, int, int [2]);
-extern int bind (int, struct sockaddr *, size_t);
+extern int bind (int, struct sockaddr *, socklen_t);
 extern int listen (int, int);
-extern int connect (int, struct sockaddr *, size_t);
-extern int accept (int, struct sockaddr *, size_t *);
+extern int connect (int, struct sockaddr *, socklen_t);
+extern int accept (int, struct sockaddr *, socklen_t *);
 
 extern ssize_t recv (int, void *, size_t, unsigned int);
 extern ssize_t recvfrom (int, void *, size_t, unsigned int,
-                         struct sockaddr *, size_t *);
+                         struct sockaddr *, socklen_t *);
 extern ssize_t recvmsg (int, struct msghdr *, int);
 
 extern ssize_t send (int, const void *, size_t, unsigned int);
 extern ssize_t sendto (int, const void *, size_t, unsigned int,
-		       struct sockaddr *, size_t);
+		       struct sockaddr *, socklen_t);
 extern ssize_t sendmsg (int, const struct msghdr *, int);
 
-extern int getsockname (int, struct sockaddr *, size_t *);
-extern int getpeername (int, struct sockaddr *, size_t *);
-extern int getsockopt (int, int, int, void *, size_t *);
-extern int setsockopt (int, int, int, const void *, size_t);
+extern int getsockname (int, struct sockaddr *, socklen_t *);
+extern int getpeername (int, struct sockaddr *, socklen_t *);
+extern int getsockopt (int, int, int, void *, socklen_t *);
+extern int setsockopt (int, int, int, const void *, socklen_t);
 
 extern int shutdown (int, int);
 

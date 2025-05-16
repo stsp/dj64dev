@@ -219,7 +219,7 @@ rcmd(char **ahost, unsigned short rport, const char *locuser,
 		int s2 = rresvport(&lport), s3;
 
 		/* Richard Dawe (libsocket): int -> size_t */
-		size_t len = sizeof (from);
+		socklen_t len = sizeof (from);
 
 		if (s2 < 0)
 			goto bad;

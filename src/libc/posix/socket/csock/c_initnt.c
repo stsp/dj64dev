@@ -301,7 +301,7 @@ int __csock_proto_check (int domain, int type, int protocol)
  * - __csock_addrlen_check -
  * ------------------------- */
 
-int __csock_addrlen_check (LSCK_SOCKET *lsd, size_t addrlen)
+int __csock_addrlen_check (LSCK_SOCKET *lsd, socklen_t addrlen)
 {
 	if (lsd->family != AF_INET) return(0);
 	if ((lsd->type != SOCK_STREAM) && (lsd->type != SOCK_DGRAM)) return(0);
