@@ -38,7 +38,7 @@ int getaddrinfo(const char *restrict host, const char *restrict serv,
 	ret->ai_socktype = SOCK_STREAM;
 	ret->ai_protocol = IPPROTO_TCP;
 	ret->ai_addrlen = sizeof(struct sockaddr_in);
-	sin->sin_addr.s_addr = inet_addr(h->h_addr);
+	sin->sin_addr = *(struct in_addr *)h->h_addr;
 	ret->ai_canonname = strdup(h->h_name);
 	ret->ai_next = NULL;
 	*res = ret;

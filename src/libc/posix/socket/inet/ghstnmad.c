@@ -128,7 +128,7 @@ typedef union {
 } querybuf;
 
 typedef union {
-    long al;
+    int al;
     char ac;
 } align;
 
