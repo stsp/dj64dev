@@ -8,7 +8,7 @@ MP = $(P)/mkproto.sh
 GA = $(P)/gen_asms.sh
 LIBN = libdj64.so.0.2
 LIBS = libdj64_s.a
-SOURCES = thunks.c thunks_a.c thunks_c.c thunks_p.c dosobj.c smalloc.c
+SOURCES = thunks.c thunks_a.c thunks_c.c thunks_p.c dosobj.c
 OBJECTS = $(SOURCES:.c=.o)
 
 .INTERMEDIATE: thunk_syms.s thunk_syms.ss
