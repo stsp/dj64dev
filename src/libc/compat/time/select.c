@@ -16,7 +16,7 @@
 
 #include <libc/stubs.h>
 #include <sys/types.h>
-#include <time.h>
+#include <sys/select.h>
 #include <dpmi.h>
 #include <errno.h>
 #include <stdio.h>

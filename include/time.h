@@ -108,7 +108,6 @@ typedef long long uclock_t;
 
 int		gettimeofday(struct timeval *_tp, struct timezone *_tzp);
 unsigned long	rawclock(void);
-int		select(int _nfds, fd_set *_readfds, fd_set *_writefds, fd_set *_exceptfds, struct timeval *_timeout);
 int		settimeofday(struct timeval *_tp, ...);
 void		tzsetwall(void);
 uclock_t	uclock(void);
