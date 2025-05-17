@@ -560,7 +560,7 @@ static uint32_t *find_oh(uint32_t addr, uint32_t objs[MAX_RECUR][MAX_OBJS],
     return NULL;  // should not happen
 }
 
-static uint32_t do_obj_init(const void *data, uint16_t len, int is_out)
+static uint32_t do_obj_init(const void *data, uint32_t len, int is_out)
 {
     uint32_t ret;
     int handle;
@@ -579,17 +579,17 @@ static uint32_t do_obj_init(const void *data, uint16_t len, int is_out)
     return ret;
 }
 
-uint32_t dj64_obj_init(const void *data, uint16_t len)
+uint32_t dj64_obj_init(const void *data, uint32_t len)
 {
     return do_obj_init(data, len, 0);
 }
 
-uint32_t dj64_obj_oinit(const void *data, uint16_t len)
+uint32_t dj64_obj_oinit(const void *data, uint32_t len)
 {
     return do_obj_init(data, len, 1);
 }
 
-void dj64_obj_done(void *data, uint32_t fa, uint16_t len)
+void dj64_obj_done(void *data, uint32_t fa, uint32_t len)
 {
     int handle;
     struct udisp *u;
