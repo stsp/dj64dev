@@ -3,8 +3,9 @@
 
 #include <libc/asmobj.h>
 #include <sys/cdefs.h>
+#include <lsck/lsck.h>
 
-LONG32 ___csock_get_version(__out ULONG32 *ver);
+LONG32 ___csock_get_version(__out ULONG32 *ver, ULONG32 len, __out struct driver_info_rec *di);
 LONG32 ___csock_open(ULONG32 proto, __out ULONG32 *fd);
 LONG32 ___csock_close(ULONG32 fd);
 LONG32 ___csock_bind(ULONG32 fd, ULONG32 addr, unsigned short port);

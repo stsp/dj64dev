@@ -89,39 +89,6 @@ static int csock_inited = 0;
 
 struct driver_info_rec driver_info;
 
-struct driver_head {
-    uint8_t jmp[3];
-    char id[9];
-};
-
-static int init_trumpet(void)
-{
-#define MK_FOFF(s,o) ((int)((((unsigned long)(unsigned short)(s)) << 4) + \
-                      (unsigned short)(o)))
-	int i;
-	__dpmi_regs r = {};
-
-	for (i = 0x60; i < 0x80; i++) {
-		ULONG32 ivec = _farpeekl(_dos_ds, i * 4);
-		ULONG32 lina;
-		struct driver_head dh;
-		if (!ivec)
-			continue;
-		lina = ((ivec & 0xffff0000) >> 12) + (ivec & 0xffff);
-		dosmemget(lina, sizeof(dh), &dh);
-		if (strcmp(dh.id, "TCP_DRVR") == 0)
-			break;
-	}
-	if (i == 0x80)
-		return -1;
-	r.x.ax = 0xff;
-	__dpmi_int(i, &r);
-	if ((r.x.flags & 1) || r.h.al)
-		return -1;
-	dosmemget(MK_FOFF(r.x.es, r.x.di), sizeof(driver_info), &driver_info);
-	return 0;
-}
-
 /* ----------------
  * - __csock_init -
  * ---------------- */
@@ -186,12 +153,9 @@ LSCK_IF *__csock_init (void)
 
 	/* No Windows => no Winsock => fail! */
 	switch(win_ver) {
-	/* Unsupported */
 	case WIN_NONE:
-	    ret = init_trumpet();
-	    if (ret < 0)
-		return NULL;
 	    break;
+	/* Unsupported */
 	case WIN_NT:
 	    return (NULL);
 	    break;
@@ -215,8 +179,9 @@ LSCK_IF *__csock_init (void)
 	 * versions of SOCK.VXD do not support this function call (EAX = 0).
 	 * They will try to find the socket descriptor specified by EDI, so
 	 * pass a bogus one to ensure failure. */
-	ret = ___csock_get_version(&__csock_version);
-	if (ret < 0)
+	ret = ___csock_get_version(&__csock_version, sizeof(driver_info),
+			&driver_info);
+	if (ret < 0 || __csock_version < 2)
 		return NULL;
 
 	/* - Get the IP details - */
