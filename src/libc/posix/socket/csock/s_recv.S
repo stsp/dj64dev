@@ -14,7 +14,7 @@ FUNC(____csock_recv)
     movl ARG1, %edi
     movl ARG2, %esi
     movl ARG3, %ecx
-    movl 9, %eax
+    movl $9, %eax
     lcall *_csock_entry       // Call the entry point for SOCK.VXD
     jc 1f                     // Jump to label 1 if the carry flag is set (error)
     movl ARG4, %edi
