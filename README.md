@@ -14,6 +14,9 @@ sources for DOS. There are the following differences with djgpp:
 - dj64 produces 64-bit code, djgpp produces 32-bit
 - dj64 uses ELF file format, djgpp uses COFF
 - dj64 allows to use host's gdb, djgpp uses some old DOS port of gdb
+- preliminary unicode support
+- mostly complete BSD sockets support
+- out-of-the-box ncurses support
 
 The resulting programs run on the emulated DOS environment, with eg
 [dosemu2](https://github.com/dosemu2/dosemu2) emulator. In theory the 64-bit
@@ -322,6 +325,9 @@ dosemu -l `pwd`/firework
 This way we can ask dosemu2 to load the ELF file directly. Of course
 you can't run every ELF program in dosemu2 this way. It can only execute
 the ELF files produced with dj64dev.
+
+Also you can build
+[gopherus fork](https://github.com/stsp/gopherus/).
 
 ## what's unsupported
 - some crt0 overrides (only `_crt0_startup_flags` override is supported)
