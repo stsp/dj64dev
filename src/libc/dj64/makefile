@@ -40,8 +40,14 @@ asm_incsn.h:
 asym_incs.h:
 	$(GA) 2 $(TOP)/../../include >$@
 
-thunk_calls.tmp thunk_asms.tmp thunk_incs.h &: \
-    libc_tmp.a
+# on Focal we have old make
+need = 4.3
+ifneq ($(filter $(need),$(firstword $(sort $(MAKE_VERSION) $(need)))),)
+thunk_calls.tmp thunk_asms.tmp thunk_incs.h &: libc_tmp.a
+else
+.NOTPARALLEL:
+thunk_calls.tmp thunk_asms.tmp thunk_incs.h : libc_tmp.a
+endif
 	$(MP) $< $(TOP)/../../include thunk_asms.tmp \
 		thunk_calls.tmp thunk_incs.h
 
