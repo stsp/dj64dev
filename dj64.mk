@@ -62,11 +62,10 @@ DJ64_XLDFLAGS += -f 0x20
 endif
 
 # freebsd's dlopen() ignores link order and binds to libc the symbols
-# defined in libdj64.so. Use static linking as a work-around.
-ifneq ($(filter freebsd%,$(MACH)),)
-DJ64STATIC = 1
-endif
-ifneq ($(filter android%,$(MACH)),)
+# defined in libdj64.so.
+# Termux doesn't seem to have RTLD_DEEPBIND.
+# Use static linking as a work-around.
+ifneq ($(filter freebsd% android%,$(MACH)),)
 DJ64STATIC = 1
 endif
 ifeq ($(DJ64STATIC),0)
