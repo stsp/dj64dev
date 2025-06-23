@@ -23,6 +23,11 @@ if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR(Install pkg-config and retry.)
 fi
 
+AC_PATH_PROGS([TIC], [tic])
+if test -z "$TIC"; then
+  AC_MSG_ERROR(Install ncurses (or ncurses-bin) and retry.)
+fi
+
 PKG_CHECK_MODULES([LIBELF], [libelf],, [AC_MSG_ERROR([libelf not installed])])
 
 DJ64_CFLAGS="$CFLAGS \

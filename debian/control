@@ -11,6 +11,7 @@ Build-Depends:
     automake,
     pkgconf,
     libelf-dev,
+    ncurses-bin,
     debhelper (>= 9~)
 Homepage: https://github.com/stsp/djgpp-cvs
 Description: 64-bit djgpp-compatible dev suite

@@ -27,6 +27,7 @@ BuildRequires: elfutils-libelf-devel
 BuildRequires: thunk-gen
 BuildRequires: pkgconf-pkg-config
 BuildRequires: ctags
+BuildRequires: ncurses
 
 %description
 dj64 is a 64-bit djgpp-compatible dev suite.
