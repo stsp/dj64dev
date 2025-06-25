@@ -538,8 +538,8 @@ void
 __djgpp_exception_setup(void)
 {
   __dpmi_paddr except;
-  __dpmi_meminfo lockmem, regmem;
-  size_t i;
+  __dpmi_meminfo lockmem = {}, regmem = {};
+  unsigned int i;
 
   __excep_ds_alias = __djgpp_ds_alias;
   if (ScreenPrimary != 0xa0000)
