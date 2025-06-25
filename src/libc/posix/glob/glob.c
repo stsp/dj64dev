@@ -162,7 +162,7 @@ glob2(const char *pattern, char *epathbuf,  /* both point *after* the slash */
 {
   const char *pp, *pslash;
   char *bp;
-  struct ffblk ff;
+  struct ffblk ff = {};
   char *my_pattern;
   int done;
 
@@ -241,7 +241,7 @@ glob2(const char *pattern, char *epathbuf,  /* both point *after* the slash */
     {
       if (flags & GLOB_MARK)
       {
-        struct ffblk _ff;
+        struct ffblk _ff = {};
         findfirst(pathbuf, &_ff, FA_RDONLY|FA_SYSTEM|FA_DIREC|FA_ARCH);
         if (_ff.ff_attrib & FA_DIREC)
         {
