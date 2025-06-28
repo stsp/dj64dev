@@ -6,8 +6,8 @@ s_fs:	.word	0
 s_gs:	.word	0
 
 	.text
-	.globl	_int86x
-_int86x:
+	.globl	__int86x
+__int86x:
 	movl	16(%esp), %eax
 
 	movl	(%eax), %ecx		/* Do both es & ds at same time */

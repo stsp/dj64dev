@@ -98,6 +98,22 @@ union REGS {		/* Compatible with DPMI structure, except cflag */
   struct BYTEREGS h;
 };
 
+#ifdef DJ64
+struct SREGS {
+  char *es;
+  char *ds;
+  char *fs;
+  char *gs;
+  char *cs;
+  char *ss;
+};
+
+#define P_SEG(p) p
+#define P_OFF(p) 0
+#define SEG_P(s) s
+
+#else
+
 struct SREGS {
   unsigned short es;
   unsigned short ds;
@@ -106,6 +122,13 @@ struct SREGS {
   unsigned short cs;
   unsigned short ss;
 };
+
+#define P_SEG(p) _my_ds()
+#define P_OFF(p) (uintptr_t)(p)
+/* trick, arg unused */
+#define SEG_P(s) (void*)
+
+#endif
 
 struct ftime {
   unsigned ft_tsec:5;	/* 0-29, double to get real seconds */
@@ -162,6 +185,7 @@ int bdos(int _func, unsigned _dx, unsigned _al);
 int bdosptr(int _func, void *_dx, unsigned _al);
 
 int _int86(int ivec, union REGS *in, union REGS *out);
+int _int86x(int ivec, union REGS *in, union REGS *out, struct SREGS *sregs);
 
 #define bdosptr(_a, _b, _c) bdos(_a, (unsigned)(_b), _c)
 #define intdos(_a, _b) int86(0x21, _a, _b)

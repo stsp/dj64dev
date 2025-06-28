@@ -8,6 +8,7 @@ all:
 	$(MAKE) -C hello
 	$(MAKE) -C helloasm
 	$(MAKE) -C rmcb
+	$(MAKE) -C int86
 
 static:
 	$(MAKE) -C asmsimp static
@@ -15,6 +16,7 @@ static:
 #	$(MAKE) -C hello static
 	$(MAKE) -C helloasm static
 	$(MAKE) -C rmcb static
+	$(MAKE) -C int86 static
 
 djgpp/%:
 	$(MAKE) -C asmsimp/djgpp $*
@@ -22,6 +24,7 @@ djgpp/%:
 	$(MAKE) -C hello/djgpp $*
 	$(MAKE) -C helloasm/djgpp $*
 	$(MAKE) -C rmcb/djgpp $*
+	$(MAKE) -C int86/djgpp $*
 
 clean:
 	$(MAKE) -C asmsimp clean
@@ -29,6 +32,7 @@ clean:
 	$(MAKE) -C hello clean
 	$(MAKE) -C helloasm clean
 	$(MAKE) -C rmcb clean
+	$(MAKE) -C int86 clean
 
 src_install: clean djgpp/clean
 	for i in `find . -type d ! -path . -printf '%P\n'`; do \

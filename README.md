@@ -181,6 +181,9 @@ static __dpmi_regs *mouse_regs;
   `unsigned int`. The memory is allocated with `malloc32()` call and freed
   with `free32()` call. This requires a few ifdefs if you want that code to
   be also buildable with djgpp.
+- Use of int86() should either be changed similar to realmode callbacks,
+  or, preferably, replaced with int86x(), as shown
+  [here](https://github.com/stsp/dj64dev/blob/master/demos/int86/file.c)
 - The file named `glob_asm.h`, like
   [this](https://github.com/dosemu2/comcom64/blob/master/src/glob_asm.h)
   or
