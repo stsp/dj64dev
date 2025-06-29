@@ -77,7 +77,7 @@ LSCK_IF __csock_interface =
 	NULL /* sockatmark */
 };
 
-static int CSOCK_VXD_ID = 0x1235;
+static const int CSOCK_VXD_ID = 0x1235;
 //static char CSOCK_VXD_NAME[] = "SOCK.VXD";
 //int csock_entry[2];
 unsigned int __csock_version = 0;
