@@ -43,12 +43,9 @@ int __csock_getsockname (LSCK_SOCKET *lsd,
 {
 	LSCK_SOCKET_CSOCK *csock = (LSCK_SOCKET_CSOCK *) lsd->idata;
 	struct sockaddr_in *sock_sa = (struct sockaddr_in *) name;
-	struct sockaddr_in *peer_sa = (struct sockaddr_in *) &lsd->peername;
-	LSCK_IF_ADDR_INET **inet = NULL;
 	ULONG32 sock_addr = 0;
 	unsigned short sock_port = 0;
-	int ret = 0;
-	int i;
+	int ret;
 
 	if (*namelen < sizeof (struct sockaddr_in)) {
 		errno = ENOBUFS;
@@ -65,36 +62,5 @@ int __csock_getsockname (LSCK_SOCKET *lsd,
 	sock_sa->sin_family = AF_INET;
 	sock_sa->sin_addr.s_addr = sock_addr;
 	sock_sa->sin_port = sock_port;
-
-	/* Just in the case the bug gets fixed. */
-	if ((sock_addr != 0) && __lsck_debug_enabled ())
-		fputs ("__csock_getsockname() now works!\n", stderr);
-
-	/* TODO: Eliminate this nasty hack. It exists because of the problem
-	 * mentioned above. */
-
-	/* Because the getsockname() call above doesn't fill in sock_addr, it
-	 * has to be faked using the data we have about the interface. The
-	 * following code scans the interface address table for the peer's
-	 * network and then returns our interface address on that network. */
-	inet = lsd->interface->addr->table.inet;
-
-	for (i = 0, sock_addr = 0; inet[i] != NULL; i++) {
-		/* Is this on our network? */
-		if ((peer_sa->sin_addr.s_addr & inet[i]->netmask.s_addr)
-		    == (inet[i]->addr.s_addr & inet[i]->netmask.s_addr)) {
-			sock_addr = inet[i]->addr.s_addr;
-			break;
-		}
-
-		/* If this network has a gateway, speculatively use this
-		 * address. If no other networks match, then this will be
-		 used. */
-		if (inet[i]->gw_present)
-			sock_addr = inet[i]->addr.s_addr;
-	}
-
-	sock_sa->sin_addr.s_addr = sock_addr;
-
 	return (0);
 }
