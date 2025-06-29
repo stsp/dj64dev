@@ -161,8 +161,8 @@ extern void        endnetent (void);
 extern void        endprotoent (void);
 extern void        endservent (void);
 /*extern void      endrpcent  (void);*/
-extern int getaddrinfo(const char *restrict host, const char *restrict serv,
-    const struct addrinfo *restrict hint, struct addrinfo **restrict res);
+extern int getaddrinfo(const char *host, const char *serv,
+    const struct addrinfo *hint, struct addrinfo **res);
 extern void freeaddrinfo(struct addrinfo *res);
 extern struct hostent  *gethostbyaddr (const char *, int, int);
 extern struct hostent  *gethostbyname (const char *);

@@ -24,8 +24,8 @@
 
 /* minimal getaddrinfo() */
 
-int getaddrinfo(const char *restrict host, const char *restrict serv,
-    const struct addrinfo *restrict hint, struct addrinfo **restrict res)
+int getaddrinfo(const char *host, const char *serv,
+    const struct addrinfo *hint, struct addrinfo **res)
 {
 	struct addrinfo *ret = malloc(sizeof(*ret));
 	struct sockaddr_in *sin = malloc(sizeof(*sin));
