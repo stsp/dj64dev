@@ -30,7 +30,6 @@ FUNC(____csock_select)
     movl %edx, (%esi)
     movl ARG4, %esi
     movl %edi, (%esi)
-    xorl %eax, %eax           // Clear EAX (set it to 0) on success
 2:
     LEAVE
 1:

@@ -73,10 +73,10 @@ int __csock_select (LSCK_SOCKET * lsd, int event)
 	}
 
 	ret = ___csock_select(&read_fd, &write_fd, &except_fd, &to);
-	if (ret != 0) {
+	if (ret < 0) {
 		errno = __csock_errno (ret);
 		ret = -1;
-	} else {
+	} else if (ret > 0) {
 		/* Success */
 		if (((read_fd & bit) == bit)
 		    || ((write_fd & bit) == bit)
