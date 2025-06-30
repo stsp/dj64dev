@@ -28,9 +28,6 @@
 
 #include "csock.h"
 
-/* Cheers Microsoft */
-#include "tdistat.h"
-
 /* -----------------
  * - __csock_errno -
  * ----------------- */
@@ -65,52 +62,6 @@ int __csock_errno (int i_errno)
 	    return (ENOTCONN);
 	case -CSOCK_ERR_WOULD_BLOCK:
 	    return (EWOULDBLOCK);
-
-	    /* Errors SOCK.VXD has passed through from TDI */
-	case TDI_SUCCESS:
-	    return (0);		       /* No error! */
-	case TDI_NO_RESOURCES:
-	    return (ENOBUFS);
-	case TDI_ADDR_IN_USE:
-	    return (EADDRINUSE);
-	    /* TDI_NO_FREE_ADDR */
-	    /* TDI_ADDR_INVALID */
-	    /* TDI_ADDR_DELETED */
-	    /* TDI_BUFFER_OVERFLOW */
-	    /* TDI_BAD_EVENT_TYPE */
-	    /* TDI_BAD_OPTION */
-	case TDI_CONN_REFUSED:
-	    return (ECONNREFUSED);
-	case TDI_INVALID_CONNECTION:
-	    return (ENOTCONN);
-	    /* TDI_ALREADY_ASSOCIATED */
-	    /* TDI_NOT_ASSOCIATED */
-	case TDI_CONNECTION_ACTIVE:
-	    return (EISCONN);
-	case TDI_CONNECTION_ABORTED:
-	    return (ECONNREFUSED);
-	case TDI_CONNECTION_RESET:
-	    return (ECONNRESET);
-	case TDI_TIMED_OUT:
-	    return (ETIMEDOUT);
-	case TDI_GRACEFUL_DISC:
-	    return (ECONNRESET);
-	    /* TDI_NOT_ACCEPTED */
-	    /* TDI_MORE_PROCESSING */
-	    /* TDI_INVALID_STATE */
-	    /* TDI_INVALID_PARAMETER */
-	case TDI_DEST_NET_UNREACH:
-	    return (ENETUNREACH);
-	case TDI_DEST_HOST_UNREACH:
-	case TDI_DEST_PORT_UNREACH: /* TODO: Hmm */
-	    return (EHOSTUNREACH);
-	    /* TDI_DEST_PROT_UNREACH */
-	    /* TDI_INVALID_QUERY */
-	    /* TDI_BUFFER_TOO_SMALL */
-	    /* TDI_CANCELLED */
-	    /* TDI_BUFFER_TOO_BIG */
-	    /* TDI_INVALID_REQUEST */
-	    /* TDI_PENDING */
 
 	    /*default:                        return(EINVAL); */
 	    /* Return the current errno by default */
