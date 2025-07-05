@@ -54,8 +54,13 @@ typedef union
 
 typedef union
 {
+#ifdef HAVE___FLOAT80
   long double ld;
   long_double_t ldt;
+#else
+  double ld;
+  double_t ldt;
+#endif
 } _longdouble_union_t;
 
 typedef union

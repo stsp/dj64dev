@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([dj64dev], [0.2])
-#AC_CONFIG_HEADERS([src/config.hh])
+AC_CONFIG_HEADERS([config.hh])
 AC_CONFIG_FILES([
   Makefile.conf
   dj64.pc
@@ -187,5 +187,7 @@ fi
 if ! $UCTAGS --version | grep "Universal Ctags" >/dev/null; then
   AC_MSG_ERROR([bsd ctags do not suit, install universal-ctags])
 fi
+
+AC_CHECK_TYPES([__float80])
 
 AC_OUTPUT
