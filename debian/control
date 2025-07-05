@@ -20,7 +20,7 @@ Description: 64-bit djgpp-compatible dev suite
 Package: dj64
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Description: dj64 runtime libraries
+Description: runtime libraries for dj64
  This package contains runtime libraries for dj64-built programs.
 
 Package: dj64-dev
@@ -32,7 +32,7 @@ Depends: dj64 (= ${binary:Version}), ${misc:Depends},
     gcc,
     binutils-i686-linux-gnu,
     pkgconf
-Description: dj64 development tools and headers
+Description: development tools and headers of dj64
  This package contains tools and headers for building dj64-enabled programs.
 
 Package: dj64-dev-static
