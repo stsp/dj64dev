@@ -672,7 +672,7 @@ __maybe_fix_w2k_ntvdm_bug(void)
 }
 #endif
 
-void
+void NORETURN
 _exit(int status)
 {
 #ifndef DJ64
