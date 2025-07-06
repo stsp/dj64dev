@@ -34,7 +34,6 @@ DJ64_CFLAGS="$CFLAGS \
 -fno-common \
 -fpic \
 -ffreestanding \
--flto=auto \
 -nostdinc \
 -ggdb3 \
 -Og \
