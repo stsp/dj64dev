@@ -88,13 +88,13 @@ $(LIB)/$(LIBS): $(TOP)/makefile.rf $(ALL_OBJS) \
 	ar q $@ $(ALL_OBJS) $(OBJECTS)
 	ar s $@
 
-$(LIB)/libc.a: libc_tmp.a plt.o | $(LIB)
+$(LIB)/libc_s.a: libc_tmp.a plt.o | $(LIB)
 	cp -f $< libctmp.a
 	$(CROSS_AR) q libctmp.a plt.o
 	$(CROSS_AR) s libctmp.a
 	mv -f libctmp.a $@
 
-$(LIB)/crt0.elf: $(LIB)/libc.a
+$(LIB)/crt0.elf: $(LIB)/libc_s.a
 	$(CROSS_LD) --whole-archive $< -melf_i386 -static $(XLD_IMB_OPT)=0x08048000 -o $@
 	$(CROSS_STRIP) --strip-debug $@
 	chmod -x $@
@@ -105,9 +105,9 @@ $(LIB)/uplt.o: uplt.o
 $(LIB)/libdj64.so: $(LIB)/$(LIBN) | $(LIB)
 	ln -sf $(LIBN) $@
 
-final: $(LIB)/libc.a $(LIB)/libdj64.so $(LIB)/$(LIBS) $(LIB)/crt0.elf \
+final: $(LIB)/libc_s.a $(LIB)/libdj64.so $(LIB)/$(LIBS) $(LIB)/crt0.elf \
   $(LIB)/uplt.o | $(LIB)
 
 clean::
 	$(RM) rm *.a *.tmp plt.inc asm_*.h thunk_*.h plt_*.h asym_incs.h
-	$(RM) $(LIB)/libc.a $(LIB)/libdj64.so*
+	$(RM) $(LIB)/libc_s.a $(LIB)/libdj64.so*

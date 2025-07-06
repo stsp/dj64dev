@@ -105,7 +105,7 @@ May be needed on non-glibc systems.
 
 %files dj64-devel-static
 %defattr(-,root,root)
-%{_prefix}/i386-pc-dj64/lib/libc.a
+%{_prefix}/i386-pc-dj64/lib/libc_s.a
 %{_prefix}/i386-pc-dj64/lib64/libdj64_s.a
 %{_datadir}/pkgconfig/dj64_s.pc
 %{_datadir}/pkgconfig/dj64static.pc

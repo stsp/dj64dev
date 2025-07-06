@@ -4,7 +4,7 @@ ATOP = $(abspath $(TOP))
 export prefix
 export PKG_CONFIG_PATH := $(PKG_CONFIG_PATH):$(datadir)/pkgconfig:$(libdir)/pkgconfig
 
-DJLIBC = $(TOP)/lib/libc.a
+DJLIBC = $(TOP)/lib/libc_s.a
 DJCRT0 = $(TOP)/lib/crt0.elf
 DJUCRT0 = $(TOP)/lib/uplt.o
 DJ64LIB = $(TOP)/lib/libdj64.so.*.*

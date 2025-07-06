@@ -2,4 +2,4 @@ Name: dj64static
 Description: dj64static libs
 Version: @VERSION@
 prefix=@prefix@
-Libs: --whole-archive ${prefix}/i386-pc-dj64/lib/libc.a --no-whole-archive
+Libs: --whole-archive ${prefix}/i386-pc-dj64/lib/libc_s.a --no-whole-archive

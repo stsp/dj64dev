@@ -32,7 +32,7 @@ GNU General Public License, either version 3, or (at your option)
 any later version (GPLv3+). That includes the sources without an
 explicit licensing information within.
 
-All sources used to build `crt0.elf`, `libc.a` and `libdj64*`
+All sources used to build `crt0.elf`, `libc_s.a` and `libdj64*`
 are distributed under the terms of the GNU LGPL, with the particular
 version of LGPL either written in the source file itself, or, in case
 of the reference to "copying.dj", is LGPLv2.1+. That allows you to
