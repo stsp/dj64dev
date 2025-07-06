@@ -1,3 +1,3 @@
 #!/bin/sh
 
-autoreconf -v -i -I m4
+autoreconf -v -i

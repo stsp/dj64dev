@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([dj64dev], [0.2])
 AC_CONFIG_HEADERS([config.hh])
+AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_FILES([
   Makefile.conf
   dj64.pc
@@ -17,6 +18,11 @@ AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_INSTALL
 AX_PROG_CC_FOR_BUILD
+#AX_PROG_AR
+AC_CHECK_TOOL([AR], [ar], [:])
+if test -z "$AR" -o "$AR" = ":"; then
+  AC_MSG_ERROR(You don't have ar installed)
+fi
 
 AC_CHECK_PROGS([PKG_CONFIG], [pkg-config])
 if test -z "$PKG_CONFIG"; then

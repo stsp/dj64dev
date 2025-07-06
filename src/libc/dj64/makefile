@@ -85,8 +85,8 @@ $(LIB)/$(LIBN): $(TOP)/makefile.rf $(ALL_OBJS) \
 $(LIB)/$(LIBS): $(TOP)/makefile.rf $(ALL_OBJS) \
   thunk_calls.h thunk_asms.h $(OBJECTS)
 	@-$(RM) $@
-	ar q $@ $(ALL_OBJS) $(OBJECTS)
-	ar s $@
+	$(AR) cr $@ $(ALL_OBJS) $(OBJECTS)
+	$(AR) s $@
 
 $(LIB)/libc_s.a: libc_tmp.a plt.o | $(LIB)
 	cp -f $< libctmp.a
