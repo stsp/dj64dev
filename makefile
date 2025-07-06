@@ -135,6 +135,8 @@ $(NC_BUILD):
 	mkdir -p $@
 $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD) $(DJ64DEVL)
 	cd $(NC_BUILD) && \
+	  CC="$(CC)" \
+	  LD="$(CC)" \
 	  CPPFLAGS="$(L_CPPFLAGS)" \
 	  CFLAGS="$(CFLAGS) $(L_CFLAGS)" \
 	  LIBS="$(L_LIBS)" \
