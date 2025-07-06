@@ -67,7 +67,7 @@ static inline int do_setjmp(minimal_jmp_buf _env)
       // Clobbers.
       // We have used x9 as a temporary
       "x0","x1","x2","x3","x4","x5","x6","x7","x8","x9","x10",
-      "x11","x12","x13","x14","x15","x16","x17","x18",
+      "x11","x12","x13","x14","x15","x16","x17",
       // We have written to memory locations
       "memory");
 
