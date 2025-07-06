@@ -141,7 +141,7 @@ $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD) $(DJ64DEVL)
 	  CFLAGS="$(CFLAGS) $(L_CFLAGS)" \
 	  LIBS="$(L_LIBS)" \
 	  LDFLAGS="$(L_LDFLAGS)" \
-  ../configure --host=x86_64-pc-linux-gnu \
+  ../configure --host=$(shell uname -m)-pc-linux-gnu \
     --prefix=$(R_PREFIX) \
     --libdir=$(R_LIBDIR) \
     --without-manpages \
