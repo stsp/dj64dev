@@ -9,11 +9,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-FILE *mf, *oi, *rf, *rfo;
-char starting_dir[2000];
-char top_dir[2000];
-char path[2000];
-int do_oh_files = 0;
+static FILE *mf, *oi, *rf, *rfo;
+static char _starting_dir[2000];
+static char _top_dir[2000];
+static char path[2000];
+static int do_oh_files = 0;
 
 void
 process_makefile(char *path_end, const char *mk, FILE *rf)
@@ -173,17 +173,25 @@ int
 main(int argc, char **argv)
 {
   char *notepwd;
+  char *starting_dir, *top_dir;
+  int err;
 
-  getcwd(starting_dir, 200);
+  starting_dir = getcwd(_starting_dir, 200);
+  if (!starting_dir)
+    return EXIT_FAILURE;
 
   if (argc > 2 && strcmp(argv[1], "-C") == 0)
   {
-    chdir(argv[2]);
+    err = chdir(argv[2]);
+    if (err)
+      return EXIT_FAILURE;
     argc -= 2;
     argv += 2;
   }
 
-  getcwd(top_dir, 200);
+  top_dir = getcwd(_top_dir, 200);
+  if (!top_dir)
+    return EXIT_FAILURE;
   notepwd = strrchr(top_dir, '/');
   if (notepwd)
     notepwd++;
@@ -213,7 +221,9 @@ main(int argc, char **argv)
   strcpy(path, ".");
   find();
 
-  chdir(starting_dir);
+  err = chdir(starting_dir);
+  if (err)
+    return EXIT_FAILURE;
 
   if (!do_oh_files)
     fclose(mf);
