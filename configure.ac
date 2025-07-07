@@ -54,12 +54,8 @@ DJ64_CFLAGS="$CFLAGS \
 -Wwrite-strings \
 -Wundef \
 -Wno-array-bounds \
--Wno-unneeded-internal-declaration \
--Wno-unknown-warning-option \
 -Wsign-compare \
--Wold-style-definition \
--Wno-error=maybe-uninitialized"
-AC_SUBST(DJ64_CFLAGS)
+-Wold-style-definition"
 
 machine=`$CC -dumpmachine | cut -d- -f1 | sed 's/i.86/i386/'`
 
@@ -77,11 +73,18 @@ if $CC -v 2>&1 | grep 'clang' >/dev/null; then
     AC_MSG_ERROR([Need clang-3.7 or newer, or use gcc instead])
   fi
   CC_IS_CLANG=1
+  DJ64_CFLAGS="$DJ64_CFLAGS \
+    -Wno-unneeded-internal-declaration \
+    -Wno-unknown-warning-option"
 else
   AC_MSG_RESULT([no])
   CC_IS_CLANG=0
+  DJ64_CFLAGS="$DJ64_CFLAGS \
+    -Wno-error=maybe-uninitialized"
+
 fi
 AC_SUBST(CC_IS_CLANG)
+AC_SUBST(DJ64_CFLAGS)
 
 if test -n "$CROSS_PREFIX"; then
   AC_PATH_PROG([CROSS_AS], [${CROSS_PREFIX}as])
