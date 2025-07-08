@@ -47,10 +47,6 @@ typedef struct {
   long rem;
 } ldiv_t;
 
-#ifndef NORETURN
-#define NORETURN
-#endif
-
 void	NORETURN abort(void);
 int	abs(int _i);
 #define atexit(x) __dj_atexit(x)

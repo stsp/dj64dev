@@ -44,6 +44,10 @@ __DJ_wchar_t
 #define _WCHAR_T
 #endif
 
+#ifndef NORETURN
+#define NORETURN __attribute__((noreturn))
+#endif
+
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) \
   || !defined(__STRICT_ANSI__) || defined(__cplusplus)
 

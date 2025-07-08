@@ -51,18 +51,12 @@ endif
 	$(MP) $< $(TOP)/../../include thunk_asms.tmp \
 		thunk_calls.tmp thunk_incs.h
 
-TGMK = $(shell pkg-config --silence-errors --variable=makeinc thunk_gen)
+TGMK = $(shell $(PKG_CONFIG) --silence-errors --variable=makeinc thunk_gen)
 ifeq ($(wildcard $(TGMK)),)
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
 $(error thunk_gen not installed)
 endif
 else
-ifeq ($(filter clean,$(MAKECMDGOALS)),)
-$(shell pkg-config --atleast-version=1.1 thunk_gen)
-ifneq ($(.SHELLSTATUS),0)
-$(error thunk_gen is too old, 1.1 is needed)
-endif
-endif
 TFLAGS = -a 4 -p 4
 include $(TGMK)
 endif

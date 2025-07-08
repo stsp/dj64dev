@@ -17,12 +17,10 @@
 #ifndef __dj_include_assert_h_
 #define __dj_include_assert_h_
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#ifndef NORETURN
-#define NORETURN
 #endif
 
 void	NORETURN __dj_assert(const char *,const char *,int,const char *);

@@ -24,6 +24,12 @@ uint64_t dj64_asm_call(int num, uint8_t *sp, uint8_t len,
     int flags);
 uint64_t dj64_asm_call_u(int handle, int libid, int num, uint8_t *sp,
     uint8_t len, int flags);
+NORETURN
+void dj64_asm_noret(int num, uint8_t *sp, uint8_t len,
+    int flags);
+NORETURN
+void dj64_asm_noret_u(int handle, int libid, int num, uint8_t *sp,
+    uint8_t len, int flags);
 uint8_t *dj64_clean_stk(size_t len);
 uint32_t dj64_obj_init(const void *data, uint32_t len);
 uint32_t dj64_obj_oinit(const void *data, uint32_t len);

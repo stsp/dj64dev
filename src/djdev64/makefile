@@ -1,7 +1,6 @@
 TOP = ../..
 include $(TOP)/Makefile.conf
 prefix ?= /usr/local
-PKG_CONFIG ?= pkg-config
 SOURCES = djdev64.c elf.c djexec.c
 OBJECTS = $(SOURCES:.c=.o)
 CFLAGS += -iquote include -fpic -ggdb3 -Wall -Wmissing-prototypes -Og -MD \

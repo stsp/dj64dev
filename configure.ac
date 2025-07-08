@@ -35,11 +35,13 @@ if test -z "$TIC"; then
 fi
 
 PKG_CHECK_MODULES([LIBELF], [libelf],, [AC_MSG_ERROR([libelf not installed])])
+PKG_CHECK_MODULES([TG], [thunk_gen >= 1.5],, [
+  AC_MSG_ERROR([thunk-gen >= 1.5 not installed])
+])
 
 DJ64_CFLAGS="$CFLAGS \
 -fno-common \
 -fpic \
--ffreestanding \
 -nostdinc \
 -ggdb3 \
 -Og \

@@ -739,7 +739,7 @@ res_send( const u_char *buf, int buflen, u_char *ans, int anssiz )
   const char *x="";
 		DprintQ((_res.options & RES_DEBUG) ||
 			(_res.pfcode & RES_PRF_REPLY),
-			(stdout, x),
+			(stdout, "%s", x),
 			ans, resplen);
 }
 		/*

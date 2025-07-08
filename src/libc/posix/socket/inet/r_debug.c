@@ -229,7 +229,7 @@ do_rrset( const u_char *msg, int len, const u_char *cp, int cnt,
 	if ((n = ntohs(cnt))) {
 		if ((!_res.pfcode) ||
 		    ((sflag) && (_res.pfcode & RES_PRF_HEAD1)))
-			fprintf(file, hs);
+			fputs(hs, file);
 		while (--n >= 0) {
 			if ((!_res.pfcode) || sflag) {
 				cp = __p_rr(cp, msg, file);
@@ -479,7 +479,7 @@ __p_rr( const u_char *cp, const u_char *msg, FILE *file )
 	cp += INT16SZ;
 	cp1 = cp;
 	if ((!_res.pfcode) || (_res.pfcode & RES_PRF_TTLID))
-		fprintf(file, "\t%lu", (u_long)tmpttl);
+		fprintf(file, "\t%u", (u_long)tmpttl);
 	if ((!_res.pfcode) || (_res.pfcode & RES_PRF_CLASS))
 		fprintf(file, "\t%s", __p_class(class));
 	fprintf(file, "\t%s", __p_type(type));
@@ -548,18 +548,18 @@ __p_rr( const u_char *cp, const u_char *msg, FILE *file )
 			return (NULL);
 		fputs(" (\n", file);
 		t = _getlong(cp);  cp += INT32SZ;
-		fprintf(file, "\t\t\t%lu\t; serial\n", (u_long)t);
+		fprintf(file, "\t\t\t%u\t; serial\n", (u_long)t);
 		t = _getlong(cp);  cp += INT32SZ;
-		fprintf(file, "\t\t\t%lu\t; refresh (%s)\n",
+		fprintf(file, "\t\t\t%u\t; refresh (%s)\n",
 			(u_long)t, __p_time(t));
 		t = _getlong(cp);  cp += INT32SZ;
-		fprintf(file, "\t\t\t%lu\t; retry (%s)\n",
+		fprintf(file, "\t\t\t%u\t; retry (%s)\n",
 			(u_long)t, __p_time(t));
 		t = _getlong(cp);  cp += INT32SZ;
-		fprintf(file, "\t\t\t%lu\t; expire (%s)\n",
+		fprintf(file, "\t\t\t%u\t; expire (%s)\n",
 			(u_long)t, __p_time(t));
 		t = _getlong(cp);  cp += INT32SZ;
-		fprintf(file, "\t\t\t%lu )\t; minimum (%s)",
+		fprintf(file, "\t\t\t%u )\t; minimum (%s)",
 			(u_long)t, __p_time(t));
 		break;
 
@@ -778,7 +778,7 @@ __p_option( u_long option )
 	case RES_DNSRCH:	return "dnsrch";
 	case RES_INSECURE1:	return "insecure1";
 	case RES_INSECURE2:	return "insecure2";
-	default:		sprintf(nbuf, "?0x%lx?", (u_long)option);
+	default:		sprintf(nbuf, "?0x%x?", (u_long)option);
 				return (nbuf);
 	}
 }

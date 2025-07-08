@@ -10,6 +10,8 @@
 #ifndef __dj_include_unistd_h_
 #define __dj_include_unistd_h_
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -104,9 +106,6 @@ __DJ_size_t
 #ifndef _SSIZE_T
 __DJ_ssize_t
 #define _SSIZE_T
-#endif
-#ifndef NORETURN
-#define NORETURN
 #endif
 
 extern char *optarg;
