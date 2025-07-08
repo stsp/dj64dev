@@ -43,8 +43,10 @@
 #define __RET_PTR(t, v) djaddr2ptr(v)
 #ifdef _IN_DJ64
 #define __CALL(n, s, l, f) dj64_asm_call(n, s, l, f)
+#define __CALL_v_nr(n, s, l, f) dj64_asm_noret(n, s, l, f)
 #else
 #define __CALL(n, s, l, f) dj64_asm_call_u(_handle, _libid, n, s, l, f)
+#define __CALL_v_nr(n, s, l, f) dj64_asm_noret_u(_handle, _libid, n, s, l, f)
 #endif
 #define __CSTK(l) dj64_clean_stk(l)
 

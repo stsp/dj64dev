@@ -45,7 +45,7 @@ __DJ_wchar_t
 #endif
 
 #ifndef NORETURN
-#define NORETURN
+#define NORETURN __attribute__((noreturn))
 #endif
 
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) \

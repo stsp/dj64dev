@@ -482,12 +482,7 @@ static uint64_t do_asm_call(struct udisp *u, struct athunks *pt,
     assert(num < pt->num);
     pma.selector = cs;
     pma.offset32 = pt->tab[num];
-    if (flags & _TFLG_NORET) {
-        djlogprintf("NORET call %s: 0x%x:0x%x\n", pt->at[num].name,
-            pma.selector, pma.offset32);
-        dj64api->asm_noret(&u->s_regs, pma, sp, len);
-        longjmp(*u->noret_jmp, ASM_NORET);
-    }
+    assert(!(flags & _TFLG_NORET));
     djlogprintf("asm call %s: 0x%x:0x%x\n", pt->at[num].name,
             pma.selector, pma.offset32);
     rc = dj64api->asm_call(&u->s_regs, pma, sp, len);
@@ -502,6 +497,18 @@ static uint64_t do_asm_call(struct udisp *u, struct athunks *pt,
         break;
     }
     return u->s_regs.eax | ((uint64_t)u->s_regs.edx << 32);
+}
+
+static void do_asm_noret(struct udisp *u, struct athunks *pt,
+        unsigned cs, int num, uint8_t *sp, uint8_t len)
+{
+    dpmi_paddr pma;
+    assert(num < pt->num);
+    pma.selector = cs;
+    pma.offset32 = pt->tab[num];
+    djlogprintf("NORET call %s: 0x%x:0x%x\n", pt->at[num].name,
+            pma.selector, pma.offset32);
+    dj64api->asm_noret(&u->s_regs, pma, sp, len);
 }
 
 uint64_t dj64_asm_call(int num, uint8_t *sp, uint8_t len, int flags)
@@ -541,6 +548,45 @@ uint64_t dj64_asm_call_u(int handle, int libid, int num, uint8_t *sp,
     for (i = 0; i < num_chooks; i++)
         chooks[i].restore(handle);
     return ret;
+}
+
+NORETURN
+void dj64_asm_noret(int num, uint8_t *sp, uint8_t len, int flags)
+{
+    int i;
+    struct udisp *u;
+    int handle = dj64api->get_handle();
+    assert(handle < MAX_HANDLES);
+    for (i = 0; i < num_chooks; i++)
+        chooks[i].save();
+    u = &udisps[handle];
+    do_asm_noret(u, &u->core_pt, u->cs, num, sp, len);
+    /* asm call can recursively invoke dj64, so restore context here */
+    for (i = 0; i < num_chooks; i++)
+        chooks[i].restore(handle);
+    longjmp(*u->noret_jmp, ASM_NORET);
+}
+
+NORETURN
+void dj64_asm_noret_u(int handle, int libid, int num, uint8_t *sp,
+        uint8_t len, int flags)
+{
+    int i;
+    struct udisp *u;
+
+    assert(handle < MAX_HANDLES);
+    u = &udisps[handle];
+    if (!u->pt[libid]) {
+        djloudprintf("no user thunks\n");
+        longjmp(*u->noret_jmp, ASM_ABORT);
+    }
+    for (i = 0; i < num_chooks; i++)
+        chooks[i].save();
+    do_asm_noret(u, u->pt[libid], u->cs, num, sp, len);
+    /* asm call can recursively invoke dj64, so restore context here */
+    for (i = 0; i < num_chooks; i++)
+        chooks[i].restore(handle);
+    longjmp(*u->noret_jmp, ASM_NORET);
 }
 
 uint8_t *dj64_clean_stk(size_t len)
