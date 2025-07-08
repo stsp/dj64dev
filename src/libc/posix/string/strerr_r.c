@@ -11,7 +11,7 @@
 int
 strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {
-  char ebuf[ strlen(UNKNOWN_ERROR_STR "-2147483648") + 1 ]; /* -2147483648 is
+  char ebuf[ sizeof(UNKNOWN_ERROR_STR "-2147483648") ]; /* -2147483648 is
 							       INT_MIN. */
   const char *p;
   int length;

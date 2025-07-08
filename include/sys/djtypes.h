@@ -32,7 +32,7 @@
 #define __DJ_wchar_t
 #else
 /* but remains a typedef in C */
-#define __DJ_wchar_t    typedef unsigned short wchar_t;
+#define __DJ_wchar_t    typedef int wchar_t;
 #endif
 
 #define __DJ_wint_t     typedef int wint_t;
