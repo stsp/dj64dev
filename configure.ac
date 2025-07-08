@@ -199,5 +199,7 @@ if ! $UCTAGS --version | grep "Universal Ctags" >/dev/null; then
 fi
 
 AC_CHECK_TYPES([__float80])
+AC_CHECK_FUNCS([dlmopen])
+AC_CHECK_DECLS([RTLD_DEEPBIND],,, [[#include <dlfcn.h>]])
 
 AC_OUTPUT

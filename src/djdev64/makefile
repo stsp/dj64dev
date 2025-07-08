@@ -1,13 +1,12 @@
 TOP = ../..
 include $(TOP)/Makefile.conf
-prefix ?= /usr/local
 SOURCES = djdev64.c elf.c djexec.c
 OBJECTS = $(SOURCES:.c=.o)
 CFLAGS += -iquote include -fpic -ggdb3 -Wall -Wmissing-prototypes -Og -MD \
   $(LIBELF_CFLAGS)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -imacros $(TOP)/config.hh -c -o $@ $<
 
 LIBDIR = $(TOP)/lib
 LIBN = libdjdev64.so.0.2

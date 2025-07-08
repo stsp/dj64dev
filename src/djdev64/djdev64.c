@@ -27,10 +27,6 @@
 #include "djdev64/djdev64.h"
 #include "elf_priv.h"
 
-#ifdef __GLIBC__
-#define HAVE_DLMOPEN 1
-#endif
-
 static int handles;
 #define HNDL_MAX 5
 struct dj64handle {
@@ -209,13 +205,13 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
         dlh = dlmopen(LM_ID_NEWLM, path, RTLD_LOCAL | RTLD_NOW);
 #else
         fprintf(stderr, "dlmopen() not supported, use static linking\n");
-#ifdef RTLD_DEEPBIND
+#if HAVE_DECL_RTLD_DEEPBIND
         dlh = emu_dlmopen(handles, path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND,
                 &path2);
 #endif
 #endif
 #else
-#ifdef RTLD_DEEPBIND
+#if HAVE_DECL_RTLD_DEEPBIND
         if (flags & DJ64F_NOMANGLE)
             dlh = dlopen(path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND);
         else
