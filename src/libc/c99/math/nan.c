@@ -11,7 +11,7 @@ nan(const char *tagp)
   char buf[256];
   ssize_t s;
 
-  if (tagp)
+//  if (tagp)
   {
     /*
      * If we can't fit NAN(<tagp>) in the buffer, just return NAN.

@@ -42,7 +42,6 @@ PKG_CHECK_MODULES([TG], [thunk_gen >= 1.5],, [
 DJ64_CFLAGS="$CFLAGS \
 -fno-common \
 -fpic \
--ffreestanding \
 -nostdinc \
 -ggdb3 \
 -Og \

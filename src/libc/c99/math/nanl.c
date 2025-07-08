@@ -12,7 +12,7 @@ nanl(const char *tagp)
   char buf[256];
   int s;
 
-  if (tagp)
+//  if (tagp)
   {
     /*
      * If we can't fit NAN(<tagp>) in the buffer, just return NAN.
