@@ -45,12 +45,14 @@ static void exit_exec(void *handle, int rc);
 int djdev64_exec(const char *path, int handle, int libid, unsigned flags)
 {
     struct exec_handle *eh = &ehands[0];
+    int rtld_flags = RTLD_LOCAL | RTLD_NOW;
     dj64init2_t *i2;
 
     eh->dlobj = NULL;
 #if HAVE_DECL_RTLD_DEEPBIND
-    eh->dlobj = dlopen(path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND);
+    rtld_flags |= RTLD_DEEPBIND;
 #endif
+    eh->dlobj = dlopen(path, rtld_flags);
     if (!eh->dlobj) {
         printf("error loading %s: %s\n", path, dlerror());
         return -1;

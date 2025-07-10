@@ -211,15 +211,31 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
 #endif
 #endif
 #else
+        /* Can as well use RTLD_GLOBAL, as we never override libc symbols
+         * because libc is loaded before us. But for safety lets use
+         * RTLD_LOCAL. */
+        int rtld_flags = RTLD_LOCAL | RTLD_NOW;
 #if HAVE_DECL_RTLD_DEEPBIND
-        if (flags & DJ64F_NOMANGLE)
-            dlh = dlopen(path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND);
-        else
-            dlh = emu_dlmopen(handles, path, RTLD_LOCAL | RTLD_NOW | RTLD_DEEPBIND,
-                &path2);
+        rtld_flags |= RTLD_DEEPBIND;
 #else
-        fprintf(stderr, "RTLD_DEEPBIND not supported, use static linking\n");
+        /*
+         * Works only with symbol versioning in both libc and
+         * libdj64. Otherwise libc, which is loaded before us,
+         * will trap our symbols.
+         * - no version in libdj64: unversioned undefined
+         *   symbols intended for libdj64, are bound to libc,
+         *   to either its unversioned or default symbols
+         * - no version in libc: either versioned or unversioned
+         *   undefined symbols intended for libdj64, are bound
+         *   to libc
+         * Wish: add some feature (ELF flag? RTLD flag?) to disallow
+         * undefined versioned symbols binding to unversioned ones.
+         */
 #endif
+        if (flags & DJ64F_NOMANGLE)
+            dlh = dlopen(path, rtld_flags);
+        else
+            dlh = emu_dlmopen(handles, path, rtld_flags, &path2);
 #endif
     }
     if (!dlh) {
