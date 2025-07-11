@@ -27,12 +27,14 @@
 int getaddrinfo(const char *host, const char *serv,
     const struct addrinfo *hint, struct addrinfo **res)
 {
-	struct addrinfo *ret = malloc(sizeof(*ret));
-	struct sockaddr_in *sin = malloc(sizeof(*sin));
+	struct addrinfo *ret;
+	struct sockaddr_in *sin;
 	struct hostent *h = gethostbyname(host);
 
-	if (!h)
+	if (!h || !h->h_addr)
 		return -1;
+	ret = malloc(sizeof(*ret));
+	sin = malloc(sizeof(*sin));
 	ret->ai_flags = 0;
 	ret->ai_family = AF_INET;
 	ret->ai_socktype = SOCK_STREAM;
