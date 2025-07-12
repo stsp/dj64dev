@@ -150,7 +150,7 @@ select(int nfds,
 
   then.tv_sec = 0;
   then.tv_usec = 0;
-  if (timeout)
+  if (timeout && (timeout->tv_sec || timeout->tv_usec))
   {
     if (timeout->tv_usec < 0)
     {
@@ -264,10 +264,17 @@ select(int nfds,
     /* Exit if we hit the time limit.  */
     if (timeout)
     {
-      gettimeofday (&now, 0);
-      if (now.tv_sec > then.tv_sec
-	  || (now.tv_sec == then.tv_sec && now.tv_usec >= then.tv_usec))
+      int done = 0;
+      if (timeout->tv_sec || timeout->tv_usec)
       {
+        gettimeofday (&now, 0);
+        if (now.tv_sec > then.tv_sec
+	    || (now.tv_sec == then.tv_sec && now.tv_usec >= then.tv_usec))
+	  done++;
+      } else {
+	done++;
+      }
+      if (done) {
 	if (readfds)
 	  FD_ZERO (readfds);
 	if (writefds)
