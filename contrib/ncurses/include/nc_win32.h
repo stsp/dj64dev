@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2018-2023,2024 Thomas E. Dickey                                *
+ * Copyright 2018-2024,2025 Thomas E. Dickey                                *
  * Copyright 2008-2010,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -31,7 +31,7 @@
  * Author: Thomas Dickey, 2008-on                                           *
  ****************************************************************************/
 
-/* $Id: nc_win32.h,v 1.14 2024/10/19 21:06:23 tom Exp $ */
+/* $Id: nc_win32.h,v 1.17 2025/03/29 16:45:33 Daniel.Starke Exp $ */
 
 #ifndef NC_WIN32_H
 #define NC_WIN32_H 1
@@ -100,7 +100,7 @@ extern NCURSES_EXPORT(HANDLE) _nc_console_handle(int fd);
 extern NCURSES_EXPORT(int)    _nc_console_isatty(int fd);
 extern NCURSES_EXPORT(int)    _nc_console_test(int fd);
 extern NCURSES_EXPORT(int)    _nc_console_read(SCREEN *sp,HANDLE hdl,int *buf);
-extern NCURSES_EXPORT(int)    _nc_console_twait(SCREEN *, HANDLE,int,int,int * EVENTLIST_2nd(_nc_eventlist * evl));
+extern NCURSES_EXPORT(int)    _nc_console_twait(const SCREEN *sp, HANDLE hdl,int mode,int msec,int *left EVENTLIST_2nd(_nc_eventlist * evl));
 extern NCURSES_EXPORT(WORD)   _nc_console_MapColor(bool fore, int color);
 extern NCURSES_EXPORT(void)   _nc_console_selectActiveHandle(void);
 extern NCURSES_EXPORT(bool)   _nc_console_get_SBI(void);
@@ -109,6 +109,7 @@ extern NCURSES_EXPORT(int)    _nc_console_testmouse(const SCREEN *,HANDLE,int EV
 extern NCURSES_EXPORT(int)    _nc_console_keyok(int keycode,int flag);
 extern NCURSES_EXPORT(bool)   _nc_console_keyExist(int keycode);
 extern NCURSES_EXPORT(bool)   _nc_console_checkinit(bool initFlag, bool assumeTermInfo);
+extern NCURSES_EXPORT(bool)   _nc_console_restore(void);
 extern NCURSES_EXPORT(int)    _nc_console_vt_supported(void);
 
 #ifdef _NC_CHECK_MINTTY
@@ -175,8 +176,6 @@ typedef struct {
 
 extern NCURSES_EXPORT_VAR(ConsoleInfo) _nc_CONSOLE;
 #define WINCONSOLE _nc_CONSOLE
-
-#define TypeAlloca(type,count)(type*) _alloca(sizeof(type)*(size_t)(count))
 
 #endif /* EVENTLIST_2nd */
 

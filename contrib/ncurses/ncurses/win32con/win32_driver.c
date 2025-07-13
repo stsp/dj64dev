@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2018-2020,2023 Thomas E. Dickey                                *
+ * Copyright 2018-2023,2025 Thomas E. Dickey                                *
  * Copyright 2008-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -38,28 +38,23 @@
  */
 
 #include <curses.priv.h>
+
 #ifdef _NC_WINDOWS
-#if (defined(__MINGW32__) || defined(__MINGW64__))
-#include <wchar.h>
-#else
-#include <tchar.h>
-#endif
-#include <io.h>
 
 #define CUR TerminalType(my_term).
 
-MODULE_ID("$Id: win32_driver.c,v 1.4 2023/09/16 16:29:24 tom Exp $")
+MODULE_ID("$Id: win32_driver.c,v 1.9 2025/06/21 14:19:28 tom Exp $")
 
 #define WINMAGIC NCDRV_MAGIC(NCDRV_WINCONSOLE)
 #define EXP_OPTIMIZE 0
 
 static bool console_initialized = FALSE;
 
-#define AssertTCB() assert(TCB != 0 && (TCB->magic == WINMAGIC))
+#define AssertTCB() assert(TCB != NULL && (TCB->magic == WINMAGIC))
 #define validateConsoleHandle() (AssertTCB() , console_initialized ||\
                                  (console_initialized=\
                                   _nc_console_checkinit(TRUE,FALSE)))
-#define SetSP() assert(TCB->csp != 0); sp = TCB->csp; (void) sp
+#define SetSP() assert(TCB->csp != NULL); sp = TCB->csp; (void) sp
 #define AdjustY() (WINCONSOLE.buffered ?\
                    0 : (int) WINCONSOLE.SBI.srWindow.Top)
 #define RevAttr(attr) (WORD) (((attr) & 0xff00) |   \
@@ -171,7 +166,7 @@ con_write16(TERMINAL_CONTROL_BLOCK * TCB,
 	    int y, int x, cchar_t *str, int limit)
 {
     int actual = 0;
-    CHAR_INFO *ci = TypeAlloca(CHAR_INFO, limit);
+    MakeArray(ci, CHAR_INFO, limit);
     COORD loc, siz;
     SMALL_RECT rec;
     int i;
@@ -220,7 +215,7 @@ con_write16(TERMINAL_CONTROL_BLOCK * TCB,
 static BOOL
 con_write8(TERMINAL_CONTROL_BLOCK * TCB, int y, int x, chtype *str, int n)
 {
-    CHAR_INFO *ci = TypeAlloca(CHAR_INFO, n);
+    MakeArray(ci, CHAR_INFO, n);
     COORD loc, siz;
     SMALL_RECT rec;
     int i;
@@ -415,16 +410,16 @@ wcon_doupdate(TERMINAL_CONTROL_BLOCK * TCB)
 	if ((CurScreen(sp)->_clear || NewScreen(sp)->_clear)) {
 	    int x;
 #if USE_WIDEC_SUPPORT
-	    cchar_t *empty = TypeAlloca(cchar_t, Width);
+	    MakeArray(empty, cchar_t, Width);
 	    wchar_t blank[2] =
 	    {
 		L' ', L'\0'
 	    };
 
 	    for (x = 0; x < Width; x++)
-		setcchar(&empty[x], blank, 0, 0, 0);
+		setcchar(&empty[x], blank, 0, 0, NULL);
 #else
-	    chtype *empty = TypeAlloca(chtype, Width);
+	    MakeArray(empty, chtype, Width);
 
 	    for (x = 0; x < Width; x++)
 		empty[x] = ' ';
@@ -530,11 +525,11 @@ wcon_CanHandle(TERMINAL_CONTROL_BLOCK * TCB,
 
     T((T_CALLED("win32con::wcon_CanHandle(%p)"), TCB));
 
-    assert((TCB != 0) && (tname != 0));
+    assert((TCB != NULL) && (tname != NULL));
 
     TCB->magic = WINMAGIC;
 
-    if (tname == 0 || *tname == 0) {
+    if (tname == NULL || *tname == 0) {
 	if (!_nc_console_vt_supported())
 	    code = TRUE;
     } else if (tname != 0 && *tname == '#') {
@@ -551,7 +546,7 @@ wcon_CanHandle(TERMINAL_CONTROL_BLOCK * TCB,
 		|| (strncmp(tname + 1, "win32con", n) == 0))) {
 	    code = TRUE;
 	}
-    } else if (tname != 0 && stricmp(tname, "unknown") == 0) {
+    } else if (tname != NULL && stricmp(tname, "unknown") == 0) {
 	code = TRUE;
     }
 
@@ -589,8 +584,8 @@ wcon_dobeepflash(TERMINAL_CONTROL_BLOCK * TCB,
     int max_cells = (high * wide);
     int i;
 
-    CHAR_INFO *this_screen = TypeAlloca(CHAR_INFO, max_cells);
-    CHAR_INFO *that_screen = TypeAlloca(CHAR_INFO, max_cells);
+    MakeArray(this_screen, CHAR_INFO, max_cells);
+    MakeArray(that_screen, CHAR_INFO, max_cells);
     COORD this_size;
     SMALL_RECT this_region;
     COORD bufferCoord;
@@ -762,11 +757,11 @@ wcon_mode(TERMINAL_CONTROL_BLOCK * TCB, int progFlag, int defFlag)
     TERMINAL *_term = (TERMINAL *) TCB;
     int code = ERR;
 
+    T((T_CALLED("win32con::wcon_mode(%p, progFlag=%d, defFlag=%d)"),
+       TCB, progFlag, defFlag));
+
     if (validateConsoleHandle()) {
 	sp = TCB->csp;
-
-	T((T_CALLED("win32con::wcon_mode(%p, progFlag=%d, defFlag=%d)"),
-	   TCB, progFlag, defFlag));
 
 	WINCONSOLE.progMode = progFlag;
 	WINCONSOLE.lastOut = progFlag ? WINCONSOLE.hdl : WINCONSOLE.out;
@@ -1059,7 +1054,7 @@ wcon_initacs(TERMINAL_CONTROL_BLOCK * TCB,
 	for (n = 0; n < SIZEOF(table); ++n) {
 	    real_map[table[n].acs_code] =
 		(chtype) table[n].use_code | A_ALTCHARSET;
-	    if (sp != 0)
+	    if (sp != NULL)
 		sp->_screen_acs_map[table[n].acs_code] = TRUE;
 	}
     }

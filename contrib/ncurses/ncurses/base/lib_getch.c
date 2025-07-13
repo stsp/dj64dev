@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2018-2023,2024 Thomas E. Dickey                                *
+ * Copyright 2018-2024,2025 Thomas E. Dickey                                *
  * Copyright 1998-2015,2016 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -44,7 +44,7 @@
 #define NEED_KEY_EVENT
 #include <curses.priv.h>
 
-MODULE_ID("$Id: lib_getch.c,v 1.147 2024/08/31 15:54:49 tom Exp $")
+MODULE_ID("$Id: lib_getch.c,v 1.150 2025/03/09 00:43:49 tom Exp $")
 
 #include <fifo_defs.h>
 
@@ -414,7 +414,7 @@ recur_wgetnstr(WINDOW *win, char *buf)
     SCREEN *sp = _nc_screen_of(win);
     int rc;
 
-    if (sp != 0) {
+    if (sp != NULL) {
 #ifdef USE_PTHREADS
 	if (_nc_use_pthreads && sp != CURRENT_SCREEN) {
 	    SCREEN *save_SP;
@@ -457,7 +457,7 @@ _nc_wgetch(WINDOW *win,
     *result = 0;
 
     sp = _nc_screen_of(win);
-    if (win == 0 || sp == 0) {
+    if (win == NULL || sp == NULL) {
 	returnCode(ERR);
     }
 
@@ -513,7 +513,7 @@ _nc_wgetch(WINDOW *win,
 
     recur_wrefresh(win);
 
-    if (win->_notimeout || (win->_delay >= 0) || (IsCbreak(sp) > 1)) {
+    if ((win->_delay >= 0) || (IsCbreak(sp) > 1)) {
 	if (head == -1) {	/* fifo is empty */
 	    int delay;
 

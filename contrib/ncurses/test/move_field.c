@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2020-2023,2024 Thomas E. Dickey                                *
+ * Copyright 2020-2024,2025 Thomas E. Dickey                                *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -26,7 +26,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: move_field.c,v 1.19 2024/10/06 21:12:35 tom Exp $
+ * $Id: move_field.c,v 1.22 2025/07/05 15:11:35 tom Exp $
  *
  * Demonstrate move_field().
  */
@@ -91,19 +91,21 @@ my_help_edit_field(void)
 	const char *code = keyname(commands[n].code);
 	size_t need = 5;
 #ifdef NCURSES_VERSION
-	if ((name = form_request_name(commands[n].result)) == 0)
+	if ((name = form_request_name(commands[n].result)) == NULL)
 #endif
 	    name = commands[n].help;
 	need = 5 + strlen(code) + strlen(name);
 	msg = typeMalloc(char, need);
-	_nc_SPRINTF(msg, _nc_SLIMIT(need) "%s -- %s", code, name);
-	msgs[used++] = msg;
+	if (msg != NULL) {
+	    _nc_SPRINTF(msg, _nc_SLIMIT(need) "%s -- %s", code, name);
+	    msgs[used++] = msg;
+	}
     }
     msgs[used++] =
 	strdup("Arrow keys move within a field as you would expect.");
-    msgs[used] = 0;
+    msgs[used] = NULL;
     popup_msg2(stdscr, msgs);
-    for (n = 0; msgs[n] != 0; ++n) {
+    for (n = 0; msgs[n] != NULL; ++n) {
 	free(msgs[n]);
     }
     free(msgs);
@@ -444,7 +446,7 @@ demo_forms(void)
 
     all_fields[n] = (FIELD *) 0;
 
-    if ((form = new_form(all_fields)) != 0) {
+    if ((form = new_form(all_fields)) != NULL) {
 	int finished = 0;
 
 	post_form(form);
@@ -466,7 +468,7 @@ demo_forms(void)
 
 	free_form(form);
     }
-    for (c = 0; all_fields[c] != 0; c++) {
+    for (c = 0; all_fields[c] != NULL; c++) {
 	free_edit_field(all_fields[c]);
 	free_field(all_fields[c]);
     }
@@ -501,11 +503,8 @@ main(int argc, char *argv[])
 
     while ((ch = getopt(argc, argv, OPTS_COMMON)) != -1) {
 	switch (ch) {
-	case OPTS_VERSION:
-	    show_version(argv);
-	    ExitProgram(EXIT_SUCCESS);
 	default:
-	    usage(ch == OPTS_USAGE);
+	    CASE_COMMON;
 	    /* NOTREACHED */
 	}
     }

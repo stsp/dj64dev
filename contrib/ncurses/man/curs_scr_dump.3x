@@ -1,5 +1,5 @@
 .\"***************************************************************************
-.\" Copyright 2018-2023,2024 Thomas E. Dickey                                *
+.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
 .\" Copyright 1998-2010,2017 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,8 +27,8 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: curs_scr_dump.3x,v 1.49 2024/09/21 09:30:22 tom Exp $
-.TH curs_scr_dump 3X 2024-09-21 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
+.\" $Id: curs_scr_dump.3x,v 1.55 2025/01/19 00:51:10 tom Exp $
+.TH curs_scr_dump 3X 2025-01-18 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
 .ie \n(.g \{\
 .ds `` \(lq
 .ds '' \(rq
@@ -186,8 +186,7 @@ and
 .B \%scr_set
 may be implemented as macros.
 .SH PORTABILITY
-X/Open Curses,
-Issue 4 describes these functions.
+X/Open Curses Issue\ 4 describes these functions.
 It specifies no error conditions for them.
 .\" Unusually, SVID 4 explicitly indicated "OK" as a possible return
 .\" value, rather than the "integer other than ERR" refrain (p. 529).
@@ -198,31 +197,48 @@ SVr4 omitted the
 qualifiers.
 .PP
 SVr4 documentation describes
-.B \%scr_init
+.I \%scr_init
 such that the dump data is also considered invalid
 \*(``if the time-stamp of the tty is old\*(''
 but does not define \*(``old\*(''.
 .PP
-As of 2024, PDCurses provides these functions.
-NetBSD curses does not provide these functions,
-although it provides \fB\%getwin\fP.
+As of 2024,
+.I \%PDCurses
+provides these functions.
+NetBSD
+.I curses
+does not.
 .PP
-Other implementations of curses store the window in binary form.
-One drawback to binary form is that this makes the dump dependent upon
-the curses library's internal data structures.
-Rather than do that, ncurses stores the dump in textual form,
+Other implementations of
+.I curses
+store the window in binary form,
+which makes the dump dependent
+upon the
+.I curses
+library's internal data structures.
+.I \%ncurses
+avoids this drawback by storing the dump in textual form,
 allowing more flexible use of the data.
-For instance, SVr4 curses \fB\%scr_restore\fP requires that the
-dumped window have the same dimensions as the restored window.
-ncurses uses \fB\%wresize\fP to adjust the restored window size.
+For instance,
+the
+.I \%scr_restore
+of SVr4
+.I curses
+requires that the dumped window have the same dimensions
+as the restored window.
+.I \%ncurses
+uses its
+\fB\%wresize\fP(3X)
+extension
+to adjust the restored window size.
 .SH HISTORY
 SVr3 (1987) introduced
-.BR \%scr_dump ","
-.BR \%scr_init ","
+.IR \%scr_dump ","
+.IR \%scr_init ","
 and
-.BR \%scr_restore "."
+.IR \%scr_restore "."
 SVr3.1 added
-.BR \%scr_set "."
+.IR \%scr_set "."
 .SH SEE ALSO
 .na
 \fB\%curses\fP(3X),

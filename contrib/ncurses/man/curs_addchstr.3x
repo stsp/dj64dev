@@ -1,5 +1,5 @@
 .\"***************************************************************************
-.\" Copyright 2019-2023,2024 Thomas E. Dickey                                *
+.\" Copyright 2019-2024,2025 Thomas E. Dickey                                *
 .\" Copyright 1998-2012,2017 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,8 +27,8 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: curs_addchstr.3x,v 1.50 2024/07/27 20:05:41 tom Exp $
-.TH curs_addchstr 3X 2024-07-27 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
+.\" $Id: curs_addchstr.3x,v 1.62 2025/03/15 20:41:04 tom Exp $
+.TH curs_addchstr 3X 2025-03-15 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
 .ie \n(.g \{\
 .ds `` \(lq
 .ds '' \(rq
@@ -61,12 +61,14 @@ add a \fIcurses\fR character string to a window
 \fBint addchstr(const chtype * \fIchstr\fP);
 \fBint waddchstr(WINDOW * \fIwin\fP, const chtype * \fIchstr\fP);
 \fBint mvaddchstr(int \fIy\fP, int \fIx\fP, const chtype * \fIchstr\fP);
-\fBint mvwaddchstr(WINDOW * \fIwin\fP, int \fIy\fP, int \fIx\fP, const chtype * \fIchstr\fP);
+\fBint mvwaddchstr(WINDOW * \fIwin\fP, int \fIy\fP, int \fIx\fP,
+      const chtype * \fIchstr\fP);
 .PP
 \fBint addchnstr(const chtype * \fIchstr\fP, int \fIn\fP);
 \fBint waddchnstr(WINDOW * \fIwin\fP, const chtype * \fIchstr\fP, int \fIn\fP);
 \fBint mvaddchnstr(int \fIy\fP, int \fIx\fP, const chtype * \fIchstr\fP, int \fIn\fP);
-\fBint mvwaddchnstr(WINDOW * \fIwin\fP, int \fIy\fP, int \fIx\fP, const chtype * \fIchstr\fP, int \fIn\fP);
+\fBint mvwaddchnstr(WINDOW * \fIwin\fP, int \fIy\fP, int \fIx\fP,
+      const chtype * \fIchstr\fP, int \fIn\fP);
 .fi
 .SH DESCRIPTION
 .B \%waddchstr
@@ -114,18 +116,21 @@ on failure.
 .PP
 In
 .IR \%ncurses ","
-they return
-.B ERR
-if
+these functions fail if
 .bP
-.I win
-is
-.B NULL
-or
+the
+.I curses
+screen has not been initialized,
 .bP
 .I chstr
-is
-.BR NULL "."
+is a null pointer,
+or
+.bP
+(for functions taking a
+.I \%WINDOW
+pointer argument)
+.I win
+is a null pointer.
 .PP
 Functions prefixed with \*(``mv\*('' first perform cursor movement and
 fail if the position
@@ -137,15 +142,15 @@ All of these functions except
 .B \%waddchnstr
 may be implemented as macros.
 .SH PORTABILITY
-X/Open Curses,
-Issue 4 describes these functions.
+X/Open Curses Issue\ 4 describes these functions.
 It specifies no error conditions for them.
+.PP
+SVr4 describes a successful return value only as
+\*(``an integer value other than
+.IR ERR \*(''. \" Courier roman in source; SVID 4, vol. 3, p. 473
 .SH HISTORY
 SVr3.1 (1987)
-introduced
-.I \%waddchstr
-and
-.IR \%waddchnstr "."
+introduced these functions.
 .SH SEE ALSO
 \fB\%curs_add_wchstr\fP(3X) describes comparable functions of the
 .I \%ncurses

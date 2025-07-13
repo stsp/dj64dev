@@ -1,5 +1,5 @@
 .\"***************************************************************************
-.\" Copyright 2018-2023,2024 Thomas E. Dickey                                *
+.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
 .\" Copyright 1998-2007,2010 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,8 +27,8 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: curs_deleteln.3x,v 1.41 2024/09/22 18:35:00 tom Exp $
-.TH curs_deleteln 3X 2024-09-22 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
+.\" $Id: curs_deleteln.3x,v 1.55 2025/07/05 12:46:36 tom Exp $
+.TH curs_deleteln 3X 2025-07-05 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
 .ie \n(.g \{\
 .ds `` \(lq
 .ds '' \(rq
@@ -96,8 +96,8 @@ as if by repeatedly calling
 .B \%winsertln
 or
 .BR \%wdeleteln "."
-.PP
-\fB\%ncurses\fP(3X) describes the variants of these functions.
+.BR \%winsdelln( ".\|.\|." ", 0)"
+performs no operation.
 .SH RETURN VALUE
 These functions return
 .B OK
@@ -110,7 +110,7 @@ In
 they fail if
 .I win
 is
-.BR NULL "."
+.IR NULL "."
 .SH NOTES
 All of these functions except
 .B \%winsdelln
@@ -124,25 +124,25 @@ by default
 does not use them;
 see \fB\%idlok\fP(3X).
 .SH PORTABILITY
-X/Open Curses,
-Issue 4 describes these functions.
+X/Open Curses Issue\ 4 describes these functions.
 It specifies no error conditions for them.
 .PP
-SVr4
-.I curses
-describes a successful return value only as
+SVr4 describes a successful return value only as
 \*(``an integer value other than
-.BR ERR \*(''.
+.IR ERR \*(''. \" Courier roman in source; SVID 4, vol. 3, p. 490
 .SH HISTORY
 4BSD (1980)
-.I curses
 introduced
-.I \%wdeleteln
+.IR \%deleteln ","
+.IR \%wdeleteln ","
+.IR \%insertln ","
 and
 .IR \%winsertln "."
 .PP
 SVr3.1 (1987)
 added
+.I \%insdelln
+and
 .IR \%winsdelln "."
 .SH SEE ALSO
 \fB\%curses\fP(3X)

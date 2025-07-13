@@ -1,5 +1,5 @@
 .\"***************************************************************************
-.\" Copyright 2018-2023,2024 Thomas E. Dickey                                *
+.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
 .\" Copyright 1998-2005,2010 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,8 +27,8 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: curs_beep.3x,v 1.35 2024/07/20 20:54:51 tom Exp $
-.TH curs_beep 3X 2024-07-20 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
+.\" $Id: curs_beep.3x,v 1.42 2025/02/01 23:46:11 tom Exp $
+.TH curs_beep 3X 2025-02-01 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
 .SH NAME
 \fB\%beep\fP,
 \fB\%flash\fP \-
@@ -91,20 +91,20 @@ In
 these functions can return
 .BR ERR "."
 .SH PORTABILITY
-X/Open Curses,
-Issue 4 describes these functions.
+X/Open Curses Issue\ 4 describes these functions.
 It specifies no error conditions for them.
 .PP
 On SVr4
 .IR curses ","
 they always return
-.BR OK ","
+.IR OK ","
 and X/Open Curses specifies them as doing so.
 .SH HISTORY
+SVr2 (1984)
+introduced
 .I beep
 and
-.I flash
-appeared in SVr2 (1984).
+.IR flash "."
 .SH SEE ALSO
 \fB\%curses\fP(3X),
 \fB\%terminfo\fP(5)

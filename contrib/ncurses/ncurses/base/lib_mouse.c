@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2018-2023,2024 Thomas E. Dickey                                *
+ * Copyright 2018-2024,2025 Thomas E. Dickey                                *
  * Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -44,7 +44,7 @@
  *	sysmouse (FreeBSD)
  *	special-purpose mouse interface for OS/2 EMX.
  *
- * Notes for implementors of new mouse-interface methods:
+ * Notes for implementers of new mouse-interface methods:
  *
  * The code is logically split into a lower level that accepts event reports
  * in a device-dependent format and an upper level that parses mouse gestures
@@ -70,7 +70,6 @@
  */
 
 #ifdef __EMX__
-#  include <io.h>
 #  define  INCL_DOS
 #  define  INCL_VIO
 #  define  INCL_KBD
@@ -85,7 +84,7 @@
 #define CUR SP_TERMTYPE
 #endif
 
-MODULE_ID("$Id: lib_mouse.c,v 1.201 2024/10/19 21:03:19 tom Exp $")
+MODULE_ID("$Id: lib_mouse.c,v 1.210 2025/06/21 14:24:38 tom Exp $")
 
 #include <tic.h>
 
@@ -388,10 +387,10 @@ init_xterm_mouse(SCREEN *sp)
 {
     sp->_mouse_type = M_XTERM;
     sp->_mouse_format = MF_X10;
-    sp->_mouse_xtermcap = tigetstr("XM");
+    sp->_mouse_xtermcap = tigetstr(UserCap(XM));
     if (VALID_STRING(sp->_mouse_xtermcap)) {
 	char *code = strstr(sp->_mouse_xtermcap, "[?");
-	if (code != 0) {
+	if (code != NULL) {
 	    code += 2;
 	    while ((*code >= '0') && (*code <= '9')) {
 		char *next = code;
@@ -417,7 +416,7 @@ init_xterm_mouse(SCREEN *sp)
 	    }
 	}
     } else {
-	int code = tigetnum("XM");
+	int code = tigetnum(UserCap(XM));
 	switch (code) {
 #ifdef EXP_XTERM_1005
 	case 1005:
@@ -440,7 +439,7 @@ init_xterm_mouse(SCREEN *sp)
 #endif
 
 static void
-enable_xterm_mouse(SCREEN *sp, int enable)
+enable_xterm_mouse(SCREEN *sp, bool enable)
 {
     TPUTS_TRACE(enable
 		? "xterm mouse initialization"
@@ -455,7 +454,7 @@ enable_xterm_mouse(SCREEN *sp, int enable)
 
 #if defined(USE_TERM_DRIVER)
 static void
-enable_win32_mouse(SCREEN *sp, int enable)
+enable_win32_mouse(SCREEN *sp, bool enable)
 {
 #if defined(EXP_WIN32_DRIVER)
     enable_xterm_mouse(sp, enable);
@@ -483,9 +482,9 @@ allow_gpm_mouse(SCREEN *sp GCC_UNUSED)
     if (NC_ISATTY(fileno(stdout))) {
 	const char *list = getenv("NCURSES_GPM_TERMS");
 	const char *env = getenv("TERM");
-	if (list != 0) {
-	    if (env != 0) {
-		result = _nc_name_match(list, env, "|:");
+	if (list != NULL) {
+	    if (env != NULL) {
+		result = _nc_name_match(list, env, "|:") ? TRUE : FALSE;
 	    }
 	} else {
 	    /* GPM checks the beginning of the $TERM variable to decide if it
@@ -495,7 +494,7 @@ allow_gpm_mouse(SCREEN *sp GCC_UNUSED)
 	     * capability.  Perhaps that works for someone.  If so, they can
 	     * set the environment variable (above).
 	     */
-	    if (env != 0 && strstr(env, "linux") != 0) {
+	    if (env != NULL && strstr(env, "linux") != NULL) {
 		result = TRUE;
 	    }
 	}
@@ -507,7 +506,7 @@ allow_gpm_mouse(SCREEN *sp GCC_UNUSED)
 static void
 unload_gpm_library(SCREEN *sp)
 {
-    if (sp->_dlopen_gpm != 0) {
+    if (sp->_dlopen_gpm != NULL) {
 	T(("unload GPM library"));
 	sp->_mouse_gpm_loaded = FALSE;
 	sp->_mouse_fd = -1;
@@ -522,25 +521,25 @@ load_gpm_library(SCREEN *sp)
     /*
      * If we already had a successful dlopen, reuse it.
      */
-    if (sp->_dlopen_gpm != 0) {
+    if (sp->_dlopen_gpm != NULL) {
 	sp->_mouse_gpm_found = TRUE;
 	sp->_mouse_gpm_loaded = TRUE;
-    } else if ((sp->_dlopen_gpm = dlopen(LIBGPM_SONAME, my_RTLD)) != 0) {
+    } else if ((sp->_dlopen_gpm = dlopen(LIBGPM_SONAME, my_RTLD)) != NULL) {
 #if (defined(__GNUC__) && (__GNUC__ >= 5)) || defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 #endif
-	if (GET_DLSYM(gpm_fd) == 0 ||
-	    GET_DLSYM(Gpm_Open) == 0 ||
-	    GET_DLSYM(Gpm_Close) == 0 ||
-	    GET_DLSYM(Gpm_GetEvent) == 0) {
+	if (GET_DLSYM(gpm_fd) == NULL ||
+	    GET_DLSYM(Gpm_Open) == NULL ||
+	    GET_DLSYM(Gpm_Close) == NULL ||
+	    GET_DLSYM(Gpm_GetEvent) == NULL) {
 #if (defined(__GNUC__) && (__GNUC__ >= 5)) || defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 	    T(("GPM initialization failed: %s", dlerror()));
 	    unload_gpm_library(sp);
 	    dlclose(sp->_dlopen_gpm);
-	    sp->_dlopen_gpm = 0;
+	    sp->_dlopen_gpm = NULL;
 	} else {
 	    sp->_mouse_gpm_found = TRUE;
 	    sp->_mouse_gpm_loaded = TRUE;
@@ -761,7 +760,8 @@ initialize_mousetype(SCREEN *sp)
     /* we know how to recognize mouse events under "xterm" */
     if (NonEmpty(key_mouse)) {
 	init_xterm_mouse(sp);
-    } else if (strstr(SP_TERMTYPE term_names, "xterm") != 0) {
+    } else if (SP_TERMTYPE term_names != NULL
+	       && strstr(SP_TERMTYPE term_names, "xterm") != NULL) {
 	if (_nc_add_to_try(&(sp->_keytry), xterm_kmous, KEY_MOUSE) == OK)
 	    init_xterm_mouse(sp);
     }
@@ -778,7 +778,7 @@ _nc_mouse_init(SCREEN *sp)
 
     T((T_CALLED("_nc_mouse_init(%p)"), (void *) sp));
 
-    if (sp != 0) {
+    if (sp != NULL) {
 	if (!sp->_mouse_initialized) {
 	    int i;
 
@@ -796,7 +796,7 @@ _nc_mouse_init(SCREEN *sp)
 	}
 	result = sp->_mouse_initialized;
     }
-    returnCode(result);
+    returnBool(result);
 }
 
 /*
@@ -1114,7 +1114,7 @@ decode_xterm_X10(SCREEN *sp, MEVENT * eventp)
 			    sp->_ifd,
 #endif
 			    kbuf + grabbed, (size_t) (MAX_KBUF - (int) grabbed));
-	if (res == -1)
+	if (res < 0)
 	    break;
     }
     _nc_set_read_thread(FALSE);
@@ -1162,7 +1162,7 @@ decode_xterm_1005(SCREEN *sp, MEVENT * eventp)
 			    sp->_ifd,
 #endif
 			    (kbuf + grabbed), (size_t) 1);
-	if (res == -1)
+	if (res < 0)
 	    break;
 	grabbed += (size_t) res;
 	if (grabbed > 1) {
@@ -1240,7 +1240,7 @@ read_SGR(const SCREEN *sp, SGR_DATA * result)
 			    sp->_ifd,
 #endif
 			    (kbuf + grabbed), (size_t) 1);
-	if (res == -1)
+	if (res < 0)
 	    break;
 	if ((grabbed + MAX_KBUF) >= (int) sizeof(kbuf)) {
 	    result->nerror++;
@@ -1404,7 +1404,7 @@ _nc_mouse_inline(SCREEN *sp)
 }
 
 static void
-mouse_activate(SCREEN *sp, int on)
+mouse_activate(SCREEN *sp, bool on)
 {
     T((T_CALLED("mouse_activate(%p,%s)"),
        (void *) SP_PARM, on ? "on" : "off"));
@@ -1422,7 +1422,7 @@ mouse_activate(SCREEN *sp, int on)
 #if NCURSES_EXT_FUNCS
 	    NCURSES_SP_NAME(keyok) (NCURSES_SP_ARGx KEY_MOUSE, on);
 #endif
-	    enable_xterm_mouse(sp, 1);
+	    enable_xterm_mouse(sp, TRUE);
 	    break;
 #if USE_GPM_SUPPORT
 	case M_GPM:
@@ -1462,7 +1462,7 @@ mouse_activate(SCREEN *sp, int on)
 
 	switch (sp->_mouse_type) {
 	case M_XTERM:
-	    enable_xterm_mouse(sp, 0);
+	    enable_xterm_mouse(sp, FALSE);
 	    break;
 #if USE_GPM_SUPPORT
 	case M_GPM:
@@ -1834,10 +1834,10 @@ NCURSES_SP_NAME(getmouse) (NCURSES_SP_DCLx MEVENT * aevent)
 
     T((T_CALLED("getmouse(%p,%p)"), (void *) SP_PARM, (void *) aevent));
 
-    if ((aevent != 0) &&
-	(SP_PARM != 0) &&
+    if ((aevent != NULL) &&
+	(SP_PARM != NULL) &&
 	(SP_PARM->_mouse_type != M_NONE) &&
-	(eventp = SP_PARM->_mouse_eventp) != 0) {
+	(eventp = SP_PARM->_mouse_eventp) != NULL) {
 	/* compute the current-event pointer */
 	MEVENT *prev = PREV(eventp);
 
@@ -1890,9 +1890,9 @@ NCURSES_SP_NAME(ungetmouse) (NCURSES_SP_DCLx MEVENT * aevent)
 
     T((T_CALLED("ungetmouse(%p,%p)"), (void *) SP_PARM, (void *) aevent));
 
-    if (aevent != 0 &&
-	SP_PARM != 0 &&
-	(eventp = SP_PARM->_mouse_eventp) != 0) {
+    if (aevent != NULL &&
+	SP_PARM != NULL &&
+	(eventp = SP_PARM->_mouse_eventp) != NULL) {
 
 	/* stick the given event in the next-free slot */
 	*eventp = *aevent;
@@ -1926,7 +1926,7 @@ NCURSES_SP_NAME(mousemask) (NCURSES_SP_DCLx mmask_t newmask, mmask_t * oldmask)
        (unsigned long) newmask,
        (void *) oldmask));
 
-    if (SP_PARM != 0) {
+    if (SP_PARM != NULL) {
 	if (oldmask)
 	    *oldmask = SP_PARM->_mouse_mask;
 
@@ -1988,7 +1988,7 @@ wenclose(const WINDOW *win, int y, int x)
 
     T((T_CALLED("wenclose(%p,%d,%d)"), (const void *) win, y, x));
 
-    if (win != 0) {
+    if (win != NULL) {
 	y -= win->_yoffset;
 	if (IS_PAD(win)) {
 	    if (win->_pad._pad_y >= 0 &&
@@ -2020,7 +2020,7 @@ NCURSES_SP_NAME(mouseinterval) (NCURSES_SP_DCLx int maxclick)
 
     T((T_CALLED("mouseinterval(%p,%d)"), (void *) SP_PARM, maxclick));
 
-    if (SP_PARM != 0) {
+    if (SP_PARM != NULL) {
 	oldval = SP_PARM->_maxclick;
 	if (maxclick >= 0)
 	    SP_PARM->_maxclick = maxclick;
@@ -2044,7 +2044,7 @@ mouseinterval(int maxclick)
 NCURSES_EXPORT(bool)
 _nc_has_mouse(const SCREEN *sp)
 {
-    return (((0 == sp) || (sp->_mouse_type == M_NONE)) ? FALSE : TRUE);
+    return (((NULL == sp) || (sp->_mouse_type == M_NONE)) ? FALSE : TRUE);
 }
 
 NCURSES_EXPORT(bool)

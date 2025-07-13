@@ -1,6 +1,6 @@
 '\" t
 .\"***************************************************************************
-.\" Copyright 2018-2023,2024 Thomas E. Dickey                                *
+.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
 .\" Copyright 1998-2015,2017 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -28,8 +28,8 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: curs_addch.3x,v 1.100 2024/09/21 18:03:23 tom Exp $
-.TH curs_addch 3X 2024-09-21 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
+.\" $Id: curs_addch.3x,v 1.139 2025/07/05 12:43:18 tom Exp $
+.TH curs_addch 3X 2025-07-05 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
 .ie \n(.g \{\
 .ds `` \(lq
 .ds '' \(rq
@@ -64,12 +64,47 @@ add a \fIcurses\fP character to a window and advance the cursor
 \fB#include <curses.h>
 .PP
 \fBint addch(const chtype \fIch\fP);
-\fBint waddch(WINDOW *\fIwin\fP, const chtype \fIch\fP);
+\fBint waddch(WINDOW * \fIwin\fP, const chtype \fIch\fP);
 \fBint mvaddch(int \fIy\fP, int \fIx\fP, const chtype \fIch\fP);
-\fBint mvwaddch(WINDOW *\fIwin\fP, int \fIy\fP, int \fIx\fP, const chtype \fIch\fP);
+\fBint mvwaddch(WINDOW * \fIwin\fP, int \fIy\fP, int \fIx\fP, const chtype \fIch\fP);
 .PP
 \fBint echochar(const chtype \fIch\fP);
-\fBint wechochar(WINDOW *\fIwin\fP, const chtype \fIch\fP);
+\fBint wechochar(WINDOW * \fIwin\fP, const chtype \fIch\fP);
+.PP
+\fI/* (integer) constants */\fP
+/*\fI .\|.\|. */ \fBACS_BLOCK;\fR
+/*\fI .\|.\|. */ \fBACS_BOARD;\fR
+/*\fI .\|.\|. */ \fBACS_BTEE;\fR
+/*\fI .\|.\|. */ \fBACS_BULLET;\fR
+/*\fI .\|.\|. */ \fBACS_CKBOARD;\fR
+/*\fI .\|.\|. */ \fBACS_DARROW;\fR
+/*\fI .\|.\|. */ \fBACS_DEGREE;\fR
+/*\fI .\|.\|. */ \fBACS_DIAMOND;\fR
+/*\fI .\|.\|. */ \fBACS_HLINE;\fR
+/*\fI .\|.\|. */ \fBACS_LANTERN;\fR
+/*\fI .\|.\|. */ \fBACS_LARROW;\fR
+/*\fI .\|.\|. */ \fBACS_LLCORNER;\fR
+/*\fI .\|.\|. */ \fBACS_LRCORNER;\fR
+/*\fI .\|.\|. */ \fBACS_LTEE;\fR
+/*\fI .\|.\|. */ \fBACS_PLMINUS;\fR
+/*\fI .\|.\|. */ \fBACS_PLUS;\fR
+/*\fI .\|.\|. */ \fBACS_RARROW;\fR
+/*\fI .\|.\|. */ \fBACS_RTEE;\fR
+/*\fI .\|.\|. */ \fBACS_S1;\fR
+/*\fI .\|.\|. */ \fBACS_S9;\fR
+/*\fI .\|.\|. */ \fBACS_TTEE;\fR
+/*\fI .\|.\|. */ \fBACS_UARROW;\fR
+/*\fI .\|.\|. */ \fBACS_ULCORNER;\fR
+/*\fI .\|.\|. */ \fBACS_URCORNER;\fR
+/*\fI .\|.\|. */ \fBACS_VLINE;\fR
+\fI/* extensions */\fP
+/*\fI .\|.\|. */ \fBACS_GEQUAL;\fR
+/*\fI .\|.\|. */ \fBACS_LEQUAL;\fR
+/*\fI .\|.\|. */ \fBACS_NEQUAL;\fR
+/*\fI .\|.\|. */ \fBACS_PI;\fR
+/*\fI .\|.\|. */ \fBACS_S3;\fR
+/*\fI .\|.\|. */ \fBACS_S7;\fR
+/*\fI .\|.\|. */ \fBACS_STERLING;\fR
 .fi
 .SH DESCRIPTION
 .SS waddch
@@ -84,15 +119,35 @@ then advances the cursor position,
 analogously to the standard C library's \fI\%putchar\fP(3).
 \fB\%ncurses\fP(3X) describes the variants of this function.
 .PP
-If advancement occurs at the right margin,
-.bP
-the cursor automatically wraps to the beginning of the next line,
-then,
-.bP
-if it was at the bottom of the scrolling region,
-and if \fB\%scrollok\fP(3X) is enabled for
-.IR win ,
-the scrolling region scrolls up one line.
+Construct a
+.I curses
+character
+from a
+.I char
+by assignment or typecast.
+Subsection \*(``Video Attributes\*('' of \fB\%attron\fP(3X) describes
+how to manipulate its attributes and color pair.
+(A color pair selection is not honored unless initialized;
+see \fB\%start_color\fP(3X).)
+.PP
+The object or expression
+.I ch
+may contain attributes and/or a color pair identifier.
+(A
+.I \%chtype
+can be copied from place to place using \fB\%winch\fP(3X) and
+.BR \%waddch .)
+See \fB\%curs_attr\fP(3X) for values of predefined constants that can be
+usefully \*(``or\*(''ed with characters.
+A
+.I ch
+whose character component is a space,
+and whose only attribute is
+.BR \%A_NORMAL ,
+is a
+.IR "blank character" ","
+and therefore combines with the window's background character;
+see \fB\%curs_bkgd\fP(3X).
 .PP
 If
 .I ch
@@ -117,6 +172,7 @@ then advances as if from the right margin.
 Tab advances the cursor to the next tab stop
 (possibly on the next line);
 these are placed at every eighth column by default.
+.IP
 Alter the tab interval with the
 .B \%TABSIZE
 extension;
@@ -125,21 +181,59 @@ see \fB\%curs_variables\fP(3X).
 If
 .I ch
 is any other nonprintable character,
-it is drawn in printable form using the same convention as
+.I curses
+draws it in printable form using the same convention as
 \fB\%unctrl\fP(3X).
 Calling \fB\%winch\fP(3X) on the location of a nonprintable character
 does not return the character itself,
 but its \fB\%unctrl\fP(3X) representation.
 .PP
-The object or expression
-.I ch
-may contain attributes and/or a color pair identifier.
-(A
-.I \%chtype
-can be copied from place to place using \fB\%winch\fP(3X) and
-.BR \%waddch .)
-See \fB\%curs_attr\fP(3X) for values of predefined constants that can be
-usefully \*(``or\*(''ed with characters.
+Adding printable characters with \fB\%waddch\fP
+causes it to wrap at the right margin of the window:
+.bP
+If the cursor is not at the bottom of the scrolling region
+and advancement occurs at the right margin,
+the cursor automatically wraps to the beginning of the next line.
+.bP
+If the cursor is at the bottom of the scrolling region
+when advancement occurs at the right margin,
+and \fB\%scrollok\fP(3X) is enabled for
+.IR win ,
+the scrolling region scrolls up one line
+and the cursor wraps as above.
+Otherwise,
+advancement and scrolling do not occur,
+and
+.B \%waddch
+returns
+.BR ERR "."
+.PP
+A window's margins may coincide with the screen boundaries.
+This may be a problem when
+.I \%ncurses
+updates the screen to match the curses window.
+When their right and bottom margins coincide,
+.I \%ncurses
+uses different strategies to handle the variations of scrolling and wrapping
+at the lower-right corner
+by depending on the terminal capabilities:
+.bP
+If the terminal does not automatically wrap as characters
+are added at the right margin
+(i.e., auto right margins),
+.I \%ncurses
+writes the character directly.
+.bP
+If the terminal has auto right margins,
+but also has capabilities for turning auto margins off and on,
+.I \%ncurses
+turns the auto margin feature off temporarily
+when writing to the lower-right corner.
+.bP
+If the terminal has an insertion mode which can be turned off and on,
+.I \%ncurses
+writes the character just before the lower-right corner,
+and then inserts a character to push the update into the corner.
 .SS wechochar
 .B \%echochar
 and
@@ -147,7 +241,10 @@ and
 are equivalent to calling
 .RB \%( w ) addch
 followed by
-.RB \%( w ) refresh .
+.RB \%( w ) refresh
+on
+.B \%stdscr
+or the specified window.
 .I curses
 interprets these functions as a hint to its optimizer
 that only a single character cell in the window
@@ -162,17 +259,19 @@ defines macros starting with
 .B \%ACS_
 that can be used with
 .B \%waddch
-to write line-drawing and other special characters to the screen.
+to write line-drawing and other symbols to the screen.
 .I \%ncurses
 terms these
 .I "forms-drawing characters."
-The ACS default listed below is used if the
+.I curses
+uses the ACS default listed below if the terminal type lacks the
 .B \%acs_chars
 .RB \%( acsc )
-.I \%term\%info
-capability does not define a terminal-specific replacement for it,
-or if the terminal and locale configuration requires Unicode to access
-these characters but the library is unable to use Unicode.
+capability;
+that capability does not define a replacement for the character;
+or if the terminal type and locale configuration
+require Unicode to access these characters,
+but the library is unable to use Unicode.
 The \*(``acsc char\*('' column corresponds to how the characters are
 specified in the
 .B \%acs_chars
@@ -234,18 +333,24 @@ on failure.
 .PP
 In
 .IR \%ncurses ,
-.B \%waddch
-returns
-.B ERR
-if
+these functions fail if
 .bP
+the
+.I curses
+screen has not been initialized,
+.bP
+(for functions taking a
+.I \%WINDOW
+pointer argument)
 .I win
-is
-.BR NULL ","
+is a null pointer,
 .bP
 wrapping to a new line is impossible because \fB\%scrollok\fP(3X) has
 not been called on
 .I win
+(or
+.BR \%stdscr ","
+as applicable)
 when a write to its bottom right location is attempted,
 or
 .bP
@@ -276,14 +381,93 @@ and
 .B \%echochar
 may be implemented as macros.
 .SH EXTENSIONS
-.SS TABSIZE
-SVr4 and other versions of
-.I curses
-implement the
-.B \%TABSIZE
-variable,
-but X/Open Curses does not specify it;
-see \fB\%curs_variables\fP(3X).
+The symbols
+.IR \%ACS_S3 ","
+.IR \%ACS_S7 ","
+.IR \%ACS_LEQUAL ","
+.IR \%ACS_GEQUAL ","
+.IR \%ACS_PI ","
+.IR \%ACS_NEQUAL ","
+and
+.I \%ACS_STERLING
+were not documented in any publicly released System\ V
+.\" And did not exist yet as late as SVr4.
+.\" https://github.com/ryanwoodsmall/oldsysv/blob/master/\
+.\"   sysvr4/svr4/lib/xlibcurses/screen/curses.ed
+and are not standard.
+However,
+many publicly available
+.I \%term\%info
+entries include
+.B \%acs_chars
+.RB \%( acsc )
+capabilities in which their key characters
+.RB ( pryz{|} )
+are embedded,
+and a second-hand list of their character descriptions has come to light,
+which identifies them as VT100 special characters.
+.PP
+The DEC Special Character and Line Drawing Set (VT100) is indexed by
+an ASCII character in the range 96 (`) to 126 (~).
+That index character is part of the definition for the curses
+.B \%ACS_
+symbols.
+The VT100 special characters can be categorized in three groups:
+.bP
+useful graphic symbols with a standard
+.B \%ACS_
+symbol,
+(e.g., the line-drawing symbols),
+.bP
+possibly useful characters (these non-standard symbols),
+.bP
+representations of control characters (e.g., newline and vertical tabulation).
+.PP
+A few
+.B \%ACS_
+symbols do not fit into DEC's VT100 scheme.
+The AT&T Teletype 5410v1 arrow symbols and
+.B \%ACS_BLOCK
+use indices outside the range 96 to 126.
+Two of the Teletype symbols use indices in that range,
+with different meaning versus the VT100:
+.bP
+.B \%ACS_BOARD
+corresponds to the VT100 symbol for newline
+.bP
+.B \%ACS_LANTERN
+corresponds to the VT100 symbol for vertical tabulation
+.PP
+AT&T defined
+.B \%ACS_
+names for the most useful graphic symbols,
+as well as for its own.
+Its header file commented:
+.sp
+.EX
+/*
+ * Standard alternate character set.  The current ACS world is evolving,
+ * so we support only a widely available subset: the line drawing characters
+ * from the VT100, plus a few from the Teletype 5410v1.  Eventually there
+ * may be support of more sophisticated ACS line drawing, such as that
+ * in the Teletype 5410, the HP line drawing set, and the like.  There may
+ * be support for some non line oriented characters as well.
+ *
+ * Line drawing ACS names are of the form ACS_trbl, where t is the top, r
+ * is the right, b is the bottom, and l is the left.  t, r, b, and l might
+ * be B (blank), S (single), D (double), or T (thick).  The subset defined
+ * here only uses B and S.
+ */
+.EE
+.PP
+Although these less-useful graphic symbols were not given names,
+they were used in
+.I \%terminfo
+entries.
+The
+.I \%ncurses
+developers invented ACS-prefixed names for them.
+.\" in v1_9_5_950928_e227
 .SH PORTABILITY
 Applications employing
 .I \%ncurses
@@ -291,21 +475,18 @@ extensions should condition their use on the visibility of the
 .B \%NCURSES_VERSION
 preprocessor macro.
 .PP
-X/Open Curses,
-Issue 4 describes these functions.
+X/Open Curses Issue\ 4 describes these functions.
 It specifies no error conditions for them.
 .PP
-SVr4
-.I curses
-describes a successful return value only as
+SVr4 describes a successful return value only as
 \*(``an integer value other than
-.BR ERR \*(''.
+.IR ERR \*(''. \" Courier roman in source; SVID 4, vol. 3, p. 472
 .PP
 The defaults specified for forms-drawing characters apply in the POSIX
 locale.
 .SS "ACS Symbols"
 X/Open Curses states that the
-.B \%ACS_
+.I \%ACS_
 definitions are
 .I char
 constants.
@@ -317,35 +498,35 @@ for example,
 defines the ACS symbols as constants;
 others define them as elements of an array.
 .IP
-This implementation uses an array,
-.BR \%acs_map ,
-as did SVr4
-.IR curses .
-NetBSD also uses an array,
+SVr4 used an array,
+.IR \%acs_map ,
+as does
+.IR \%ncurses "."
+NetBSD
+.I curses
+also uses an array,
 actually named
-.BR \%_acs_char ,
-with a
-.B \%#define
-for compatibility.
+.IR \%_acs_char ,
+with a \%\*(``#define\*('' for compatibility.
 .bP
 HP-UX
 .I curses
 equates some of the
-.B \%ACS_
+.I \%ACS_
 symbols to the analogous
-.B \%WACS_
+.I \%WACS_
 symbols as if the
-.B \%ACS_
+.I \%ACS_
 symbols were wide characters
 (see \fB\%curs_add_wch\fP(3X)).
 The misdefined symbols are the arrows and others that are not used for
 line drawing.
 .bP
 X/Open Curses
-(Issues 2 through 7)
+(Issues\ 2 through 7)
 has a typographical error
 for the
-.B \%ACS_LANTERN
+.I \%ACS_LANTERN
 symbol, equating its \*(``VT100+ Character\*('' to \*(``I\*(''
 (capital I),
 while the header files for SVr4
@@ -365,42 +546,16 @@ its
 (AT&T PC6300 with EMOTS Terminal Emulator)
 description uses lowercase i.
 .PP
-Some ACS symbols
-.RB \%( ACS_S3 ,
-.BR \%ACS_S7 ,
-.BR \%ACS_LEQUAL ,
-.BR \%ACS_GEQUAL ,
-.BR \%ACS_PI ,
-.BR \%ACS_NEQUAL ,
-and
-.BR \%ACS_STERLING )
-were not documented in any publicly released System\ V.
-.\" And did not exist yet as late as SVr4.
-.\" https://github.com/ryanwoodsmall/oldsysv/blob/master/\
-.\"   sysvr4/svr4/lib/xlibcurses/screen/curses.ed
-However,
-many publicly available
-.I \%term\%info
-entries include
-.B \%acsc
-capabilities in which their key characters
-.RB ( pryz{|} )
-are embedded,
-and a second-hand list of their character descriptions has come to
-light.
-The
-.I \%ncurses
-developers invented ACS-prefixed names for them.
-.PP
 The
 .I displayed
 values of
-.B \%ACS_
+.I \%ACS_
 constants depend on
 .bP
 the
 .I \%ncurses
-ABI\(emfor example,
+ABI \(em
+for example,
 wide-character versus non-wide-character configurations
 (the former is capable of displaying Unicode while the latter is not),
 and
@@ -416,7 +571,7 @@ see the discussion of the
 environment variable in \fB\%ncurses\fP(3X).
 .SS "Character Set"
 X/Open Curses assumes that the parameter passed to
-.B \%waddch
+.I \%waddch
 contains a single character.
 That character may have been more than eight bits wide in an SVr3 or
 SVr4 implementation,
@@ -428,7 +583,7 @@ though the use of bit operations to combine the character code with
 attributes and a color pair identifier into a
 .I \%chtype
 for passage to
-.B \%waddch
+.I \%waddch
 is common.
 A portable application uses only the macros discussed in
 \fB\%curs_attr\fP(3X) to manipulate a
@@ -440,10 +595,10 @@ In
 holds an eight-bit character,
 but the library allows a multibyte character sequence to be passed via a
 succession of calls to
-.BR \%waddch "."
+.IR \%waddch "."
 Other implementations do not;
 a
-.B \%waddch
+.I \%waddch
 call transmits exactly one character,
 which may be rendered in one or more screen locations depending on
 whether it is printable
@@ -451,16 +606,16 @@ whether it is printable
 Depending on the locale,
 .I \%ncurses
 inspects the byte passed in each
-.B \%waddch
+.I \%waddch
 call and checks whether the latest call continues a multibyte character.
 When a character is
 .IR complete ","
 .I \%ncurses
 displays the character and advances the cursor.
 If the calling application interrupts the succession of bytes in
-a multibyte character sequence by changing the current location\(emfor
-example,
-with \fB\%wmove\fP(3X)\(em\c
+a multibyte character sequence by changing the current location \(em
+for example,
+with \fB\%wmove\fP(3X) \(em
 .I \%ncurses
 discards the incomplete character.
 .PP
@@ -480,13 +635,33 @@ use only
 .IR \%wadd_wch "."
 .SH HISTORY
 4BSD (1980)
-.I curses
 introduced
-.IR \%waddch "."
+.I \%waddch
+and its variants.
 .PP
 SVr3 (1987)
-added
-.IR \%wechochar "."
+added the
+.I \%echochar
+and
+.I \%wechochar
+functions and most of the
+.I ACS_
+constants,
+except for
+.IR \%ACS_GEQUAL ","
+.IR \%ACS_LEQUAL ","
+.IR \%ACS_NEQUAL ","
+.IR \%ACS_PI ","
+.IR \%ACS_S3 ","
+.IR \%ACS_S7 ","
+and
+.IR \%ACS_STERLING "."
+.PP
+.I \%ncurses
+1.9.6 (1995)
+furnished the remaining
+.I ACS_
+constants.
 .SH SEE ALSO
 \fB\%curs_add_wch\fP(3X) describes comparable functions of the
 .I \%ncurses
@@ -497,6 +672,7 @@ library in its wide-character configuration
 \fB\%curs_addchstr\fP(3X),
 \fB\%curs_addstr\fP(3X),
 \fB\%curs_attr\fP(3X),
+\fB\%curs_bkgd\fP(3X),
 \fB\%curs_clear\fP(3X),
 \fB\%curs_inch\fP(3X),
 \fB\%curs_outopts\fP(3X),

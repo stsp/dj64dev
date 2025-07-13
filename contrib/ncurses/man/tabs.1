@@ -1,5 +1,5 @@
 .\"***************************************************************************
-.\" Copyright 2018-2023,2024 Thomas E. Dickey                                *
+.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
 .\" Copyright 2008-2016,2017 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,8 +27,8 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: tabs.1,v 1.65 2024/09/21 18:04:07 tom Exp $
-.TH @TABS@ 1 2024-09-21 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "User commands"
+.\" $Id: tabs.1,v 1.72 2025/04/05 21:56:26 tom Exp $
+.TH @TABS@ 1 2025-04-05 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "User commands"
 .ie \n(.g \{\
 .ds `` \(lq
 .ds '' \(rq
@@ -128,8 +128,10 @@ They are separated by a comma or a blank, for example,
 .PP
 .RS 4
 .EX
+.nf
 @TABS@ 1,6,11,16,21
 @TABS@ 1 6 11 16 21
+.fi
 .EE
 .RE
 .PP
@@ -301,9 +303,9 @@ database to do so.
 .PP
 The
 .B +m
-option was documented in the POSIX Base Specifications Issue 5
+option was documented in the POSIX Base Specifications Issue\ 5
 (Unix98, 1997),
-then omitted in Issue 6
+then omitted in Issue\ 6
 (Unix03, 2004)
 without express motivation,
 though an introductory comment
@@ -331,7 +333,7 @@ While some terminals may not accept an arbitrary number of tab stops,
 attempts to set tab stops up to the right margin
 if the list thereof is sufficiently long.
 .PP
-The \*(``Rationale\*('' section of the Issue 6
+The \*(``Rationale\*('' section of the Issue\ 6
 .I tabs
 reference page
 .\" https://pubs.opengroup.org/onlinepubs/009604499/utilities/tabs.html
@@ -352,7 +354,7 @@ supports the capability of setting arbitrary tab stops.
 The feature described in subsection \*(``Explicit Lists\*('' above was
 implemented in PWB/Unix,
 .\" see URL above
-and permitted the setting of abitrary tab stops nevertheless.
+and permitted the setting of arbitrary tab stops nevertheless.
 .SH SEE ALSO
 \fB\%@INFOCMP@\fP(1M),
 \fB\%@TSET@\fP(1),

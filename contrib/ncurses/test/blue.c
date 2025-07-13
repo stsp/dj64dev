@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2019-2022,2024 Thomas E. Dickey                                *
+ * Copyright 2019-2024,2025 Thomas E. Dickey                                *
  * Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -37,7 +37,7 @@
  *****************************************************************************/
 
 /*
- * $Id: blue.c,v 1.56 2024/10/05 19:26:24 tom Exp $
+ * $Id: blue.c,v 1.58 2025/07/05 15:21:56 tom Exp $
  */
 
 #include <test.priv.h>
@@ -454,7 +454,7 @@ use_pc_display(void)
 	     * The ncurses library makes this check to decide whether to allow
 	     * the alternate character set for the (normally) nonprinting codes.
 	     */
-	    if (smacs != 0 && smpch != 0 && !strcmp(smacs, smpch)) {
+	    if (smacs != NULL && smpch != NULL && !strcmp(smacs, smpch)) {
 		suits = glyphs;
 	    }
 	}
@@ -492,11 +492,8 @@ main(int argc, char *argv[])
 
     while ((ch = getopt(argc, argv, OPTS_COMMON)) != -1) {
 	switch (ch) {
-	case OPTS_VERSION:
-	    show_version(argv);
-	    ExitProgram(EXIT_SUCCESS);
 	default:
-	    usage(ch == OPTS_USAGE);
+	    CASE_COMMON;
 	    /* NOTREACHED */
 	}
     }

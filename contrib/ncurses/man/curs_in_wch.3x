@@ -1,5 +1,5 @@
 .\"***************************************************************************
-.\" Copyright 2018-2023,2024 Thomas E. Dickey                                *
+.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
 .\" Copyright 2002-2010,2017 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,8 +27,8 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: curs_in_wch.3x,v 1.35 2024/07/27 20:06:49 tom Exp $
-.TH curs_in_wch 3X 2024-07-27 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
+.\" $Id: curs_in_wch.3x,v 1.44 2025/02/01 22:54:32 tom Exp $
+.TH curs_in_wch 3X 2025-02-01 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
 .ie \n(.g \{\
 .ds `` \(lq
 .ds '' \(rq
@@ -80,7 +80,7 @@ they return
 if
 .I win
 is
-.BR NULL "."
+.IR NULL "."
 .PP
 Functions prefixed with \*(``mv\*('' first perform cursor movement and
 fail if the position
@@ -101,14 +101,12 @@ additional
 .I wch
 parameter instead of the return value.
 .SH PORTABILITY
-X/Open Curses,
-Issue 4 describes these functions.
+X/Open Curses Issue\ 4 describes these functions.
 It specifies no error conditions for them.
 .SH HISTORY
-These functions were initially specified by X/Open Curses,
-Issue 4.
-The System\ V Interface Definition,
-Version 4 (1995),
+X/Open Curses Issue\ 4 (1995) initially specified these functions.
+The System\ V Interface Definition Version\ 4
+of the same year
 specified a function named
 .I \%winwch
 (and the usual variants).

@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2020-2023,2024 Thomas E. Dickey                                *
+ * Copyright 2020-2024,2025 Thomas E. Dickey                                *
  * Copyright 1998-2009,2010 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -33,16 +33,15 @@
  ****************************************************************************/
 
 #include <curses.priv.h>
+#include <tchar.h>
 
-MODULE_ID("$Id: lib_win32util.c,v 1.5 2024/08/31 15:55:16 tom Exp $")
+MODULE_ID("$Id: lib_win32util.c,v 1.7 2025/06/28 16:58:13 tom Exp $")
 
 #ifdef _NC_WINDOWS_NATIVE
-#include <io.h>
 
 #ifdef _NC_CHECK_MINTTY
 #define PSAPI_VERSION 2
 #include <psapi.h>
-#include <tchar.h>
 
 #define array_length(a) (sizeof(a)/sizeof(a[0]))
 

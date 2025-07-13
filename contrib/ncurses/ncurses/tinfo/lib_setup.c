@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2018-2023,2024 Thomas E. Dickey                                *
+ * Copyright 2018-2024,2025 Thomas E. Dickey                                *
  * Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -49,7 +49,7 @@
 #include <locale.h>
 #endif
 
-MODULE_ID("$Id: lib_setup.c,v 1.245 2024/10/19 21:17:36 tom Exp $")
+MODULE_ID("$Id: lib_setup.c,v 1.250 2025/02/20 01:31:35 tom Exp $")
 
 /****************************************************************************
  *
@@ -115,12 +115,12 @@ NCURSES_PUBLIC_VAR(ttytype) (void)
 #if NCURSES_SP_FUNCS
     if (CURRENT_SCREEN) {
 	TERMINAL *termp = TerminalOf(CURRENT_SCREEN);
-	if (termp != 0) {
+	if (termp != NULL) {
 	    result = TerminalType(termp).term_names;
 	}
     }
 #else
-    if (cur_term != 0) {
+    if (cur_term != NULL) {
 	result = TerminalType(cur_term).term_names;
     }
 #endif
@@ -468,14 +468,14 @@ _nc_get_screensize(SCREEN *sp,
     TERMINAL_CONTROL_BLOCK *TCB;
     int my_tabsize;
 
-    assert(termp != 0 && linep != 0 && colp != 0);
+    assert(termp != NULL && linep != NULL && colp != NULL);
     TCB = (TERMINAL_CONTROL_BLOCK *) termp;
 
     my_tabsize = TCB->info.tabsize;
     TCB->drv->td_size(TCB, linep, colp);
 
 #if USE_REENTRANT
-    if (sp != 0) {
+    if (sp != NULL) {
 	sp->_TABSIZE = my_tabsize;
     }
 #else
@@ -533,7 +533,7 @@ _nc_get_screensize(SCREEN *sp,
 	    errno = 0;
 	    do {
 		if (ioctl(cur_term->Filedes, IOCTL_WINSIZE, &size) >= 0) {
-		    *linep = ((sp != 0 && sp->_filtered)
+		    *linep = ((sp != NULL && sp->_filtered)
 			      ? 1
 			      : WINSIZE_ROWS(size));
 		    *colp = WINSIZE_COLS(size);
@@ -553,7 +553,8 @@ _nc_get_screensize(SCREEN *sp,
 		/*
 		 * If environment variables are used, update them.
 		 */
-		if ((sp == 0 || !sp->_filtered) && _nc_getenv_num("LINES") > 0) {
+		if ((sp == NULL || !sp->_filtered) &&
+		    _nc_getenv_num("LINES") > 0) {
 		    _nc_setenv_num("LINES", *linep);
 		}
 		if (_nc_getenv_num("COLUMNS") > 0) {
@@ -605,7 +606,7 @@ _nc_get_screensize(SCREEN *sp,
 	my_tabsize = 8;
 
 #if USE_REENTRANT
-    if (sp != 0)
+    if (sp != NULL)
 	sp->_TABSIZE = my_tabsize;
 #else
     TABSIZE = my_tabsize;
@@ -626,7 +627,7 @@ _nc_update_screensize(SCREEN *sp)
     int old_lines;
     int old_cols;
 
-    assert(sp != 0);
+    assert(sp != NULL);
 
     CallDriver_2(sp, td_getsize, &old_lines, &old_cols);
 
@@ -636,17 +637,17 @@ _nc_update_screensize(SCREEN *sp)
     int old_cols = columns;
 #endif
 
-    if (sp != 0) {
+    if (sp != NULL) {
 	TINFO_GET_SIZE(sp, sp->_term, &new_lines, &new_cols);
 	/*
 	 * See is_term_resized() and resizeterm().
 	 * We're doing it this way because those functions belong to the upper
 	 * ncurses library, while this resides in the lower terminfo library.
 	 */
-	if (sp->_resize != 0) {
+	if (sp->_resize != NULL) {
 	    if ((new_lines != old_lines) || (new_cols != old_cols)) {
 		sp->_resize(NCURSES_SP_ARGx new_lines, new_cols);
-	    } else if (sp->_sig_winch && (sp->_ungetch != 0)) {
+	    } else if (sp->_sig_winch && (sp->_ungetch != NULL)) {
 		sp->_ungetch(SP_PARM, KEY_RESIZE);	/* so application can know this */
 	    }
 	    sp->_sig_winch = FALSE;
@@ -708,7 +709,7 @@ _nc_tinfo_cmdch(TERMINAL *termp, int proto)
      * since it is fairly common for developers to set the C compiler
      * name as an environment variable - using the same symbol.
      */
-    if ((tmp = getenv("CC")) != 0 && strlen(tmp) == 1) {
+    if ((tmp = getenv("CC")) != NULL && strlen(tmp) == 1) {
 	unsigned i;
 	char CC = *tmp;
 
@@ -736,7 +737,7 @@ _nc_get_locale(void)
      * This is preferable to using getenv() since it ensures that we are using
      * the locale which was actually initialized by the application.
      */
-    env = setlocale(LC_CTYPE, 0);
+    env = setlocale(LC_CTYPE, NULL);
 #else
     if (((env = getenv("LANG")) != 0 && *env != '\0')
 	|| ((env = getenv("LC_CTYPE")) != 0 && *env != '\0')
@@ -751,24 +752,24 @@ _nc_get_locale(void)
 /*
  * Check if we are running in a UTF-8 locale.
  */
-NCURSES_EXPORT(int)
+NCURSES_EXPORT(bool)
 _nc_unicode_locale(void)
 {
     static bool initialized = FALSE;
-    static int result = 0;
+    static bool result = FALSE;
 
     if (!initialized) {
 #if defined(_NC_WINDOWS_NATIVE) && USE_WIDEC_SUPPORT
-	result = 1;
+	result = TRUE;
 #elif HAVE_LANGINFO_CODESET
 	char *env = nl_langinfo(CODESET);
-	result = !strcmp(env, "UTF-8");
+	result = !strcmp(env, "UTF-8") ? TRUE : FALSE;
 	T(("_nc_unicode_locale(%s) ->%d", env, result));
 #else
 	char *env = _nc_get_locale();
-	if (env != 0) {
-	    if (strstr(env, ".UTF-8") != 0) {
-		result = 1;
+	if (env != NULL) {
+	    if (strstr(env, ".UTF-8") != NULL) {
+		result = TRUE;
 		T(("_nc_unicode_locale(%s) ->%d", env, result));
 	    }
 	}
@@ -778,8 +779,8 @@ _nc_unicode_locale(void)
     return result;
 }
 
-#define CONTROL_N(s) ((s) != 0 && strstr(s, "\016") != 0)
-#define CONTROL_O(s) ((s) != 0 && strstr(s, "\017") != 0)
+#define CONTROL_N(s) ((s) != NULL && strstr(s, "\016") != NULL)
+#define CONTROL_O(s) ((s) != NULL && strstr(s, "\017") != NULL)
 
 /*
  * Check for known broken cases where a UTF-8 locale breaks the alternate
@@ -794,17 +795,17 @@ _nc_locale_breaks_acs(TERMINAL *termp)
     int result = 0;
 
     T((T_CALLED("_nc_locale_breaks_acs:%d"), result));
-    if (getenv(env_name) != 0) {
+    if (getenv(env_name) != NULL) {
 	result = _nc_getenv_num(env_name);
-    } else if ((value = tigetnum("U8")) >= 0) {
+    } else if ((value = tigetnum(UserCap(U8))) >= 0) {
 	result = value;		/* use extension feature */
-    } else if ((env = getenv("TERM")) != 0) {
+    } else if ((env = getenv("TERM")) != NULL) {
 	if (strstr(env, "linux")) {
 	    result = 1;		/* always broken */
-	} else if (strstr(env, "screen") != 0
-		   && ((env = getenv("TERMCAP")) != 0
-		       && strstr(env, "screen") != 0)
-		   && strstr(env, "hhII00") != 0) {
+	} else if (strstr(env, "screen") != NULL
+		   && ((env = getenv("TERMCAP")) != NULL
+		       && strstr(env, "screen") != NULL)
+		   && strstr(env, "hhII00") != NULL) {
 	    if (CONTROL_N(enter_alt_charset_mode) ||
 		CONTROL_O(enter_alt_charset_mode) ||
 		CONTROL_N(set_attributes) ||
@@ -824,10 +825,10 @@ TINFO_SETUP_TERM(TERMINAL **tp,
 		 int reuse)
 {
 #ifdef USE_TERM_DRIVER
-    TERMINAL_CONTROL_BLOCK *TCB = 0;
+    TERMINAL_CONTROL_BLOCK *TCB = NULL;
 #endif
     TERMINAL *termp;
-    SCREEN *sp = 0;
+    SCREEN *sp = NULL;
     char *myname;
     int code = ERR;
 
@@ -837,7 +838,7 @@ TINFO_SETUP_TERM(TERMINAL **tp,
     T((T_CALLED("_nc_setupterm_ex(%p,%s,%d,%p)"),
        (void *) tp, _nc_visbuf(tname), Filedes, (void *) errret));
 
-    if (tp == 0) {
+    if (tp == NULL) {
 	ret_error0(TGETENT_ERR,
 		   "Invalid parameter, internal error.\n");
     } else
@@ -847,7 +848,7 @@ TINFO_SETUP_TERM(TERMINAL **tp,
     T((T_CALLED("setupterm(%s,%d,%p)"), _nc_visbuf(tname), Filedes, (void *) errret));
 #endif
 
-    if (tname == 0) {
+    if (tname == NULL) {
 	tname = getenv("TERM");
 #if defined(EXP_WIN32_DRIVER)
 	if (!VALID_TERM_ENV(tname, NO_TERMINAL)) {
@@ -902,9 +903,9 @@ TINFO_SETUP_TERM(TERMINAL **tp,
      * properly with this feature).
      */
     if (reuse
-	&& (termp != 0)
+	&& (termp != NULL)
 	&& termp->Filedes == Filedes
-	&& termp->_termname != 0
+	&& termp->_termname != NULL
 	&& !strcmp(termp->_termname, myname)
 	&& _nc_name_match(TerminalType(termp).term_names, myname, "|")) {
 	T(("reusing existing terminal information and mode-settings"));
@@ -915,15 +916,15 @@ TINFO_SETUP_TERM(TERMINAL **tp,
     } else {
 #ifdef USE_TERM_DRIVER
 	TERMINAL_CONTROL_BLOCK *my_tcb;
-	termp = 0;
-	if ((my_tcb = typeCalloc(TERMINAL_CONTROL_BLOCK, 1)) != 0)
+	termp = NULL;
+	if ((my_tcb = typeCalloc(TERMINAL_CONTROL_BLOCK, 1)) != NULL)
 	    termp = &(my_tcb->term);
 #else
 	int status;
 
 	termp = typeCalloc(TERMINAL, 1);
 #endif
-	if (termp == 0) {
+	if (termp == NULL) {
 	    ret_error1(TGETENT_ERR,
 		       "Not enough memory to create terminal structure.\n",
 		       myname, free(myname));
@@ -1075,10 +1076,10 @@ TINFO_SETUP_TERM(TERMINAL **tp,
 NCURSES_EXPORT(SCREEN *)
 _nc_find_prescr(void)
 {
-    SCREEN *result = 0;
+    SCREEN *result = NULL;
     PRESCREEN_LIST *p;
     pthread_t id = GetThreadID();
-    for (p = _nc_prescreen.allocated; p != 0; p = p->next) {
+    for (p = _nc_prescreen.allocated; p != NULL; p = p->next) {
 	if (p->id == id) {
 	    result = p->sp;
 	    break;
@@ -1098,7 +1099,7 @@ _nc_forget_prescr(void)
     PRESCREEN_LIST *p, *q;
     pthread_t id = GetThreadID();
     _nc_lock_global(screen);
-    for (p = _nc_prescreen.allocated, q = 0; p != 0; q = p, p = p->next) {
+    for (p = _nc_prescreen.allocated, q = NULL; p != NULL; q = p, p = p->next) {
 	if (p->id == id) {
 	    if (q) {
 		q->next = p->next;
@@ -1129,13 +1130,13 @@ new_prescr(void)
     T((T_CALLED("new_prescr()")));
 
     _nc_lock_global(screen);
-    if ((sp = _nc_find_prescr()) == 0) {
+    if ((sp = _nc_find_prescr()) == NULL) {
 	sp = _nc_alloc_screen_sp();
 	T(("_nc_alloc_screen_sp %p", (void *) sp));
-	if (sp != 0) {
+	if (sp != NULL) {
 #ifdef USE_PTHREADS
 	    PRESCREEN_LIST *p = typeCalloc(PRESCREEN_LIST, 1);
-	    if (p != 0) {
+	    if (p != NULL) {
 		p->id = GetThreadID();
 		p->sp = sp;
 		p->next = _nc_prescreen.allocated;
@@ -1151,7 +1152,7 @@ new_prescr(void)
 	    sp->_no_padding = _nc_prescreen._no_padding;
 #endif
 	    sp->slk_format = 0;
-	    sp->_slk = 0;
+	    sp->_slk = NULL;
 	    sp->_prescreen = TRUE;
 	    SP_PRE_INIT(sp);
 #if USE_REENTRANT
@@ -1179,14 +1180,14 @@ _nc_setupterm(const char *tname,
 	      int reuse)
 {
     int rc = ERR;
-    TERMINAL *termp = 0;
+    TERMINAL *termp = NULL;
 
     _nc_init_pthreads();
     _nc_lock_global(prescreen);
     START_TRACE();
     if (TINFO_SETUP_TERM(&termp, tname, Filedes, errret, reuse) == OK) {
 	_nc_forget_prescr();
-	if (NCURSES_SP_NAME(set_curterm) (CURRENT_SCREEN_PRE, termp) != 0) {
+	if (NCURSES_SP_NAME(set_curterm) (CURRENT_SCREEN_PRE, termp) != NULL) {
 	    rc = OK;
 	}
     }

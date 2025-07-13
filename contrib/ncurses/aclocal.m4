@@ -1,5 +1,5 @@
 dnl***************************************************************************
-dnl Copyright 2018-2023,2024 Thomas E. Dickey                                *
+dnl Copyright 2018-2024,2025 Thomas E. Dickey                                *
 dnl Copyright 1998-2017,2018 Free Software Foundation, Inc.                  *
 dnl                                                                          *
 dnl Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -29,7 +29,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1995-on
 dnl
-dnl $Id: aclocal.m4,v 1.1088 2024/08/11 00:17:28 tom Exp $
+dnl $Id: aclocal.m4,v 1.1110 2025/07/12 16:15:49 tom Exp $
 dnl Macros used in NCURSES auto-configuration script.
 dnl
 dnl These macros are maintained separately from NCURSES.  The copyright on
@@ -67,7 +67,7 @@ $ac_includes_default
 	fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ABI_DEFAULTS version: 5 updated: 2023/10/21 08:54:23
+dnl CF_ABI_DEFAULTS version: 6 updated: 2025/05/17 14:54:28
 dnl ---------------
 dnl Provide configure-script defaults for different ncurses ABIs.
 AC_DEFUN([CF_ABI_DEFAULTS],[
@@ -79,6 +79,7 @@ cf_dft_chtype=auto
 cf_dft_ext_colors=no
 cf_dft_ext_const=no
 cf_dft_ext_mouse=no
+cf_dft_ext_mouse2=no
 cf_dft_ext_putwin=no
 cf_dft_ext_spfuncs=no
 cf_dft_filter_syms=no
@@ -86,6 +87,7 @@ cf_dft_interop=no
 cf_dft_mmask_t=auto
 cf_dft_opaque_curses=no
 cf_dft_ordinate_type=short
+cf_dft_rgb_color=no
 cf_dft_signed_char=no
 cf_dft_tparm_arg=long
 cf_dft_widec=no
@@ -114,8 +116,10 @@ esac
 case x$cf_cv_abi_default in
 (x[[789]])
 	cf_dft_ccharw_max=6
+	cf_dft_ext_mouse2=yes
 	cf_dft_mmask_t=uint64_t
 	cf_dft_ordinate_type=int
+	cf_dft_rgb_color=yes
 	cf_dft_signed_char=yes
 	# also: remove the wgetch-events feature in ABI 7
 	;;
@@ -598,54 +602,25 @@ AC_DEFUN([CF_AWK_BIG_PRINTF],
 	esac
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_BOOL_DECL version: 9 updated: 2023/12/03 09:21:34
+dnl CF_BOOL_DECL version: 11 updated: 2025/02/22 20:49:45
 dnl ------------
-dnl Test if 'bool' is a builtin type in the configured C++ compiler.  Some
+dnl Test if 'bool' is a builtin type in the configured C/C++ compiler.  Some
 dnl older compilers (e.g., gcc 2.5.8) don't support 'bool' directly; gcc
 dnl 2.6.3 does, in anticipation of the ANSI C++ standard.
-dnl
-dnl Treat the configuration-variable specially here, since we're directly
-dnl substituting its value (i.e., 1/0).
 dnl
 dnl $1 is the shell variable to store the result in, if not $cv_cv_builtin_bool
 AC_DEFUN([CF_BOOL_DECL],
 [
-AC_MSG_CHECKING(if we should include stdbool.h)
-
-AC_CACHE_VAL(cf_cv_header_stdbool_h,[
-	AC_TRY_COMPILE([],[bool foo = false; (void)foo],
-		[cf_cv_header_stdbool_h=0],
-		[AC_TRY_COMPILE([
-#ifndef __BEOS__
-#include <stdbool.h>
-#endif
-],[bool foo = false; (void)foo],
-			[cf_cv_header_stdbool_h=1],
-			[cf_cv_header_stdbool_h=0])])])
-
-if test "$cf_cv_header_stdbool_h" = 1
-then	AC_MSG_RESULT(yes)
-else	AC_MSG_RESULT(no)
-fi
-
-AC_MSG_CHECKING([for builtin bool type])
-
-AC_CACHE_VAL(ifelse($1,,cf_cv_builtin_bool,[$1]),[
+AC_REQUIRE([CF_C99_STDBOOL_H])
+AC_CACHE_CHECK(for builtin bool type, ifelse($1,,cf_cv_builtin_bool,[$1]),[
 	AC_TRY_COMPILE([
-#include <stdio.h>
-#include <sys/types.h>
+$ac_includes_default
 ],[bool x = false; (void)x],
-		[ifelse($1,,cf_cv_builtin_bool,[$1])=1],
-		[ifelse($1,,cf_cv_builtin_bool,[$1])=0])
-	])
-
-if test "$ifelse($1,,cf_cv_builtin_bool,[$1])" = 1
-then	AC_MSG_RESULT(yes)
-else	AC_MSG_RESULT(no)
-fi
+		[ifelse($1,,cf_cv_builtin_bool,[$1])=yes],
+		[ifelse($1,,cf_cv_builtin_bool,[$1])=no])])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_BOOL_SIZE version: 20 updated: 2023/02/18 17:41:25
+dnl CF_BOOL_SIZE version: 22 updated: 2025/02/22 20:49:45
 dnl ------------
 dnl Test for the size of 'bool' in the configured C++ compiler (e.g., a type).
 dnl Don't bother looking for bool.h, since it has been deprecated.
@@ -654,6 +629,7 @@ dnl If the current compiler is C rather than C++, we get the bool definition
 dnl from <stdbool.h>.
 AC_DEFUN([CF_BOOL_SIZE],
 [
+AC_REQUIRE([CF_C99_STDBOOL_H])
 AC_CHECK_SIZEOF(bool,,[
 $ac_includes_default
 
@@ -669,7 +645,7 @@ $ac_includes_default
 
 #else
 
-#if $cf_cv_header_stdbool_h
+#if $USE_STDBOOL_H
 #include <stdbool.h>
 #endif
 
@@ -693,7 +669,7 @@ $ac_includes_default
 
 #else
 
-#if $cf_cv_header_stdbool_h
+#if $USE_STDBOOL_H
 #include <stdbool.h>
 #endif
 
@@ -702,7 +678,7 @@ $ac_includes_default
 int main(void)
 {
 	FILE *fp = fopen("cf_test.out", "w");
-	if (fp != 0) {
+	if (fp != NULL) {
 		bool x = true;
 		if ((bool)(-x) >= 0)
 			fputs("unsigned ", fp);
@@ -741,7 +717,7 @@ if test "$cf_cv_type_of_bool" = unknown ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_BUILD_CC version: 13 updated: 2024/06/22 13:42:22
+dnl CF_BUILD_CC version: 14 updated: 2024/12/14 11:58:01
 dnl -----------
 dnl If we're cross-compiling, allow the user to override the tools and their
 dnl options.  The configure script is oriented toward identifying the host
@@ -819,7 +795,7 @@ if test "$cross_compiling" = yes ; then
 	AC_TRY_RUN([#include <stdio.h>
 		int main(int argc, char *argv[])
 		{
-			${cf_cv_main_return:-return}(argc < 0 || argv == 0 || argv[0] == 0);
+			${cf_cv_main_return:-return}(argc < 0 || argv == (void*)0 || argv[0] == (void*)0);
 		}
 	],
 		cf_ok_build_cc=yes,
@@ -894,6 +870,27 @@ fi
 
 AC_SUBST(HAVE_STDNORETURN_H)
 AC_SUBST(STDC_NORETURN)
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_C99_STDBOOL_H version: 1 updated: 2025/02/22 20:49:45
+dnl ----------------
+dnl Check if we can compile using <stdbool.h> and get a valid "bool" type.
+AC_DEFUN([CF_C99_STDBOOL_H],
+[
+AC_CACHE_CHECK(if we can include stdbool.h,cf_cv_header_stdbool_h,[
+	AC_TRY_COMPILE([
+$ac_includes_default
+#include <stdbool.h>
+],[bool foo = false; (void)foo],
+		[cf_cv_header_stdbool_h=yes],
+		[AC_TRY_COMPILE([],[bool foo = false; (void)foo],
+			[cf_cv_header_stdbool_h=no])])])
+
+if test "$cf_cv_header_stdbool_h" = yes
+then	USE_STDBOOL_H=1
+else	USE_STDBOOL_H=0
+fi
+AC_SUBST(USE_STDBOOL_H)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_CC_ENV_FLAGS version: 11 updated: 2023/02/20 11:15:46
@@ -1196,7 +1193,7 @@ __attribute__ ((visibility("default"))) int somefunc() {return 42;}
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CHECK_GETENV version: 4 updated: 2023/12/03 10:18:09
+dnl CF_CHECK_GETENV version: 5 updated: 2024/12/14 16:09:34
 dnl ---------------
 dnl Check if repeated getenv calls return the same pointer, e.g., it does not
 dnl discard the previous pointer when returning a new one.
@@ -1248,7 +1245,7 @@ int main(void)
 	for (j = 0; environ[j]; ++j) {
 		mynames[j] = str_alloc(environ[j]);
 		equals = strchr(mynames[j], '=');
-		if (equals != 0) {
+		if (equals != NULL) {
 			*equals++ = '\\0';
 			myvalues[j] = str_alloc(equals);
 		} else {
@@ -1447,6 +1444,19 @@ else
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_CHECK_TYPE2 version: 2 updated: 2024/12/14 16:33:06
+dnl --------------
+dnl CF_CHECK_TYPE version: 5 updated: 2024/12/14 16:09:34
+dnl -------------
+dnl Check if the given type can be declared via the given header.
+dnl $1 = the type to check
+dnl $2 = the header (i.e., not one of the default includes)
+AC_DEFUN([CF_CHECK_TYPE2],[
+	AC_CHECK_TYPES($1,,,[
+$ac_includes_default
+ifelse($2,,,[#include <$2>])])
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_CHECK_WCHAR_H version: 5 updated: 2023/12/03 09:21:34
 dnl ----------------
 dnl Check if wchar.h can be used, i.e., without defining _XOPEN_SOURCE_EXTENDED
@@ -1477,7 +1487,7 @@ then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CHECK_WCWIDTH_GRAPHICS version: 4 updated: 2023/12/03 10:17:07
+dnl CF_CHECK_WCWIDTH_GRAPHICS version: 5 updated: 2024/12/14 16:09:34
 dnl -------------------------
 dnl Most "modern" terminal emulators are based to some degree on VT100, and
 dnl should support line-drawing.  Even with Unicode.  There is a problem.
@@ -1596,8 +1606,8 @@ main(void)
 		setlocale(LC_ALL, "en_US.UTF-8") ||
 		setlocale(LC_ALL, "en_US.utf8") ||
 		setlocale(LC_ALL, "en_US.utf-8")) {
-		if ((fp = fopen("conftest.in", "r")) != 0) {
-			while (fgets(buffer, MY_LEN, fp) != 0) {
+		if ((fp = fopen("conftest.in", "r")) != NULL) {
+			while (fgets(buffer, MY_LEN, fp) != NULL) {
 				if (*buffer == '-') {
 					fprintf(stderr, "\\t%s", buffer);
 				} else if (sscanf(buffer, "%x %s", &value, notes) == 2) {
@@ -1689,7 +1699,7 @@ if test "x$ifelse([$2],,CLANG_COMPILER,[$2])" = "xyes" ; then
 fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_CONST_X_STRING version: 8 updated: 2023/12/01 17:22:50
+dnl CF_CONST_X_STRING version: 9 updated: 2024/12/04 03:49:57
 dnl -----------------
 dnl The X11R4-X11R6 Xt specification uses an ambiguous String type for most
 dnl character-strings.
@@ -1716,7 +1726,7 @@ CF_SAVE_XTRA_FLAGS([CF_CONST_X_STRING])
 
 AC_TRY_COMPILE(
 [
-#include <stdlib.h>
+$ac_includes_default
 #include <X11/Intrinsic.h>
 ],
 [String foo = malloc(1); free((void*)foo)],[
@@ -1727,7 +1737,7 @@ AC_CACHE_CHECK(for X11/Xt const-feature,cf_cv_const_x_string,[
 #undef  _CONST_X_STRING
 #define _CONST_X_STRING	/* X11R7.8 (perhaps) */
 #undef  XTSTRINGDEFINES	/* X11R5 and later */
-#include <stdlib.h>
+$ac_includes_default
 #include <X11/Intrinsic.h>
 		],[String foo = malloc(1); *foo = 0],[
 			cf_cv_const_x_string=no
@@ -1750,7 +1760,7 @@ esac
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CPP_OVERRIDE version: 1 updated: 2022/08/20 16:07:10
+dnl CF_CPP_OVERRIDE version: 2 updated: 2024/11/09 18:07:29
 dnl ---------------
 dnl Check if the C++ compiler accepts the override keyword.  This is a C++-11
 dnl feature.
@@ -1765,7 +1775,7 @@ AC_CACHE_CHECK(if $CXX accepts override keyword,cf_cv_cpp_override,[
 class base
 {
 public:
-	virtual int foo(float x) = 0; 
+	virtual int foo(float x) = 0;
 };
 
 
@@ -2536,7 +2546,7 @@ fi
 AC_SUBST(EXTRA_CFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_FOPEN_BIN_R version: 3 updated: 2023/01/05 18:05:46
+dnl CF_FOPEN_BIN_R version: 4 updated: 2024/12/14 16:09:34
 dnl --------------
 dnl Check if fopen works when the "b" (binary) flag is added to the mode
 dnl parameter.  POSIX ignores the "b", which c89 specified.  Some very old
@@ -2550,14 +2560,14 @@ int main(void)
 {
 	FILE *fp = fopen("conftest.tmp", "wb");
 	int rc = 0;
-	if (fp != 0) {
+	if (fp != NULL) {
 		int p, q;
 		for (p = 0; p < 256; ++p) {
 			fputc(p, fp);
 		}
 		fclose(fp);
 		fp = fopen("conftest.tmp", "rb");
-		if (fp != 0) {
+		if (fp != NULL) {
 			for (p = 0; p < 256; ++p) {
 				q = fgetc(fp);
 				if (q != p) {
@@ -2590,7 +2600,7 @@ unset ac_ct_$1
 unset $1
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_FUNC_DLSYM version: 4 updated: 2015/09/12 14:46:44
+dnl CF_FUNC_DLSYM version: 5 updated: 2024/12/14 16:09:34
 dnl -------------
 dnl Test for dlsym() and related functions, as well as libdl.
 dnl
@@ -2610,9 +2620,12 @@ if test "$cf_have_dlsym" = yes ; then
 	test "$cf_have_libdl" = yes && { CF_ADD_LIB(dl) }
 
 	AC_MSG_CHECKING(whether able to link to dl*() functions)
-	AC_TRY_LINK([#include <dlfcn.h>],[
+	AC_TRY_LINK([
+	#include <stdio.h>
+	#include <dlfcn.h>
+	],[
 		void *obj;
-		if ((obj = dlopen("filename", 0)) != 0) {
+		if ((obj = dlopen("filename", 0)) != NULL) {
 			if (dlsym(obj, "symbolname") == 0) {
 			dlclose(obj);
 			}
@@ -2669,7 +2682,7 @@ AC_CHECK_LIB(bsd, gettimeofday,
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_FUNC_GETTTYNAM version: 2 updated: 2023/01/05 18:06:28
+dnl CF_FUNC_GETTTYNAM version: 3 updated: 2024/12/14 16:09:34
 dnl -----------------
 dnl Check if the 4.3BSD function getttyname exists, as well as if <ttyent.h>
 dnl defines the _PATH_TTYS symbol.  If the corresponding file exists, but the
@@ -2706,7 +2719,7 @@ $ac_includes_default
 
 int main(void) {
 	FILE *fp = fopen(_PATH_TTYS, "r");
-	${cf_cv_main_return:-return} (fp == 0);
+	${cf_cv_main_return:-return} (fp == NULL);
 }],
 			[cf_cv_have_PATH_TTYS=yes],
 			[cf_cv_have_PATH_TTYS=no],
@@ -3099,7 +3112,7 @@ CF_INTEL_COMPILER(GCC,INTEL_COMPILER,CFLAGS)
 CF_CLANG_COMPILER(GCC,CLANG_COMPILER,CFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_WARNINGS version: 41 updated: 2021/01/01 16:53:59
+dnl CF_GCC_WARNINGS version: 43 updated: 2024/12/21 08:44:12
 dnl ---------------
 dnl Check if the compiler supports useful warning options.  There's a few that
 dnl we don't use, simply because they're too noisy:
@@ -3713,7 +3726,7 @@ if test "$GXX" = yes; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GXX_WARNINGS version: 11 updated: 2021/01/08 16:50:55
+dnl CF_GXX_WARNINGS version: 13 updated: 2024/12/21 08:44:12
 dnl ---------------
 dnl Check if the compiler supports useful warning options.
 dnl
@@ -3876,7 +3889,7 @@ fi
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_HASHED_DB_LIBS version: 10 updated: 2021/01/02 17:09:14
+dnl CF_HASHED_DB_LIBS version: 11 updated: 2024/12/14 16:09:34
 dnl -----------------
 dnl Given that we have the header and version for hashed database, find the
 dnl library information.
@@ -3898,7 +3911,7 @@ $ac_includes_default
 	char *path = "/tmp/foo";
 #ifdef DB_VERSION_MAJOR
 #if DB_VERSION_MAJOR >= 4
-	DB *result = 0;
+	DB *result = NULL;
 	db_create(&result, NULL, 0);
 	result->open(result,
 		NULL,
@@ -3908,7 +3921,7 @@ $ac_includes_default
 		DB_CREATE,
 		0644);
 #elif DB_VERSION_MAJOR >= 3
-	DB *result = 0;
+	DB *result = NULL;
 	db_create(&result, NULL, 0);
 	result->open(result,
 		path,
@@ -3917,7 +3930,7 @@ $ac_includes_default
 		DB_CREATE,
 		0644);
 #elif DB_VERSION_MAJOR >= 2
-	DB *result = 0;
+	DB *result = NULL;
 	db_open(path,
 		DB_HASH,
 		DB_CREATE,
@@ -3933,7 +3946,7 @@ $ac_includes_default
 		     DB_HASH,
 		     0);
 #endif
-	${cf_cv_main_return:-return}(result != 0)
+	${cf_cv_main_return:-return}(result != NULL)
 ],[
 	if test -n "$cf_db_libs" ; then
 		cf_cv_hashed_db_libs=$cf_db_libs
@@ -4359,7 +4372,7 @@ extern struct dirent64 * readdir(DIR *);
 ])
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_LDFLAGS_STATIC version: 14 updated: 2021/01/02 17:09:14
+dnl CF_LDFLAGS_STATIC version: 15 updated: 2025/06/21 06:49:01
 dnl -----------------
 dnl Check for compiler/linker flags used to temporarily force usage of static
 dnl libraries.  This depends on the compiler and platform.  Use this to help
@@ -4416,7 +4429,7 @@ then
 int cf_ldflags_static(FILE *fp) { return fflush(fp); }
 EOF
 	if AC_TRY_EVAL(ac_compile) ; then
-		( $AR $ARFLAGS libconftest.a conftest.o ) 2>&AC_FD_CC 1>/dev/null
+		( $AR $ARFLAGS libconftest.a conftest.$OBJEXT ) 2>&AC_FD_CC 1>/dev/null
 		( eval $RANLIB libconftest.a ) 2>&AC_FD_CC >/dev/null
 	fi
 	rm -f conftest.*
@@ -5462,7 +5475,7 @@ AC_DEFUN([CF_LIB_TYPE],
 	test -n "$LIB_SUFFIX" && $2="${LIB_SUFFIX}[$]{$2}"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LINK_DATAONLY version: 15 updated: 2023/12/03 10:03:10
+dnl CF_LINK_DATAONLY version: 16 updated: 2025/06/21 06:49:01
 dnl ----------------
 dnl Some systems have a non-ANSI linker that doesn't pull in modules that have
 dnl only data (i.e., no functions), for example NeXT.  On those systems we'll
@@ -5478,10 +5491,10 @@ AC_CACHE_VAL(cf_cv_link_dataonly,[
 int	testdata[[3]] = { 123, 456, 789 };
 EOF
 	if AC_TRY_EVAL(ac_compile) ; then
-		mv conftest.o data.o && \
-		( $AR $ARFLAGS conftest.a data.o ) 2>&AC_FD_CC 1>/dev/null
+		mv conftest.$OBJEXT data.$OBJEXT && \
+		( $AR $ARFLAGS conftest.a data.$OBJEXT ) 2>&AC_FD_CC 1>/dev/null
 	fi
-	rm -f conftest.$ac_ext data.o
+	rm -f conftest.$ac_ext data.$OBJEXT
 	cat >conftest.$ac_ext <<EOF
 #line __oline__ "configure"
 extern int testfunc(void);
@@ -5501,10 +5514,10 @@ int	testfunc(void)
 #endif
 EOF
 	if AC_TRY_EVAL(ac_compile); then
-		mv conftest.o func.o && \
-		( $AR $ARFLAGS conftest.a func.o ) 2>&AC_FD_CC 1>/dev/null
+		mv conftest.$OBJEXT func.$OBJEXT && \
+		( $AR $ARFLAGS conftest.a func.$OBJEXT ) 2>&AC_FD_CC 1>/dev/null
 	fi
-	rm -f conftest.$ac_ext func.o
+	rm -f conftest.$ac_ext func.$OBJEXT
 	( eval $RANLIB conftest.a ) 2>&AC_FD_CC >/dev/null
 	cf_saveLIBS="$LIBS"
 	LIBS="conftest.a $LIBS"
@@ -5530,7 +5543,7 @@ AC_SUBST(BROKEN_LINKER)
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LINK_FUNCS version: 13 updated: 2023/12/03 09:24:04
+dnl CF_LINK_FUNCS version: 14 updated: 2024/12/14 16:09:34
 dnl -------------
 dnl Most Unix systems have both link and symlink, a few don't have symlink.
 dnl A few non-Unix systems implement symlink, but not link.
@@ -5565,7 +5578,7 @@ int main(void)
 	char dst[] = "conftest.chk";
 	struct stat src_sb, dst_sb;
 	FILE *fp = fopen(src, "w");
-	if (fp == 0) { fail = 3; } else {
+	if (fp == NULL) { fail = 3; } else {
 		fclose(fp); stat(src, &src_sb);
 		if ($cf_func(src, dst) < 0) {
 			fail = 1;
@@ -5597,16 +5610,18 @@ int main(void)
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MAKEFLAGS version: 21 updated: 2021/09/04 06:47:34
+dnl CF_MAKEFLAGS version: 22 updated: 2025/07/05 16:17:37
 dnl ------------
 dnl Some 'make' programs support ${MAKEFLAGS}, some ${MFLAGS}, to pass 'make'
 dnl options to lower-levels.  It is very useful for "make -n" -- if we have it.
-dnl (GNU 'make' does both, something POSIX 'make', which happens to make the
-dnl ${MAKEFLAGS} variable incompatible because it adds the assignments :-)
+dnl POSIX accommodates both by pretending they are the same variable, adding
+dnl the behavior of the latter to the former.
 AC_DEFUN([CF_MAKEFLAGS],
 [AC_REQUIRE([AC_PROG_FGREP])dnl
 
 AC_CACHE_CHECK(for makeflags variable, cf_cv_makeflags,[
+	cf_save_makeflags="$MAKEFLAGS"; unset MAKEFLAGS
+	cf_save_mflags="$MFLAGS";       unset MFLAGS
 	cf_cv_makeflags=''
 	for cf_option in '-${MAKEFLAGS}' '${MFLAGS}'
 	do
@@ -5634,6 +5649,8 @@ CF_EOF
 			;;
 		esac
 	done
+	test -n "$cf_save_makeflags" && MAKEFLAGS="$cf_save_makeflags"
+	test -n "$cf_save_mflags"    && MFLAGS="$cf_save_mflags"
 	rm -f cf_makeflags.tmp
 ])
 
@@ -6020,7 +6037,7 @@ AC_ARG_WITH(manpage-tbl,
 AC_MSG_RESULT($MANPAGE_TBL)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MAN_PAGES version: 59 updated: 2024/03/30 08:27:40
+dnl CF_MAN_PAGES version: 61 updated: 2025/02/15 19:13:25
 dnl ------------
 dnl Try to determine if the man-pages on the system are compressed, and if
 dnl so, what format is used.  Use this information to construct a script that
@@ -6197,14 +6214,17 @@ CF_EOF
 
 if test "$with_overwrite" != yes ; then
 cat >>$cf_edit_man <<CF_EOF
-	sed -e "/\\#[    ]*include/s,<curses.h,<ncurses$LIB_SUFFIX/curses.h," < \$TMP >\$TMP.out
+	sed -e "/\\#[    ]*include/s,<curses.h,<ncurses$LIB_SUFFIX/curses.h," \
+	    -e "/\\#[    ]*include/s,<term.h,<ncurses$LIB_SUFFIX/term.h," \
+	  < \$TMP >\$TMP.out
 	mv \$TMP.out \$TMP
 CF_EOF
 fi
 
 if test "$with_curses_h" != yes ; then
 cat >>$cf_edit_man <<CF_EOF
-	sed -e "/\\#[    ]*include/s,curses.h,ncurses.h," < \$TMP >\$TMP.out
+	sed -e "/\\#[    ]*include/s,curses.h,ncurses.h," \
+	  < \$TMP >\$TMP.out
 	mv \$TMP.out \$TMP
 CF_EOF
 fi
@@ -6219,7 +6239,7 @@ CF_EOF
 if test -n "$cf_manpage_compress" ; then
 cat >>$cf_edit_man <<CF_EOF
 	if test "\$verb" = installing ; then
-	if ( "$cf_manpage_compress" -f \$TMP )
+	if ( "$cf_manpage_compress" $cf_manpage_coptions -f \$TMP )
 	then
 		mv \$TMP.$cf_manpage_so_strip \$TMP
 	fi
@@ -7169,14 +7189,17 @@ fi
 AC_SUBST(LDCONFIG)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PROG_LINT version: 5 updated: 2022/08/20 15:44:13
+dnl CF_PROG_LINT version: 7 updated: 2024/11/30 14:37:45
 dnl ------------
 AC_DEFUN([CF_PROG_LINT],
 [
 AC_CHECK_PROGS(LINT, lint cppcheck splint)
 case "x$LINT" in
+(xlint|x*/lint) # NetBSD 10
+	test -z "$LINT_OPTS" && LINT_OPTS="-chapbrxzgFS -v -Ac11"
+	;;
 (xcppcheck|x*/cppcheck)
-	test -z "$LINT_OPTS" && LINT_OPTS="--enable=all"
+	test -z "$LINT_OPTS" && LINT_OPTS="--enable=all -D__CPPCHECK__"
 	;;
 esac
 AC_SUBST(LINT_OPTS)
@@ -7205,7 +7228,7 @@ AC_MSG_RESULT($cf_prog_ln_sf)
 test "$cf_prog_ln_sf" = yes && LN_S="$LN_S -f"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_REGEX version: 18 updated: 2021/01/01 16:53:59
+dnl CF_REGEX version: 19 updated: 2024/12/14 16:09:34
 dnl --------
 dnl Attempt to determine if we've got one of the flavors of regular-expression
 dnl code that we can support.
@@ -7276,8 +7299,9 @@ case "$cf_regex_func" in
 	for cf_regex_hdr in regex.h
 	do
 		AC_TRY_LINK([#include <sys/types.h>
+#include <stdio.h>
 #include <$cf_regex_hdr>],[
-			regex_t *p = 0;
+			regex_t *p = NULL;
 			int x = regcomp(p, "", 0);
 			int y = regexec(p, "", 0, 0, 0);
 			(void)x;
@@ -7347,6 +7371,30 @@ define([CF_REMOVE_LIB],
 [
 # remove $3 library from $2
 $1=`echo "$2" | sed -e 's/-l$3[[ 	]]//g' -e 's/-l$3[$]//'`
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_REQUIRE_PKG version: 1 updated: 2025/01/10 19:55:54
+dnl --------------
+dnl Update $REQUIRE_PKG, which lists the known required packages for this
+dnl program.
+dnl
+dnl $1 = package(s) to require, e.g., in the generated ".pc" file
+define([CF_REQUIRE_PKG],
+[
+for cf_required in $1
+do
+	# check for duplicates
+	for cf_require_pkg in $REQUIRE_PKG
+	do
+		if test "$cf_required" = "$cf_require_pkg"
+		then
+			cf_required=
+			break
+		fi
+	done
+	test -n "$cf_required" && REQUIRE_PKG="$REQUIRE_PKG $cf_required"
+done
+AC_SUBST(REQUIRE_PKG)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_RESTORE_XTRA_FLAGS version: 1 updated: 2020/01/11 16:47:45
@@ -7503,7 +7551,7 @@ do
 done
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SHARED_OPTS version: 111 updated: 2024/03/29 20:08:49
+dnl CF_SHARED_OPTS version: 113 updated: 2025/06/21 06:49:01
 dnl --------------
 dnl --------------
 dnl Attempt to determine the appropriate CC/LD options for creating a shared
@@ -7798,7 +7846,7 @@ CF_EOF
 				-L*)
 					ldopts+=("\`echo \"\[$]1\" | sed \"s/^-L/-LIBPATH:/\"\`")
 					;;
-				*.obj | *.o)
+				*.obj | *.$OBJEXT)
 					ldopts+=("\[$]1")
 					;;
 				-Wl,*)
@@ -8019,7 +8067,7 @@ cat > conftest.$ac_ext <<EOF
 int main(int argc, char *argv[[]])
 {
 	printf("hello\\n");
-	return (argv[[argc-1]] == 0) ;
+	return (argv[[argc-1]] == NULL) ;
 }
 EOF
 		cf_save_CFLAGS="$CFLAGS"
@@ -8465,7 +8513,7 @@ dnl Some machines require _POSIX_SOURCE to completely define struct termios.
 AC_DEFUN([CF_STRUCT_TERMIOS],[
 AC_REQUIRE([CF_XOPEN_SOURCE])
 
-AC_CHECK_HEADERS( \
+AC_CHECK_HEADERS( sgtty.h \
 termio.h \
 termios.h \
 unistd.h \
@@ -8599,7 +8647,7 @@ top_builddir=ifelse($1,,`pwd`,$1)
 AC_SUBST(top_builddir)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_TRY_PKG_CONFIG version: 6 updated: 2020/12/31 10:54:15
+dnl CF_TRY_PKG_CONFIG version: 7 updated: 2025/01/10 19:55:54
 dnl -----------------
 dnl This is a simple wrapper to use for pkg-config, for libraries which may be
 dnl available in that form.
@@ -8616,6 +8664,7 @@ if test "$PKG_CONFIG" != none && "$PKG_CONFIG" --exists "$1"; then
 	cf_pkgconfig_libs="`$PKG_CONFIG --libs   "$1" 2>/dev/null`"
 	CF_VERBOSE(package $1 CFLAGS: $cf_pkgconfig_incs)
 	CF_VERBOSE(package $1 LIBS: $cf_pkgconfig_libs)
+	CF_REQUIRE_PKG($1)
 	CF_ADD_CFLAGS($cf_pkgconfig_incs)
 	CF_ADD_LIBS($cf_pkgconfig_libs)
 	ifelse([$2],,:,[$2])
@@ -8651,7 +8700,7 @@ if test "$cf_cv_xopen_source" != no ; then
 fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_TYPEOF_CHTYPE version: 11 updated: 2023/01/05 17:57:59
+dnl CF_TYPEOF_CHTYPE version: 12 updated: 2024/12/14 16:09:34
 dnl ----------------
 dnl Determine the type we should use for chtype (and attr_t, which is treated
 dnl as the same thing).  We want around 32 bits, so on most machines want a
@@ -8667,7 +8716,7 @@ $ac_includes_default
 int main(void)
 {
 	FILE *fp = fopen("cf_test.out", "w");
-	if (fp != 0) {
+	if (fp != NULL) {
 		char *result = "long";
 		if (sizeof(unsigned long) > sizeof(unsigned int)) {
 			int n;
@@ -8867,7 +8916,7 @@ AC_DEFUN([CF_VERBOSE],
 CF_MSG_LOG([$1])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_VERSION_INFO version: 9 updated: 2024/06/12 04:04:13
+dnl CF_VERSION_INFO version: 10 updated: 2025/01/10 19:55:54
 dnl ---------------
 dnl Define several useful symbols derived from the VERSION file.  A separate
 dnl file is preferred to embedding the version numbers in various scripts.
@@ -8945,8 +8994,10 @@ AC_SUBST(VERSION_PATCH)
 dnl if a package name is given, define its corresponding version info.  We
 dnl need the package name to ensure that the defined symbols are unique.
 ifelse($1,,,[
+	PROGRAM=$1
 	PACKAGE=ifelse($2,,$1,$2)
 	AC_DEFINE_UNQUOTED(PACKAGE, "$PACKAGE",[Define to the package-name])
+	AC_SUBST(PROGRAM)
 	AC_SUBST(PACKAGE)
 	AH_TEMPLATE([AS_TR_CPP($1[_VERSION])],[version of package])
 	AC_DEFINE_UNQUOTED(AS_TR_CPP($1[_VERSION]),"${VERSION_MAJOR}.${VERSION_MINOR}")
@@ -9081,7 +9132,7 @@ $1_ABI=$cf_cv_abi_version
 cf_cv_abi_default=$cf_cv_abi_version
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_ADA version: 1 updated: 2024/05/18 13:55:23
+dnl CF_WITH_ADA version: 2 updated: 2024/11/09 18:07:29
 dnl -----------
 dnl Check for the Ada compiler (unless requested to not do this), which causes
 dnl a further check for a C compiler which can work with the Ada compiler.
@@ -9104,7 +9155,7 @@ then
 		AC_PATH_PROG(cf_cv_path_gnatgcc,gnatgcc,no)
 		if test "$cf_cv_path_gnatgcc" != no
 		then
-			AC_MSG_CHECKING(for improvement) 
+			AC_MSG_CHECKING(for improvement)
 			cf_file_gnatgcc=`file -L "$cf_cv_path_gnatgcc" 2>/dev/null`
 			case "x$cf_file_gnatgcc" in
 			(*script*)
@@ -9331,7 +9382,7 @@ if test "$with_gpm" != no ; then
 fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_LIBTOOL version: 36 updated: 2021/01/01 13:31:04
+dnl CF_WITH_LIBTOOL version: 37 updated: 2025/06/21 06:49:01
 dnl ---------------
 dnl Provide a configure option to incorporate libtool.  Define several useful
 dnl symbols for the makefile rules.
@@ -9415,7 +9466,7 @@ ifdef([AC_PROG_LIBTOOL],[
 	fi
 ])dnl
 	LIB_CREATE='${LIBTOOL} --mode=link ${CC} -rpath ${libdir} ${LIBTOOL_VERSION} `cut -f1 ${top_srcdir}/VERSION` ${LIBTOOL_OPTS} ${LT_UNDEF} $(LIBS) -o'
-	LIB_OBJECT='${OBJECTS:.o=.lo}'
+	LIB_OBJECT='${OBJECTS:.$OBJEXT=.lo}'
 	LIB_SUFFIX=.la
 	LIB_CLEAN='${LIBTOOL} --mode=clean'
 	LIB_COMPILE='${LIBTOOL} --mode=compile'
@@ -9993,7 +10044,7 @@ CF_NO_LEAKS_OPTION(valgrind,
 	[USE_VALGRIND])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_VERSIONED_SYMS version: 14 updated: 2024/08/03 12:34:02
+dnl CF_WITH_VERSIONED_SYMS version: 16 updated: 2025/01/19 15:27:13
 dnl ----------------------
 dnl Use this when building shared library with ELF, to markup symbols with the
 dnl version identifier from the given input file.  Generally that identifier is
@@ -10005,6 +10056,9 @@ AC_DEFUN([CF_WITH_VERSIONED_SYMS],
 AC_REQUIRE([AC_PROG_EGREP])dnl
 AC_REQUIRE([CF_GLOB_FULLPATH])dnl
 
+if test "$with_libtool" = "yes" ; then
+	:
+elif test "$with_shared" = "yes" ; then
 AC_MSG_CHECKING(if versioned-symbols file should be used)
 AC_ARG_WITH(versioned-syms,
 	[[  --with-versioned-syms[=MAP-FILE] version ELF shared library symbols per MAP-FILE]],
@@ -10039,11 +10093,13 @@ then
 		VERSIONED_SYMS="-Wl,--version-script,\${RESULTING_SYMS}"
 		MK_SHARED_LIB=`echo "$MK_SHARED_LIB" | sed -e "s%-Wl,%\\[$]{VERSIONED_SYMS} -Wl,%"`
 		CF_VERBOSE(MK_SHARED_LIB:  $MK_SHARED_LIB)
+		LIB_CREATE="[$]MK_SHARED_LIB"
 		;;
 	(*-dy\ *)
 		VERSIONED_SYMS="-Wl,-M,\${RESULTING_SYMS}"
 		MK_SHARED_LIB=`echo "$MK_SHARED_LIB" | sed -e "s%-dy%\\[$]{VERSIONED_SYMS} -dy%"`
 		CF_VERBOSE(MK_SHARED_LIB:  $MK_SHARED_LIB)
+		LIB_CREATE="[$]MK_SHARED_LIB"
 		;;
 	(*)
 		AC_MSG_WARN(this system does not support versioned-symbols)
@@ -10127,6 +10183,8 @@ EOF
 		AC_MSG_RESULT($WILDCARD_SYMS)
 		rm -f conftest.*
 	fi
+fi
+
 fi
 AC_SUBST(RESULTING_SYMS)
 AC_SUBST(VERSIONED_SYMS)
@@ -10219,7 +10277,7 @@ fi
 AC_SUBST(no_x11_rgb)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_SOURCE version: 67 updated: 2023/09/06 18:55:27
+dnl CF_XOPEN_SOURCE version: 68 updated: 2024/11/09 18:07:29
 dnl ---------------
 dnl Try to get _XOPEN_SOURCE defined properly that we can use POSIX functions,
 dnl or adapt to the vendor's definitions to get equivalent functionality,
@@ -10281,6 +10339,9 @@ case "$host_os" in
 	;;
 (linux*gnu|linux*gnuabi64|linux*gnuabin32|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc)
 	CF_GNU_SOURCE($cf_XOPEN_SOURCE)
+	;;
+linux*musl)
+	cf_xopen_source="-D_BSD_SOURCE"
 	;;
 (minix*)
 	cf_xopen_source="-D_NETBSD_SOURCE" # POSIX.1-2001 features are ifdef'd with this...

@@ -37,10 +37,76 @@
 
 #include <tic.h>
 
-MODULE_ID("$Id: trim_sgr0.c,v 1.25 2024/10/19 21:18:18 tom Exp $")
+MODULE_ID("$Id: trim_sgr0.c,v 1.27 2024/12/21 20:15:26 tom Exp $")
 
 #undef CUR
 #define CUR tp->
+
+/*
+ * Skip a padding token, e.g., "<5>", "<5.1>", "<5/>", "<5*>", or "<5/>".
+ * If the pattern does not match, return null.
+ */
+static char *
+skip_padding(char *value)
+{
+    char *result = NULL;
+    if (*value++ == '$' && *value++ == '<') {
+	int ch;
+	int state = 0;		/* 1=integer, 2=decimal, 3=fraction */
+	while ((ch = UChar(*value++)) != '\0') {
+	    if (ch == '*' || ch == '/') {
+		if (!state)
+		    break;
+	    } else if (ch == '>') {
+		if (state)
+		    result = value;
+		break;
+	    } else if (ch == '.') {
+		if (state < 2) {
+		    state = 2;
+		} else {
+		    break;	/* a single decimal point is allowed */
+		}
+	    } else if (isdigit(ch)) {
+		if (state < 2) {
+		    state = 1;
+		} else if (state == 2) {
+		    state = 3;
+		} else {
+		    break;	/* only a single digit after decimal point */
+		}
+	    } else {
+		break;
+	    }
+	}
+    }
+    return result;
+}
+
+static void
+strip_padding(char *value)
+{
+    char *s = value;
+    char ch;
+
+    while ((ch = *s) != '\0') {
+	if (ch == '\\') {
+	    if (*++s == '\0')
+		break;
+	    ++s;
+	} else {
+	    char *d = NULL;
+	    if (ch == '$')
+		d = skip_padding(s);
+	    if (d != NULL) {
+		char *t = s;
+		while ((*t++ = *d++) != '\0') ;
+	    } else {
+		++s;
+	    }
+	}
+    }
+}
 
 static char *
 set_attribute_9(const TERMTYPE2 *tp, int flag)
@@ -49,10 +115,13 @@ set_attribute_9(const TERMTYPE2 *tp, int flag)
     char *result;
 
     value = TIPARM_9(set_attributes, 0, 0, 0, 0, 0, 0, 0, 0, flag);
-    if (PRESENT(value))
+    if (PRESENT(value)) {
 	result = strdup(value);
-    else
-	result = 0;
+	if (result != NULL)
+	    strip_padding(result);
+    } else {
+	result = NULL;
+    }
     return result;
 }
 
@@ -60,7 +129,7 @@ static int
 is_csi(const char *s)
 {
     int result = 0;
-    if (s != 0) {
+    if (s != NULL) {
 	if (UChar(s[0]) == CSI_CHR)
 	    result = 1;
 	else if (s[0] == ESC_CHR && s[1] == L_BLOCK)
@@ -101,7 +170,7 @@ skip_delay(const char *s)
 static bool
 rewrite_sgr(char *s, const char *attr)
 {
-    if (s != 0) {
+    if (s != NULL) {
 	if (PRESENT(attr)) {
 	    size_t len_s = strlen(s);
 	    size_t len_a = strlen(attr);
@@ -125,7 +194,7 @@ static bool
 similar_sgr(char *a, char *b)
 {
     bool result = FALSE;
-    if (a != 0 && b != 0) {
+    if (a != NULL && b != NULL) {
 	int csi_a = is_csi(a);
 	int csi_b = is_csi(b);
 	size_t len_a;
@@ -300,7 +369,7 @@ _nc_trim_sgr0(TERMTYPE2 *tp)
 		}
 	    }
 	    if (!found
-		&& (tmp = strstr(end, off)) != 0
+		&& (tmp = strstr(end, off)) != NULL
 		&& strcmp(end, off) != 0) {
 		i = (size_t) (tmp - end);
 		j = strlen(off);

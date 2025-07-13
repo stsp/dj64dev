@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2020-2023,2024 Thomas E. Dickey                                *
+ * Copyright 2020-2024,2025 Thomas E. Dickey                                *
  * Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -43,7 +43,7 @@
 
 #include <dump_entry.h>
 
-MODULE_ID("$Id: infocmp.c,v 1.166 2024/10/19 21:43:11 tom Exp $")
+MODULE_ID("$Id: infocmp.c,v 1.174 2025/04/05 19:14:18 tom Exp $")
 
 #ifndef ACTUAL_TIC
 #define ACTUAL_TIC "tic"
@@ -694,7 +694,7 @@ compare_predicate(PredType type, PredIdx idx, const char *name)
 #define DATAX()        DATA("", "")
 
 typedef struct {
-    const char from[4];
+    const char from[8];
     const char to[12];
 } assoc;
 
@@ -812,10 +812,10 @@ same_param(const char *table, const char *param, size_t length)
 static char *
 lookup_params(const assoc * table, char *dst, char *src)
 {
-    char *result = 0;
+    char *result = NULL;
     const char *ep = strtok(src, ";");
 
-    if (ep != 0) {
+    if (ep != NULL) {
 	const assoc *ap;
 
 	do {
@@ -835,7 +835,7 @@ lookup_params(const assoc * table, char *dst, char *src)
 		_nc_STRCAT(dst, ep, MAX_TERMINFO_LENGTH);
 	    _nc_STRCAT(dst, ";", MAX_TERMINFO_LENGTH);
 	} while
-	    ((ep = strtok((char *) 0, ";")));
+	    ((ep = strtok((char *) 0, ";")) != NULL);
 
 	dst[strlen(dst) - 1] = '\0';
 
@@ -861,7 +861,7 @@ analyze_string(const char *name, const char *cap, TERMTYPE2 *tp)
 	int csi;
 	size_t len = 0;
 	size_t next;
-	const char *expansion = 0;
+	const char *expansion = NULL;
 	char buf3[MAX_TERMINFO_LENGTH];
 
 	/* first, check other capabilities in this entry */
@@ -1052,14 +1052,14 @@ file_comparison(int argc, char *argv[])
 	      FALSE, 0, 65535, itrace, FALSE, FALSE, FALSE);
 
     for (n = 0; n < argc && n < MAXCOMPARE; n++) {
-	if (freopen(argv[n], "r", stdin) == 0)
-	    _nc_err_abort("Can't open %s", argv[n]);
+	if (freopen(argv[n], "r", stdin) == NULL)
+	    _nc_err_abort("Can't open %s: %s", argv[n], strerror(errno));
 
 #if NO_LEAKS
 	entered[n].head = _nc_head;
 	entered[n].tail = _nc_tail;
 #endif
-	_nc_head = _nc_tail = 0;
+	_nc_head = _nc_tail = NULL;
 
 	/* parse entries out of the source file */
 	_nc_set_source(argv[n]);
@@ -1187,7 +1187,7 @@ file_comparison(int argc, char *argv[])
 
 		names[0] = name1;
 		names[1] = name2;
-		names[2] = 0;
+		names[2] = NULL;
 
 		entries[0] = *qp;
 		entries[1] = *rp;
@@ -1291,30 +1291,67 @@ usage(void)
     ExitProgram(EXIT_FAILURE);
 }
 
+#define isName(c) ((c) == '_' || isalnum(UChar(c)))
+
 static char *
-any_initializer(const char *fmt, const char *type)
+safe_name(const char *format, const char *prefix, const char *name)
 {
-    static char *initializer;
+    static char *result;
     static size_t need;
     char *s;
 
-    if (initializer == 0) {
-	need = (strlen(entries->tterm.term_names)
-		+ strlen(type)
-		+ strlen(fmt));
-	initializer = (char *) malloc(need + 1);
-	if (initializer == 0)
-	    failed("any_initializer");
+    if (result == NULL) {
+	need = (strlen(prefix)
+		+ strlen(name)
+		+ strlen(format));
+	result = (char *) malloc(need + 1);
+	if (result == NULL)
+	    failed("safe_name");
     }
 
-    _nc_STRCPY(initializer, entries->tterm.term_names, need);
-    for (s = initializer; *s != 0 && *s != '|'; s++) {
-	if (!isalnum(UChar(*s)))
+    _nc_STRCPY(result, "", need);
+    if (isdigit(UChar(*prefix)))
+	_nc_STRCAT(result, "ti_", need);
+    _nc_STRCAT(result, prefix, need);
+    for (s = result; *s != 0 && *s != '|'; s++) {
+	if (!isName(*s))
 	    *s = '_';
     }
     *s = 0;
-    _nc_SPRINTF(s, _nc_SLIMIT(need) fmt, type);
-    return initializer;
+    if (isdigit(UChar(*name)) && !*prefix)
+	*s++ = '_';
+    _nc_SPRINTF(s, _nc_SLIMIT(need) format, name);
+    return result;
+}
+
+/*
+ * escape contents of a double-quoted string.
+ */
+static char *
+safe_string(const char *source)
+{
+    static char *result;
+    static size_t need;
+    char *d;
+    if (result == NULL) {
+	need = 2 * strlen(source) + 1;
+	result = (char *) malloc(need + 1);
+    }
+    for (d = result; *source != '\0'; ++source) {
+	char ch = *source;
+	if (ch == '"' || ch == '\\') {
+	    *d++ = '\\';
+	}
+	*d++ = ch;
+    }
+    *d = '\0';
+    return result;
+}
+
+static char *
+any_initializer(const char *fmt, const char *type)
+{
+    return safe_name(fmt, entries->tterm.term_names, type);
 }
 
 static char *
@@ -1329,25 +1366,72 @@ string_variable(const char *type)
     return any_initializer("_s_%s", type);
 }
 
+#if NCURSES_XNAMES
+static char *
+name_of(const char *name)
+{
+    return safe_name("name_of_%s", "", name);
+}
+
+static void
+dump_extended_name(const char *name)
+{
+    static char **known;
+    static size_t dumped;
+    static size_t length;
+
+    if (name != NULL) {
+	bool found = FALSE;
+	if (length != 0) {
+	    size_t check;
+	    for (check = 0; check < dumped; ++check) {
+		if (!strcmp(name, known[check])) {
+		    found = TRUE;
+		    break;
+		}
+	    }
+	}
+	if (!found) {
+	    if (dumped + 2 > length) {
+		length += 100;
+		known = realloc(known, length * sizeof(*known));
+	    }
+	    printf("\n");
+	    printf("#ifndef %s\n", safe_name("extension_%s", "", name));
+	    printf("static char %s[] = \"%s\";\n", name_of(name), name);
+	    printf("#define %s 1\n", safe_name("extension_%s", "", name));
+	    printf("#endif\n");
+	    known[dumped] = strdup(name);
+	}
+    } else {
+	while (dumped != 0) {
+	    free(known[--dumped]);
+	}
+	free(known);
+	length = 0;
+    }
+}
+#endif
+
 /* dump C initializers for the terminal type */
 static void
 dump_initializers(const TERMTYPE2 *term)
 {
     unsigned n;
-    const char *str = 0;
+    const char *str = NULL;
 
     printf("\nstatic char %s[] = \"%s\";\n\n",
-	   name_initializer("alias"), entries->tterm.term_names);
+	   name_initializer("alias"), safe_string(entries->tterm.term_names));
 
     for_each_string(n, term) {
 	if (VALID_STRING(term->Strings[n])) {
 	    char buf[MAX_STRING], *sp, *tp;
 
 	    tp = buf;
-#define TP_LIMIT	((MAX_STRING - 5) - (size_t)(tp - buf))
+#define TP_LIMIT	((MAX_STRING - 6) - (size_t)(tp - buf))
 	    *tp++ = '"';
 	    for (sp = term->Strings[n];
-		 *sp != 0 && TP_LIMIT > 2;
+		 *sp != 0 && TP_LIMIT > 5;
 		 sp++) {
 		if (isascii(UChar(*sp))
 		    && isprint(UChar(*sp))
@@ -1434,19 +1518,29 @@ dump_initializers(const TERMTYPE2 *term)
     if ((NUM_BOOLEANS(term) != BOOLCOUNT)
 	|| (NUM_NUMBERS(term) != NUMCOUNT)
 	|| (NUM_STRINGS(term) != STRCOUNT)) {
+	for (n = BOOLCOUNT; n < NUM_BOOLEANS(term); ++n) {
+	    dump_extended_name(ExtBoolname(term, (int) n, boolnames));
+	}
+	for (n = NUMCOUNT; n < NUM_NUMBERS(term); ++n) {
+	    dump_extended_name(ExtNumname(term, (int) n, numnames));
+	}
+	for (n = STRCOUNT; n < NUM_STRINGS(term); ++n) {
+	    dump_extended_name(ExtStrname(term, (int) n, strnames));
+	}
+	printf("\n");
 	(void) printf("static char * %s[] = %s\n",
 		      name_initializer("string_ext"), L_CURL);
 	for (n = BOOLCOUNT; n < NUM_BOOLEANS(term); ++n) {
-	    (void) printf("\t/* %3u: bool */\t\"%s\",\n",
-			  n, ExtBoolname(term, (int) n, boolnames));
+	    (void) printf("\t/* %3u: bool */\t%s,\n",
+			  n, name_of(ExtBoolname(term, (int) n, boolnames)));
 	}
 	for (n = NUMCOUNT; n < NUM_NUMBERS(term); ++n) {
-	    (void) printf("\t/* %3u: num */\t\"%s\",\n",
-			  n, ExtNumname(term, (int) n, numnames));
+	    (void) printf("\t/* %3u: num */\t%s,\n",
+			  n, name_of(ExtNumname(term, (int) n, numnames)));
 	}
 	for (n = STRCOUNT; n < NUM_STRINGS(term); ++n) {
-	    (void) printf("\t/* %3u: str */\t\"%s\",\n",
-			  n, ExtStrname(term, (int) n, strnames));
+	    (void) printf("\t/* %3u: str */\t%s,\n",
+			  n, name_of(ExtStrname(term, (int) n, strnames)));
 	}
 	(void) printf("%s;\n", R_CURL);
     }
@@ -1496,10 +1590,10 @@ dump_termtype(const TERMTYPE2 *term)
 static int
 optarg_to_number(void)
 {
-    char *temp = 0;
+    char *temp = NULL;
     long value = strtol(optarg, &temp, 0);
 
-    if (temp == 0 || temp == optarg || *temp != 0) {
+    if (temp == NULL || temp == optarg || *temp != 0) {
 	fprintf(stderr, "Expected a number, not \"%s\"\n", optarg);
 	ExitProgram(EXIT_FAILURE);
     }
@@ -1511,7 +1605,7 @@ terminal_env(void)
 {
     char *terminal;
 
-    if ((terminal = getenv("TERM")) == 0) {
+    if ((terminal = getenv("TERM")) == NULL) {
 	(void) fprintf(stderr,
 		       "%s: environment variable TERM not set\n",
 		       _nc_progname);
@@ -1531,7 +1625,7 @@ show_databases(void)
     const char *path2;
 
     _nc_first_db(&state, &offset);
-    while ((path2 = _nc_next_db(&state, &offset)) != 0) {
+    while ((path2 = _nc_next_db(&state, &offset)) != NULL) {
 	printf("%s\n", path2);
     }
     _nc_last_db();
@@ -1559,8 +1653,8 @@ main(int argc, char *argv[])
 {
     /* Avoid "local data >32k" error with mwcc */
     /* Also avoid overflowing smaller stacks on systems like AmigaOS */
-    path *tfile = 0;
-    char **tname = 0;
+    path *tfile = NULL;
+    char **tname = NULL;
     size_t maxterms;
 
     char **myargv;
@@ -1576,7 +1670,7 @@ main(int argc, char *argv[])
     bool wrap_strings = FALSE;
 
     /* where is the terminfo database location going to default to? */
-    restdir = firstdir = 0;
+    restdir = firstdir = NULL;
 
 #if NCURSES_XNAMES
     use_extended_names(FALSE);
@@ -1587,7 +1681,7 @@ main(int argc, char *argv[])
 
     /* make sure we have enough space to add two terminal entries */
     myargv = typeCalloc(char *, (size_t) (argc + 3));
-    if (myargv == 0)
+    if (myargv == NULL)
 	failed("myargv");
 
     memcpy(myargv, argv, (sizeof(char *) * (size_t) argc));
@@ -1671,7 +1765,7 @@ main(int argc, char *argv[])
 	    outform = F_TERMINFO;
 	    if (sortmode == S_DEFAULT)
 		sortmode = S_VARIABLE;
-	    tversion = 0;
+	    tversion = NULL;
 	    break;
 
 	case 'i':
@@ -1712,7 +1806,7 @@ main(int argc, char *argv[])
 	    break;
 
 	case 'r':
-	    tversion = 0;
+	    tversion = NULL;
 	    break;
 
 	case 's':
@@ -1780,20 +1874,20 @@ main(int argc, char *argv[])
     }
 
     maxterms = (size_t) (argc + 2 - optind);
-    if ((tfile = typeMalloc(path, maxterms)) == 0)
+    if ((tfile = typeMalloc(path, maxterms)) == NULL)
 	failed("tfile");
-    if ((tname = typeCalloc(char *, maxterms)) == 0)
+    if ((tname = typeCalloc(char *, maxterms)) == NULL)
 	  failed("tname");
-    if ((entries = typeCalloc(ENTRY, maxterms)) == 0)
+    if ((entries = typeCalloc(ENTRY, maxterms)) == NULL)
 	failed("entries");
 #if NO_LEAKS
-    if ((entered = typeCalloc(ENTERED, maxterms)) == 0)
+    if ((entered = typeCalloc(ENTERED, maxterms)) == NULL)
 	failed("entered");
 #endif
 
-    if (tfile == 0
-	|| tname == 0
-	|| entries == 0) {
+    if (tfile == NULL
+	|| tname == NULL
+	|| entries == NULL) {
 	fprintf(stderr, "%s: not enough memory\n", _nc_progname);
 	ExitProgram(EXIT_FAILURE);
     }

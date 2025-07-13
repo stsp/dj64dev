@@ -1,10 +1,10 @@
 #!/bin/sh
-# $Id: MKterminfo.sh,v 1.20 2024/01/13 20:37:40 tom Exp $
+# $Id: MKterminfo.sh,v 1.22 2025/03/01 21:10:01 Branden.Robinson Exp $
 #
 # MKterminfo.sh -- generate terminfo.5 from Caps tabular data
 #
 #***************************************************************************
-# Copyright 2018-2020,2022 Thomas E. Dickey                                *
+# Copyright 2018-2024,2025 Thomas E. Dickey                                *
 # Copyright 1998-2003,2017 Free Software Foundation, Inc.                  *
 #                                                                          *
 # Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -116,7 +116,7 @@ do
 done <$unsorted
 test $saved = yes && sort $temp >>$sorted
 
-sed -e 's/^\.\.$//' $sorted | tr "\005\006" "\012\134"
+sed -e 's/^\.\.$//' $sorted | tr "\005\006" "\012\134" | sed -e '/^$/d'
 
 sed	-e '/^center expand;/s, expand,,' \
 	-e '/^\.TS/,/^\\/s, lw[1-9][0-9]*\., l.,' \

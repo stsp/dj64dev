@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2020-2023,2024 Thomas E. Dickey                                *
+ * Copyright 2020-2024,2025 Thomas E. Dickey                                *
  * Copyright 1998-2009,2010 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -38,17 +38,9 @@
 
 #include <curses.priv.h>
 
-MODULE_ID("$Id: lib_win32con.c,v 1.16 2024/10/19 21:06:11 tom Exp $")
+MODULE_ID("$Id: lib_win32con.c,v 1.23 2025/07/05 12:36:24 Branden.Robinson Exp $")
 
 #if defined(_NC_WINDOWS)
-
-#ifdef _NC_MINGW
-#include <wchar.h>
-#else
-#include <tchar.h>
-#endif
-
-#include <io.h>
 
 #if USE_WIDEC_SUPPORT
 #define write_screen WriteConsoleOutputW
@@ -259,36 +251,20 @@ _nc_console_setmode(HANDLE hdl, const TTY * arg)
 	T(("lib_win32con:_nc_console_setmode %s", _nc_trace_ttymode(arg)));
 	if (hdl == WINCONSOLE.inp) {
 	    dwFlag = arg->dwFlagIn | ENABLE_MOUSE_INPUT | VT_FLAG_IN;
-	    if (WINCONSOLE.isTermInfoConsole)
-		dwFlag |= (VT_FLAG_IN);
-	    else
-		dwFlag &= (DWORD) ~ (VT_FLAG_IN);
 	    TRCTTYIN(dwFlag);
 	    SetConsoleMode(hdl, dwFlag);
 
 	    alt = OutHandle();
 	    dwFlag = arg->dwFlagOut;
-	    if (WINCONSOLE.isTermInfoConsole)
-		dwFlag |= (VT_FLAG_OUT);
-	    else
-		dwFlag |= (VT_FLAG_OUT);
 	    TRCTTYOUT(dwFlag);
 	    SetConsoleMode(alt, dwFlag);
 	} else {
 	    dwFlag = arg->dwFlagOut;
-	    if (WINCONSOLE.isTermInfoConsole)
-		dwFlag |= (VT_FLAG_OUT);
-	    else
-		dwFlag |= (VT_FLAG_OUT);
 	    TRCTTYOUT(dwFlag);
 	    SetConsoleMode(hdl, dwFlag);
 
 	    alt = WINCONSOLE.inp;
 	    dwFlag = arg->dwFlagIn | ENABLE_MOUSE_INPUT;
-	    if (WINCONSOLE.isTermInfoConsole)
-		dwFlag |= (VT_FLAG_IN);
-	    else
-		dwFlag &= (DWORD) ~ (VT_FLAG_IN);
 	    TRCTTYIN(dwFlag);
 	    SetConsoleMode(alt, dwFlag);
 	    T(("effective mode set %s", _nc_trace_ttymode(&TRCTTY)));
@@ -404,7 +380,6 @@ save_original_screen(void)
     return result;
 }
 
-#if 0
 static bool
 restore_original_screen(void)
 {
@@ -426,7 +401,7 @@ restore_original_screen(void)
 		     bufferCoord,
 		     &save_region)) {
 	result = TRUE;
-	mvcur(-1, -1, LINES - 2, 0);
+	SetConsoleCursorPosition(WINCONSOLE.hdl, WINCONSOLE.save_SBI.dwCursorPosition);
 	T(("... restore original screen contents ok %dx%d (%d,%d - %d,%d)",
 	   WINCONSOLE.save_size.Y,
 	   WINCONSOLE.save_size.X,
@@ -439,7 +414,6 @@ restore_original_screen(void)
     }
     return result;
 }
-#endif
 
 static bool
 read_screen_data(void)
@@ -617,7 +591,7 @@ tdiff(FILETIME fstart, FILETIME fend)
 static int
 Adjust(int milliseconds, int diff)
 {
-    if (milliseconds != INFINITY) {
+    if (milliseconds != NC_INFINITY) {
 	milliseconds -= diff;
 	if (milliseconds < 0)
 	    milliseconds = 0;
@@ -632,7 +606,7 @@ Adjust(int milliseconds, int diff)
                      RIGHTMOST_BUTTON_PRESSED)
 
 static mmask_t
-decode_mouse(SCREEN *sp, int mask)
+decode_mouse(const SCREEN *sp, int mask)
 {
     mmask_t result = 0;
 
@@ -828,7 +802,7 @@ _nc_console_keyExist(int keycode)
 
 NCURSES_EXPORT(int)
 _nc_console_twait(
-		     SCREEN *sp,
+		     const SCREEN *sp,
 		     HANDLE hdl,
 		     int mode,
 		     int milliseconds,
@@ -858,7 +832,7 @@ _nc_console_twait(
 		      hdl, milliseconds, mode));
 
     if (milliseconds < 0)
-	milliseconds = INFINITY;
+	milliseconds = NC_INFINITY;
 
     memset(&inp_rec, 0, sizeof(inp_rec));
 
@@ -887,8 +861,7 @@ _nc_console_twait(
 			goto end;
 		    } else {
 			DWORD n = 0;
-			INPUT_RECORD *pInpRec =
-			TypeAlloca(INPUT_RECORD, nRead);
+			MakeArray(pInpRec, INPUT_RECORD, nRead);
 			if (pInpRec != NULL) {
 			    DWORD i;
 			    BOOL f;
@@ -964,7 +937,7 @@ _nc_console_twait(
 			    continue;
 			    /* e.g., FOCUS_EVENT */
 			default:
-			    T(("twait:event Tyoe %d", inp_rec.EventType));
+			    T(("twait:event Type %d", inp_rec.EventType));
 			    CONSUME();
 			    _nc_console_selectActiveHandle();
 			    continue;
@@ -1245,6 +1218,24 @@ _nc_console_checkinit(bool initFlag, bool assumeTermInfo)
 	    console_initialized = TRUE;
 	}
 	res = (WINCONSOLE.hdl != INVALID_HANDLE_VALUE);
+    }
+    returnBool(res);
+}
+
+NCURSES_EXPORT(bool)
+_nc_console_restore(void)
+{
+    bool res = FALSE;
+
+    T((T_CALLED("lib_win32con::_nc_console_restore")));
+    if (WINCONSOLE.hdl != INVALID_HANDLE_VALUE) {
+	res = TRUE;
+	if (!WINCONSOLE.buffered) {
+	    _nc_console_set_scrollback(TRUE, &WINCONSOLE.save_SBI);
+	    if (!restore_original_screen())
+		res = FALSE;
+	}
+	SetConsoleCursorInfo(WINCONSOLE.hdl, &WINCONSOLE.save_CI);
     }
     returnBool(res);
 }

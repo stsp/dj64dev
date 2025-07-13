@@ -35,7 +35,7 @@
 
 #include "form.priv.h"
 
-MODULE_ID("$Id: fty_num.c,v 1.38 2024/07/27 18:33:58 tom Exp $")
+MODULE_ID("$Id: fty_num.c,v 1.40 2024/12/21 17:16:09 tom Exp $")
 
 #if HAVE_LOCALE_H
 #include <locale.h>
@@ -203,7 +203,7 @@ Check_This_Field(FIELD *field, const void *argp)
 	  int len;
 	  wchar_t *list = _nc_Widen_String((char *)bp, &len);
 
-	  if (list != 0)
+	  if (list != NULL)
 	    {
 	      bool blank = FALSE;
 	      int state = 0;
@@ -273,10 +273,10 @@ Check_This_Field(FIELD *field, const void *argp)
 	    }
 	  if (result)
 	    {
-	      char buf[64];
+	      char buf[MAX_DIGITS * 6];
 
 	      _nc_SPRINTF(buf, _nc_SLIMIT(sizeof(buf))
-			  "%.*f", (prec > 0 ? prec : 0), val);
+			  "%.*f", MaxDigits(prec), val);
 	      set_field_buffer(field, 0, buf);
 	    }
 	}

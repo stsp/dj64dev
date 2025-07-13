@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2020,2023 Thomas E. Dickey                                     *
+ * Copyright 2020-2023,2024 Thomas E. Dickey                                *
  * Copyright 1998-2012,2015 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -42,7 +42,7 @@
 
 #include <curses.priv.h>
 
-MODULE_ID("$Id: lib_restart.c,v 1.18 2023/04/29 19:01:25 tom Exp $")
+MODULE_ID("$Id: lib_restart.c,v 1.20 2024/12/15 00:04:09 tom Exp $")
 
 NCURSES_EXPORT(int)
 NCURSES_SP_NAME(restartterm) (NCURSES_SP_DCLx
@@ -52,7 +52,7 @@ NCURSES_SP_NAME(restartterm) (NCURSES_SP_DCLx
 {
     int result;
 #ifdef USE_TERM_DRIVER
-    TERMINAL *new_term = 0;
+    TERMINAL *new_term = NULL;
 #endif
 
     START_TRACE();
@@ -64,7 +64,7 @@ NCURSES_SP_NAME(restartterm) (NCURSES_SP_DCLx
 
     if (TINFO_SETUP_TERM(&new_term, termp, filenum, errret, FALSE) != OK) {
 	result = ERR;
-    } else if (SP_PARM != 0) {
+    } else if (SP_PARM != NULL) {
 	TTY_FLAGS save_flags = SP_PARM->_tty_flags;
 
 #ifdef USE_TERM_DRIVER

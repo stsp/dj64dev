@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2019-2023,2024 Thomas E. Dickey                                *
+ * Copyright 2019-2024,2025 Thomas E. Dickey                                *
  * Copyright 1998-2011,2012 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -52,7 +52,7 @@
 
 #include <tic.h>
 
-MODULE_ID("$Id: access.c,v 1.39 2024/09/21 15:12:56 tom Exp $")
+MODULE_ID("$Id: access.c,v 1.42 2025/02/20 01:02:09 tom Exp $")
 
 #define LOWERCASE(c) ((isalpha(UChar(c)) && isupper(UChar(c))) ? tolower(UChar(c)) : (c))
 
@@ -70,7 +70,7 @@ _nc_rootname(char *path)
     static char *temp;
     char *s;
 
-    if ((temp = strdup(result)) != 0)
+    if ((temp = strdup(result)) != NULL)
 	result = temp;
 #if !MIXEDCASE_FILENAMES
     for (s = result; *s != '\0'; ++s) {
@@ -78,7 +78,7 @@ _nc_rootname(char *path)
     }
 #endif
 #if defined(PROG_EXT)
-    if ((s = strrchr(result, '.')) != 0) {
+    if ((s = strrchr(result, '.')) != NULL) {
 	if (!strcmp(s, PROG_EXT))
 	    *s = '\0';
     }
@@ -94,10 +94,10 @@ NCURSES_EXPORT(bool)
 _nc_is_abs_path(const char *path)
 {
 #if defined(__EMX__) || defined(__DJGPP__)
-#define is_pathname(s) ((((s) != 0) && ((s)[0] == '/')) \
+#define is_pathname(s) ((((s) != NULL) && ((s)[0] == '/')) \
 		  || (((s)[0] != 0) && ((s)[1] == ':')))
 #else
-#define is_pathname(s) ((s) != 0 && (s)[0] == '/')
+#define is_pathname(s) ((s) != NULL && (s)[0] == '/')
 #endif
     return is_pathname(path);
 }
@@ -110,10 +110,10 @@ _nc_pathlast(const char *path)
 {
     const char *test = strrchr(path, '/');
 #ifdef __EMX__
-    if (test == 0)
+    if (test == NULL)
 	test = strrchr(path, '\\');
 #endif
-    if (test == 0)
+    if (test == NULL)
 	test = path;
     else
 	test++;
@@ -131,7 +131,8 @@ _nc_access(const char *path, int mode)
 {
     int result;
 
-    if (path == 0) {
+    if (path == NULL) {
+	errno = ENOENT;
 	result = -1;
     } else if (ACCESS(path, mode) < 0) {
 	if ((mode & W_OK) != 0
@@ -142,7 +143,7 @@ _nc_access(const char *path, int mode)
 
 	    _nc_STRCPY(head, path, sizeof(head));
 	    leaf = _nc_basename(head);
-	    if (leaf == 0)
+	    if (leaf == NULL)
 		leaf = head;
 	    *leaf = '\0';
 	    if (head == leaf)
@@ -150,6 +151,7 @@ _nc_access(const char *path, int mode)
 
 	    result = ACCESS(head, R_OK | W_OK | X_OK);
 	} else {
+	    errno = EPERM;
 	    result = -1;
 	}
     } else {

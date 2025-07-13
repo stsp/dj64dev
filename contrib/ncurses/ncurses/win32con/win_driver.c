@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2018-2023,2024 Thomas E. Dickey                                *
+ * Copyright 2018-2024,2025 Thomas E. Dickey                                *
  * Copyright 2008-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -41,15 +41,6 @@
 
 #include <curses.priv.h>
 
-#ifdef _WIN32
-#include <tchar.h>
-#else
-#include <windows.h>
-#include <wchar.h>
-#endif
-
-#include <io.h>
-
 #define PSAPI_VERSION 2
 #include <psapi.h>
 
@@ -57,9 +48,7 @@
 
 #define CONTROL_PRESSED (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)
 
-MODULE_ID("$Id: win_driver.c,v 1.75 2024/07/20 17:04:48 tom Exp $")
-
-#define TypeAlloca(type,count) (type*) _alloca(sizeof(type) * (size_t) (count))
+MODULE_ID("$Id: win_driver.c,v 1.84 2025/07/05 12:36:24 Branden.Robinson Exp $")
 
 #define WINMAGIC NCDRV_MAGIC(NCDRV_WINCONSOLE)
 
@@ -70,8 +59,8 @@ MODULE_ID("$Id: win_driver.c,v 1.75 2024/07/20 17:04:48 tom Exp $")
 static bool InitConsole(void);
 static bool okConsoleHandle(TERMINAL_CONTROL_BLOCK *);
 
-#define AssertTCB() assert(TCB != 0 && (TCB->magic == WINMAGIC))
-#define SetSP()     assert(TCB->csp != 0); sp = TCB->csp; (void) sp
+#define AssertTCB() assert(TCB != NULL && (TCB->magic == WINMAGIC))
+#define SetSP()     assert(TCB->csp != NULL); sp = TCB->csp; (void) sp
 
 #define GenMap(vKey,key) MAKELONG(key, vKey)
 
@@ -96,7 +85,8 @@ static const LONG keylist[] =
     GenMap(VK_RIGHT,  KEY_RIGHT),
     GenMap(VK_DOWN,   KEY_DOWN),
     GenMap(VK_DELETE, KEY_DC),
-    GenMap(VK_INSERT, KEY_IC)
+    GenMap(VK_INSERT, KEY_IC),
+    GenMap(VK_TAB,    KEY_BTAB)
 };
 static const LONG ansi_keys[] =
 {
@@ -109,7 +99,8 @@ static const LONG ansi_keys[] =
     GenMap(VK_RIGHT,  'M'),
     GenMap(VK_DOWN,   'P'),
     GenMap(VK_DELETE, 'S'),
-    GenMap(VK_INSERT, 'R')
+    GenMap(VK_INSERT, 'R'),
+    GenMap(VK_TAB,    'Z')
 };
 /* *INDENT-ON* */
 #define N_INI ((int)array_length(keylist))
@@ -262,7 +253,7 @@ static BOOL
 con_write16(TERMINAL_CONTROL_BLOCK * TCB, int y, int x, cchar_t *str, int limit)
 {
     int actual = 0;
-    CHAR_INFO *ci = TypeAlloca(CHAR_INFO, limit);
+    MakeArray(ci, CHAR_INFO, limit);
     COORD loc, siz;
     SMALL_RECT rec;
     int i;
@@ -311,7 +302,7 @@ con_write16(TERMINAL_CONTROL_BLOCK * TCB, int y, int x, cchar_t *str, int limit)
 static BOOL
 con_write8(TERMINAL_CONTROL_BLOCK * TCB, int y, int x, chtype *str, int n)
 {
-    CHAR_INFO *ci = TypeAlloca(CHAR_INFO, n);
+    MakeArray(ci, CHAR_INFO, n);
     COORD loc, siz;
     SMALL_RECT rec;
     int i;
@@ -510,16 +501,16 @@ wcon_doupdate(TERMINAL_CONTROL_BLOCK * TCB)
 	if ((CurScreen(sp)->_clear || NewScreen(sp)->_clear)) {
 	    int x;
 #if USE_WIDEC_SUPPORT
-	    cchar_t *empty = TypeAlloca(cchar_t, Width);
+	    MakeArray(empty, cchar_t, Width);
 	    wchar_t blank[2] =
 	    {
 		L' ', L'\0'
 	    };
 
 	    for (x = 0; x < Width; x++)
-		setcchar(&empty[x], blank, 0, 0, 0);
+		setcchar(&empty[x], blank, 0, 0, NULL);
 #else
-	    chtype *empty = TypeAlloca(chtype, Width);
+	    MakeArray(empty, chtype, Width);
 
 	    for (x = 0; x < Width; x++)
 		empty[x] = ' ';
@@ -627,13 +618,13 @@ wcon_CanHandle(TERMINAL_CONTROL_BLOCK * TCB,
 
     T((T_CALLED("win32con::wcon_CanHandle(%p)"), TCB));
 
-    assert((TCB != 0) && (tname != 0));
+    assert((TCB != NULL) && (tname != NULL));
 
     TCB->magic = WINMAGIC;
 
-    if (tname == 0 || *tname == 0)
+    if (tname == NULL || *tname == 0)
 	code = TRUE;
-    else if (tname != 0 && *tname == '#') {
+    else if (tname != NULL && *tname == '#') {
 	/*
 	 * Use "#" (a character which cannot begin a terminal's name) to
 	 * select specific driver from the table.
@@ -647,7 +638,7 @@ wcon_CanHandle(TERMINAL_CONTROL_BLOCK * TCB,
 		|| (strncmp(tname + 1, "win32con", n) == 0))) {
 	    code = TRUE;
 	}
-    } else if (tname != 0 && stricmp(tname, "unknown") == 0) {
+    } else if (tname != NULL && stricmp(tname, "unknown") == 0) {
 	code = TRUE;
     } else if (SysISATTY(TCB->term.Filedes)) {
 	code = TRUE;
@@ -683,8 +674,8 @@ wcon_dobeepflash(TERMINAL_CONTROL_BLOCK * TCB,
     int max_cells = (high * wide);
     int i;
 
-    CHAR_INFO *this_screen = TypeAlloca(CHAR_INFO, max_cells);
-    CHAR_INFO *that_screen = TypeAlloca(CHAR_INFO, max_cells);
+    MakeArray(this_screen, CHAR_INFO, max_cells);
+    MakeArray(that_screen, CHAR_INFO, max_cells);
     COORD this_size;
     SMALL_RECT this_region;
     COORD bufferCoord;
@@ -1015,11 +1006,11 @@ wcon_mode(TERMINAL_CONTROL_BLOCK * TCB, int progFlag, int defFlag)
     TERMINAL *_term = (TERMINAL *) TCB;
     int code = ERR;
 
+    T((T_CALLED("win32con::wcon_mode(%p, prog=%d, def=%d)"),
+       TCB, progFlag, defFlag));
+
     if (okConsoleHandle(TCB)) {
 	sp = TCB->csp;
-
-	T((T_CALLED("win32con::wcon_mode(%p, prog=%d, def=%d)"),
-	   TCB, progFlag, defFlag));
 
 	CON.progMode = progFlag;
 	CON.lastOut = progFlag ? CON.hdl : CON.out;
@@ -1171,7 +1162,7 @@ read_screen_data(void)
 
     want = (size_t) (CON.save_size.X * CON.save_size.Y);
 
-    if ((CON.save_screen = malloc(want * sizeof(CHAR_INFO))) != 0) {
+    if ((CON.save_screen = malloc(want * sizeof(CHAR_INFO))) != NULL) {
 	bufferCoord.X = (SHORT) (CON.window_only ? CON.SBI.srWindow.Left : 0);
 	bufferCoord.Y = (SHORT) (CON.window_only ? CON.SBI.srWindow.Top : 0);
 
@@ -1447,7 +1438,7 @@ wcon_initacs(TERMINAL_CONTROL_BLOCK * TCB,
 
 	for (n = 0; n < SIZEOF(table); ++n) {
 	    real_map[table[n].acs_code] = (chtype) table[n].use_code | A_ALTCHARSET;
-	    if (sp != 0)
+	    if (sp != NULL)
 		sp->_screen_acs_map[table[n].acs_code] = TRUE;
 	}
     }
@@ -1472,7 +1463,7 @@ tdiff(FILETIME fstart, FILETIME fend)
 static int
 Adjust(int milliseconds, int diff)
 {
-    if (milliseconds != INFINITY) {
+    if (milliseconds != NC_INFINITY) {
 	milliseconds -= diff;
 	if (milliseconds < 0)
 	    milliseconds = 0;
@@ -1553,7 +1544,7 @@ console_twait(
 		      milliseconds, mode));
 
     if (milliseconds < 0)
-	milliseconds = INFINITY;
+	milliseconds = NC_INFINITY;
 
     memset(&inp_rec, 0, sizeof(inp_rec));
 
@@ -1962,7 +1953,7 @@ IsConsoleHandle(HANDLE hdl)
      a test for mintty. This is called from the NC_ISATTY macro
      defined in curses.priv.h
  */
-int
+NCURSES_EXPORT(int)
 _nc_mingw_isatty(int fd)
 {
     int result = 0;
@@ -1983,7 +1974,7 @@ _nc_mingw_isatty(int fd)
      with the terminal escape sequences that are sent by
      terminfo.
  */
-int
+NCURSES_EXPORT(int)
 _nc_mingw_isconsole(int fd)
 {
     HANDLE hdl = get_handle(fd);
@@ -1998,9 +1989,9 @@ _nc_mingw_isconsole(int fd)
 
 #define TC_PROLOGUE(fd) \
     SCREEN *sp;                                               \
-    TERMINAL *term = 0;                                       \
+    TERMINAL *term = NULL;                                    \
     int code = ERR;                                           \
-    if (_nc_screen_chain == 0)                                \
+    if (_nc_screen_chain == NULL)                             \
         return 0;                                             \
     for (each_screen(sp)) {                                   \
         if (sp->_term && (sp->_term->Filedes == fd)) {        \
@@ -2008,9 +1999,9 @@ _nc_mingw_isconsole(int fd)
             break;                                            \
         }                                                     \
     }                                                         \
-    assert(term != 0)
+    assert(term != NULL)
 
-int
+NCURSES_EXPORT(int)
 _nc_mingw_tcsetattr(
 		       int fd,
 		       int optional_action GCC_UNUSED,
@@ -2049,7 +2040,7 @@ _nc_mingw_tcsetattr(
     return code;
 }
 
-int
+NCURSES_EXPORT(int)
 _nc_mingw_tcgetattr(int fd, struct termios *arg)
 {
     TC_PROLOGUE(fd);
@@ -2061,7 +2052,7 @@ _nc_mingw_tcgetattr(int fd, struct termios *arg)
     return code;
 }
 
-int
+NCURSES_EXPORT(int)
 _nc_mingw_tcflush(int fd, int queue)
 {
     int code = ERR;
@@ -2076,7 +2067,7 @@ _nc_mingw_tcflush(int fd, int queue)
     return code;
 }
 
-int
+NCURSES_EXPORT(int)
 _nc_mingw_testmouse(
 		       SCREEN *sp,
 		       HANDLE fd,
@@ -2100,7 +2091,7 @@ _nc_mingw_testmouse(
     return rc;
 }
 
-int
+NCURSES_EXPORT(int)
 _nc_mingw_console_read(
 			  SCREEN *sp,
 			  HANDLE fd,
@@ -2153,6 +2144,11 @@ _nc_mingw_console_read(
 		    if (!(inp_rec.Event.KeyEvent.dwControlKeyState
 			  & (SHIFT_PRESSED | CONTROL_PRESSED))) {
 			*buf = KEY_BACKSPACE;
+		    }
+		} else if (vk == VK_TAB) {
+		    if ((inp_rec.Event.KeyEvent.dwControlKeyState
+			 & (SHIFT_PRESSED | CONTROL_PRESSED))) {
+			*buf = KEY_BTAB;
 		    }
 		}
 		break;
@@ -2262,7 +2258,7 @@ InitConsole(void)
 static bool
 okConsoleHandle(TERMINAL_CONTROL_BLOCK * TCB)
 {
-    return ((TCB != 0) &&
+    return ((TCB != NULL) &&
 	    (TCB->magic == WINMAGIC) &&
 	    InitConsole());
 }

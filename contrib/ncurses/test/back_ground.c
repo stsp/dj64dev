@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2021-2022,2024 Thomas E. Dickey                                *
+ * Copyright 2021-2024,2025 Thomas E. Dickey                                *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -26,7 +26,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: back_ground.c,v 1.12 2024/09/28 16:19:19 tom Exp $
+ * $Id: back_ground.c,v 1.15 2025/07/05 15:18:31 tom Exp $
  */
 
 #include <test.priv.h>
@@ -182,12 +182,12 @@ usage(int ok)
 	," -a       invoke assume_default_colors, repeat to use in init_pair"
 #endif
 	," -b XXX   specify background color"
-	," -c XXX   specify background character"
+	," -B XXX   specify background character"
 #if HAVE_USE_DEFAULT_COLORS
 	," -d       invoke use_default_colors, repeat to use in init_pair"
 #endif
 	," -f XXX   specify foreground color"
-	," -l FILE  log window-dumps to this file"
+	," -L FILE  log window-dumps to this file"
 	," -w       fill background with stipple pattern"
 	," -W CODE  fill background with this Unicode value"
     };
@@ -215,7 +215,7 @@ main(int argc, char *argv[])
 
     setlocale(LC_ALL, "");
 
-    while ((ch = getopt(argc, argv, OPTS_COMMON "ab:c:df:l:wW:")) != -1) {
+    while ((ch = getopt(argc, argv, OPTS_COMMON "B:L:W:ab:df:w")) != -1) {
 	switch (ch) {
 #if HAVE_ASSUME_DEFAULT_COLORS
 	case 'a':
@@ -225,7 +225,7 @@ main(int argc, char *argv[])
 	case 'b':
 	    default_bg = color_code(optarg);
 	    break;
-	case 'c':
+	case 'B':
 	    if (strlen(optarg) > 1) {
 		char *check = NULL;
 		long value = strtol(optarg, &check, 0);
@@ -244,7 +244,7 @@ main(int argc, char *argv[])
 	case 'f':
 	    default_fg = color_code(optarg);
 	    break;
-	case 'l':
+	case 'L':
 	    if (!open_dump(optarg))
 		usage(FALSE);
 	    break;
@@ -254,11 +254,8 @@ main(int argc, char *argv[])
 	case 'W':
 	    fill_char = decode_wchar(optarg);
 	    break;
-	case OPTS_VERSION:
-	    show_version(argv);
-	    ExitProgram(EXIT_SUCCESS);
 	default:
-	    usage(ch == OPTS_USAGE);
+	    CASE_COMMON;
 	    /* NOTREACHED */
 	}
     }

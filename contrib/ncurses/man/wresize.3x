@@ -1,5 +1,5 @@
 .\"***************************************************************************
-.\" Copyright 2018-2023,2024 Thomas E. Dickey                                *
+.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
 .\" Copyright 1998-2010,2015 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -29,8 +29,8 @@
 .\"
 .\" Author: Thomas E. Dickey 1996
 .\"
-.\" $Id: wresize.3x,v 1.42 2024/09/21 23:48:27 tom Exp $
-.TH wresize 3X 2024-09-21 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
+.\" $Id: wresize.3x,v 1.47 2025/01/19 00:51:54 tom Exp $
+.TH wresize 3X 2025-01-18 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
 .SH NAME
 \fB\%wresize\fP \-
 resize a \fIcurses\fR window
@@ -55,10 +55,10 @@ and
 .IR columns "."
 If either dimension is larger than its current value,
 .I \%ncurses
-the expanded part of the window is filled with blanks merged with
-current background rendition
-(configured by \fB\%wbkgdset\fP(3X),
-or by wide-character API: \fB\%wbkgrndset\fP(3X)).
+fills the expanded part of the window
+with the window's background character as configured by
+\fB\%wbkgdset\fP(3X)
+(wide-character API: \fB\%wbkgrndset\fP(3X)).
 .SH RETURN VALUE
 .B \%wresize
 returns

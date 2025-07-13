@@ -1,5 +1,5 @@
 dnl***************************************************************************
-dnl Copyright 2018-2023,2024 Thomas E. Dickey                                *
+dnl Copyright 2018-2024,2025 Thomas E. Dickey                                *
 dnl Copyright 1998-2017,2018 Free Software Foundation, Inc.                  *
 dnl                                                                          *
 dnl Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -29,7 +29,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1995-on
 dnl
-dnl $Id: configure.in,v 1.786 2024/08/31 10:46:01 Rafael.Kitover Exp $
+dnl $Id: configure.in,v 1.799 2025/07/12 16:43:47 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 dnl For additional information, see
@@ -38,7 +38,7 @@ dnl     https://invisible-island.net/autoconf/my-autoconf.html
 dnl
 dnl ---------------------------------------------------------------------------
 AC_PREREQ(2.52.20210101)
-AC_REVISION($Revision: 1.786 $)
+AC_REVISION($Revision: 1.799 $)
 AC_INIT(ncurses/base/lib_initscr.c)
 AC_CONFIG_HEADER(include/ncurses_cfg.h:include/ncurses_cfg.hin)
 
@@ -659,7 +659,7 @@ WHICH_XTERM=$with_xterm_new
 AC_SUBST(WHICH_XTERM)
 
 case $host_os in
-(*linux-gnu|*cygwin|*mingw32|*msys)
+(linux*gnu|linux*gnuabi64|linux*gnuabin32|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc|linux*musl)
 	want_xterm_kbs=DEL
 	;;
 (*)
@@ -1195,13 +1195,14 @@ fi
 AC_SUBST(NCURSES_CONST)
 
 ###   use option --enable-ext-colors to turn on use of colors beyond 16.
+NCURSES_EXT_COLORS=0
+NCURSES_RGB_COLORS=0
 AC_MSG_CHECKING(if you want to use extended colors)
 AC_ARG_ENABLE(ext-colors,
 	[  --enable-ext-colors     compile for 256-color support],
 	[with_ext_colors=$enableval],
 	[with_ext_colors=$cf_dft_ext_colors])
 AC_MSG_RESULT($with_ext_colors)
-NCURSES_EXT_COLORS=0
 if test "x$with_ext_colors" = xyes ; then
 	if test "x$with_widec" != xyes ; then
 		AC_MSG_WARN(This option applies only to wide-character library)
@@ -1214,8 +1215,20 @@ if test "x$with_ext_colors" = xyes ; then
 		AC_DEFINE(HAVE_INIT_EXTENDED_COLOR,1,[Define to 1 to enable init_extended_color() function in test-programs])
 		AC_DEFINE(HAVE_RESET_COLOR_PAIRS,1,[Define to 1 to enable reset_color_pairs() function in test-programs])
 	fi
+	###   use option --enable-rgb-color to extend support for direct-color
+	AC_MSG_CHECKING(if you want to extend support for direct color)
+	AC_ARG_ENABLE(rgb-color,
+		[  --enable-rgb-color      compile for extended direct-color],
+		[with_rgb_color=$enableval],
+		[with_rgb_color=$cf_dft_rgb_color])
+	AC_MSG_RESULT($with_rgb_color)
+	if test "x$with_rgb_color" = xyes ; then
+		NCURSES_RGB_COLORS=1
+		AC_DEFINE(NCURSES_RGB_COLORS,1,[Define to 1 to compile for extended direct-color support])
+	fi
 fi
 AC_SUBST(NCURSES_EXT_COLORS)
+AC_SUBST(NCURSES_RGB_COLORS)
 
 ###   use option --enable-ext-mouse to modify coding to support 5-button mice
 AC_MSG_CHECKING(if you want to use extended mouse encoding)
@@ -1564,6 +1577,11 @@ AC_MSG_RESULT($with_scroll_hints)
 test "x$with_scroll_hints" = xyes && AC_DEFINE(USE_SCROLL_HINTS,1,[Define to 1 to compile without scroll-hints code])
 fi
 
+case x$cf_cv_abi_default in
+(x[[789]])
+	NCURSES_WGETCH_EVENTS=0
+	;;
+(*)
 AC_MSG_CHECKING(if you want wgetch-events code)
 AC_ARG_ENABLE(wgetch-events,
 	[  --enable-wgetch-events  compile with wgetch-events code],
@@ -1576,6 +1594,7 @@ if test "x$with_wgetch_events" = xyes ; then
 else
 	NCURSES_WGETCH_EVENTS=0
 fi
+esac
 AC_SUBST(NCURSES_WGETCH_EVENTS)
 
 case "$cf_cv_system_name" in
@@ -1732,10 +1751,12 @@ CF_REGEX
 
 dnl These are some other potentially nonportable headers.
 AC_CHECK_HEADERS( \
+alloca.h \
 fcntl.h \
 getopt.h \
 limits.h \
 locale.h \
+malloc.h \
 math.h \
 poll.h \
 sys/auxv.h \
@@ -1871,6 +1892,10 @@ CF_MB_LEN_MAX
 CF_VA_COPY
 AC_FUNC_VFORK
 CF_FOPEN_BIN_R
+CF_CHECK_TYPE2(cc_t,termios.h)
+CF_CHECK_TYPE2(speed_t,termios.h)
+CF_CHECK_TYPE2(tcflag_t,termios.h)
+CF_CHECK_TYPE2(sigset_t,signal.h)
 
 # special check for test/ditto.c
 CF_FUNC_OPENPTY
@@ -1897,6 +1922,14 @@ fi
 
 # Just in case, check if the C compiler has a bool type.
 CF_BOOL_DECL(cf_cv_cc_bool_type)
+if test "$cf_cv_cc_bool_type" = yes; then
+	USE_BUILTIN_BOOL=1
+else
+	USE_BUILTIN_BOOL=0
+fi
+AC_SUBST(USE_BUILTIN_BOOL)
+
+test "$cf_cv_header_stdbool_h" = yes && AC_DEFINE(USE_STDBOOL_H,1,[Define to 1 if we can include stdbool.h])
 
 # Check for C++ compiler characteristics (and ensure that it's there!)
 if test -n "$CXX" ; then
@@ -1916,7 +1949,7 @@ if test -n "$CXX" ; then
 		;;
 	esac
 
-	AC_CHECK_HEADERS(typeinfo)
+	AC_CHECK_HEADERS(new exception typeinfo)
 	CF_CXX_IOSTREAM_NAMESPACE
 	CF_BOOL_DECL
 	CF_BOOL_SIZE
@@ -1927,7 +1960,7 @@ if test -n "$CXX" ; then
 	CF_CXX_AR_FLAGS
 else
 	cf_cxx_library=no
-	cf_cv_builtin_bool=1
+	cf_cv_builtin_bool=yes
 
 	# Just because we are not configuring against C++ right now does not
 	# mean that a user will not want to use C++.  Some distributors disable
@@ -1940,18 +1973,9 @@ else
 
 	if test "$NCURSES_BOOL" != auto ; then
 		cf_cv_type_of_bool=$NCURSES_BOOL
-		cf_cv_header_stdbool_h=0
+		USE_STDBOOL_H=0
 	else
-		if test "$cf_cv_header_stdbool_h" = 1 ; then
-			CF_BOOL_SIZE
-		else
-			AC_MSG_CHECKING(for fallback type of bool)
-			case "$host_cpu" in
-			(i?86)	cf_cv_type_of_bool=char	;;
-			(*)	cf_cv_type_of_bool=int	;;
-			esac
-			AC_MSG_RESULT($cf_cv_type_of_bool)
-		fi
+		CF_BOOL_SIZE
 	fi
 fi
 AC_SUBST(CXXLIBS)
@@ -1962,11 +1986,11 @@ AC_SUBST(CXXLIBS)
 # specify the type of bool in a configure-script option and postpone
 # integration with the C++ compiler provided that the types are compatible.
 USE_CXX_BOOL=1
-if test "$cf_cv_cc_bool_type" = 1
+if test "$USE_BUILTIN_BOOL" = 1
 then
 	# oops: C has a bool.  Unlikely, but C++ could differ.
 	USE_CXX_BOOL=0
-elif test "$cf_cv_builtin_bool" = 0
+elif test "$cf_cv_builtin_bool" = no
 then
 	# C++ has no bool
 	USE_CXX_BOOL=0
@@ -2348,9 +2372,10 @@ AC_DEFINE_UNQUOTED(NCURSES_PATHSEP,'$PATH_SEPARATOR',[Define to override ':' as 
 AC_DEFINE_UNQUOTED(NCURSES_VERSION_STRING, "${NCURSES_MAJOR}.${NCURSES_MINOR}.${NCURSES_PATCH}",[Define to 1 if machine has ample memory for tic])
 
 ### Define substitutions for header files to avoid name-pollution
-CF_SUBST_IF(["x$cf_cv_have_tcgetattr" = xyes], HAVE_TCGETATTR, 1, 0)
-CF_SUBST_IF(["x$ac_cv_header_stdint_h" = xyes], HAVE_STDINT_H, 1, 0)
-CF_SUBST_IF(["x$ac_cv_header_termio_h" = xyes], HAVE_TERMIO_H, 1, 0)
+CF_SUBST_IF(["x$cf_cv_have_tcgetattr" = xyes],   HAVE_TCGETATTR, 1, 0)
+CF_SUBST_IF(["x$ac_cv_header_stdint_h" = xyes],  HAVE_STDINT_H,  1, 0)
+CF_SUBST_IF(["x$ac_cv_header_sgtty_h" = xyes],   HAVE_SGTTY_H,   1, 0)
+CF_SUBST_IF(["x$ac_cv_header_termio_h" = xyes],  HAVE_TERMIO_H,  1, 0)
 CF_SUBST_IF(["x$ac_cv_header_termios_h" = xyes], HAVE_TERMIOS_H, 1, 0)
 
 ################################################################################

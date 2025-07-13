@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2018-2022,2024 Thomas E. Dickey                                *
+ * Copyright 2018-2024,2025 Thomas E. Dickey                                *
  * Copyright 2017 Free Software Foundation, Inc.                            *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,7 +27,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: demo_new_pair.c,v 1.29 2024/10/05 18:21:44 tom Exp $
+ * $Id: demo_new_pair.c,v 1.33 2025/07/05 15:21:56 tom Exp $
  *
  * Demonstrate the alloc_pair() function.
  */
@@ -50,7 +50,7 @@ static bool
 valid_cap(NCURSES_CONST char *name)
 {
     const char *value = tigetstr(name);
-    return (value != 0 && value != (char *) -1) ? TRUE : FALSE;
+    return (value != NULL && value != (char *) -1) ? TRUE : FALSE;
 }
 
 static attr_t
@@ -188,7 +188,7 @@ main(int argc, char *argv[])
 	"  ?      print this screen (exit on any character).",
 	"",
 	"To exit this program, press ^Q, ^[ or \"q\".",
-	0
+	NULL
     };
 
     bool done = FALSE;
@@ -205,7 +205,7 @@ main(int argc, char *argv[])
     wchar_t wch[2];
     time_t start = now();
     long total_cells = 0;
-    FILE *output = 0;
+    FILE *output = NULL;
 
     setlocale(LC_ALL, "");
 
@@ -226,11 +226,8 @@ main(int argc, char *argv[])
 	case 'w':
 	    use_wide = TRUE;
 	    break;
-	case OPTS_VERSION:
-	    show_version(argv);
-	    ExitProgram(EXIT_SUCCESS);
 	default:
-	    usage(ch == OPTS_USAGE);
+	    CASE_COMMON;
 	    /* NOTREACHED */
 	}
     }
@@ -243,9 +240,10 @@ main(int argc, char *argv[])
 	fprintf(stderr, "cannot open terminal for output\n");
 	ExitProgram(EXIT_FAILURE);
     }
-    if (newterm(NULL, output, stdin) == 0) {
+    if (newterm(NULL, output, stdin) == NULL) {
 	fprintf(stderr, "Cannot initialize terminal\n");
-	fclose(output);
+	if (output != NULL)
+	    fclose(output);
 	ExitProgram(EXIT_FAILURE);
     }
     (void) cbreak();		/* read chars without wait for \n */
@@ -384,7 +382,8 @@ main(int argc, char *argv[])
 	++current;
     }
     stop_curses();
-    fclose(output);
+    if (output != NULL)
+	fclose(output);
 
     printf("%.1f cells/second\n",
 	   (double) (total_cells) / (double) (now() - start));

@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2019-2022,2024 Thomas E. Dickey                                *
+ * Copyright 2019-2024,2025 Thomas E. Dickey                                *
  * Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -34,7 +34,7 @@
  * modified 10-18-89 for curses (jrl)
  * 10-18-89 added signal handling
  *
- * $Id: gdc.c,v 1.62 2024/10/06 20:08:59 tom Exp $
+ * $Id: gdc.c,v 1.65 2025/07/05 15:21:56 tom Exp $
  */
 
 #include <test.priv.h>
@@ -166,7 +166,7 @@ usage(int ok)
 #endif
 	," -n       reads input from /dev/null"
 	," -s       scrolls each digit into place"
-	," -t TIME  specify starting time as hh:mm:ss (default is ``now'')"
+	," -t TIME  specify starting time as hh:mm:ss (default is \"now\")"
     };
     unsigned j;
     for (j = 0; j < SIZEOF(msg); j++)
@@ -276,11 +276,8 @@ main(int argc, char *argv[])
 	    hascustomtime = TRUE;
 	    starts = parse_time(optarg);
 	    break;
-	case OPTS_VERSION:
-	    show_version(argv);
-	    ExitProgram(EXIT_SUCCESS);
 	default:
-	    usage(ch == OPTS_USAGE);
+	    CASE_COMMON;
 	    /* NOTREACHED */
 	}
     }
@@ -294,8 +291,8 @@ main(int argc, char *argv[])
     InitAndCatch({
 	if (redirected) {
 	    NCURSES_CONST char *name = getenv("TERM");
-	    if (name == 0
-		|| newterm(name, ofp, ifp) == 0) {
+	    if (name == NULL
+		|| newterm(name, ofp, ifp) == NULL) {
 		fprintf(stderr, "cannot open terminal\n");
 		ExitProgram(EXIT_FAILURE);
 	    }

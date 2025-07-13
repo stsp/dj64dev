@@ -1,6 +1,6 @@
 #!/bin/sh
 ##############################################################################
-# Copyright 2020,2023 Thomas E. Dickey                                       #
+# Copyright 2020-2023,2025 Thomas E. Dickey                                  #
 # Copyright 1998-2019,2020 Free Software Foundation, Inc.                    #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
@@ -27,7 +27,7 @@
 # use or other dealings in this Software without prior written               #
 # authorization.                                                             #
 ##############################################################################
-# $Id: MKfallback.sh,v 1.26 2023/04/22 15:12:57 tom Exp $
+# $Id: MKfallback.sh,v 1.29 2025/03/29 22:48:05 tom Exp $
 #
 # MKfallback.sh -- create fallback table for entry reads
 #
@@ -95,7 +95,7 @@ EOF
 	for x in "$@"
 	do
 		echo "/* $x */"
-		"$infocmp_path" -E "$x" | sed -e 's/\<short\>/NCURSES_INT2/g'
+		"$infocmp_path" -x -E "$x" | sed -e 's/[ 	]short[ 	]/ NCURSES_INT2 /g'
 	done
 
 	cat <<EOF
@@ -106,7 +106,7 @@ EOF
 	for x in "$@"
 	do
 		echo "$comma /* $x */"
-		"$infocmp_path" -e "$x"
+		"$infocmp_path" -x -e "$x"
 		comma=","
 	done
 
@@ -150,8 +150,8 @@ NCURSES_EXPORT(const TERMTYPE *)
 _nc_fallback (const char *name)
 {
     const TERMTYPE2 *tp = _nc_fallback2(name);
-    const TERMTYPE *result = 0;
-    if (tp != 0) {
+    const TERMTYPE *result = NULL;
+    if (tp != NULL) {
 	static TERMTYPE temp;
 	_nc_export_termtype2(&temp, tp);
 	result = &temp;

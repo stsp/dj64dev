@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2020-2023,2024 Thomas E. Dickey                                *
+ * Copyright 2020-2024,2025 Thomas E. Dickey                                *
  * Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -50,14 +50,13 @@
 
 #include <curses.priv.h>
 
-MODULE_ID("$Id: lib_raw.c,v 1.31 2024/05/25 20:18:20 Branden.Robinson Exp $")
+MODULE_ID("$Id: lib_raw.c,v 1.33 2025/06/21 14:27:09 tom Exp $")
 
 #if HAVE_SYS_TERMIO_H
 #include <sys/termio.h>		/* needed for ISC */
 #endif
 
 #ifdef __EMX__
-#include <io.h>
 #define _nc_setmode(mode) setmode(SP_PARM->_ifd, mode)
 #else
 #define _nc_setmode(mode)	/* nothing */
@@ -85,7 +84,7 @@ NCURSES_SP_NAME(raw) (NCURSES_SP_DCL0)
     TERMINAL *termp;
 
     T((T_CALLED("raw(%p)"), (void *) SP_PARM));
-    if ((termp = TerminalOf(SP_PARM)) != 0) {
+    if ((termp = TerminalOf(SP_PARM)) != NULL) {
 	TTY buf;
 
 	BEFORE("raw");
@@ -141,7 +140,7 @@ NCURSES_SP_NAME(cbreak) (NCURSES_SP_DCL0)
     TERMINAL *termp;
 
     T((T_CALLED("cbreak(%p)"), (void *) SP_PARM));
-    if ((termp = TerminalOf(SP_PARM)) != 0) {
+    if ((termp = TerminalOf(SP_PARM)) != NULL) {
 	TTY buf;
 
 	BEFORE("cbreak");
@@ -185,7 +184,7 @@ NCURSES_SP_NAME(qiflush) (NCURSES_SP_DCL0)
     TERMINAL *termp;
 
     T((T_CALLED("qiflush(%p)"), (void *) SP_PARM));
-    if ((termp = TerminalOf(SP_PARM)) != 0) {
+    if ((termp = TerminalOf(SP_PARM)) != NULL) {
 	TTY buf;
 	int result;
 
@@ -220,7 +219,7 @@ NCURSES_SP_NAME(noraw) (NCURSES_SP_DCL0)
     TERMINAL *termp;
 
     T((T_CALLED("noraw(%p)"), (void *) SP_PARM));
-    if ((termp = TerminalOf(SP_PARM)) != 0) {
+    if ((termp = TerminalOf(SP_PARM)) != NULL) {
 	TTY buf;
 
 	BEFORE("noraw");
@@ -275,7 +274,7 @@ NCURSES_SP_NAME(nocbreak) (NCURSES_SP_DCL0)
     TERMINAL *termp;
 
     T((T_CALLED("nocbreak(%p)"), (void *) SP_PARM));
-    if ((termp = TerminalOf(SP_PARM)) != 0) {
+    if ((termp = TerminalOf(SP_PARM)) != NULL) {
 	TTY buf;
 
 	BEFORE("nocbreak");
@@ -316,7 +315,7 @@ NCURSES_SP_NAME(noqiflush) (NCURSES_SP_DCL0)
     TERMINAL *termp;
 
     T((T_CALLED("noqiflush(%p)"), (void *) SP_PARM));
-    if ((termp = TerminalOf(SP_PARM)) != 0) {
+    if ((termp = TerminalOf(SP_PARM)) != NULL) {
 	TTY buf;
 	int result;
 
@@ -354,10 +353,10 @@ NCURSES_SP_NAME(intrflush) (NCURSES_SP_DCLx WINDOW *win GCC_UNUSED, bool flag)
     TERMINAL *termp;
 
     T((T_CALLED("intrflush(%p,%d)"), (void *) SP_PARM, flag));
-    if (SP_PARM == 0)
+    if (SP_PARM == NULL)
 	returnCode(ERR);
 
-    if ((termp = TerminalOf(SP_PARM)) != 0) {
+    if ((termp = TerminalOf(SP_PARM)) != NULL) {
 	TTY buf;
 
 	BEFORE("intrflush");

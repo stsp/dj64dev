@@ -35,7 +35,7 @@
 
 #include "form.priv.h"
 
-MODULE_ID("$Id: fty_int.c,v 1.34 2024/07/27 18:35:02 tom Exp $")
+MODULE_ID("$Id: fty_int.c,v 1.36 2024/12/21 17:14:36 tom Exp $")
 
 #if USE_WIDEC_SUPPORT
 #define isDigit(c) (iswdigit((wint_t)(c)) || isdigit(UChar(c)))
@@ -184,7 +184,7 @@ Check_This_Field(FIELD *field, const void *argp)
 	  int len;
 	  wchar_t *list = _nc_Widen_String((char *)bp, &len);
 
-	  if (list != 0)
+	  if (list != NULL)
 	    {
 	      bool blank = FALSE;
 	      int n;
@@ -235,10 +235,10 @@ Check_This_Field(FIELD *field, const void *argp)
 	    }
 	  if (result)
 	    {
-	      char buf[100];
+	      char buf[MAX_DIGITS + 3];
 
 	      _nc_SPRINTF(buf, _nc_SLIMIT(sizeof(buf))
-			  "%.*ld", (prec > 0 ? prec : 0), val);
+			  "%.*ld", MaxDigits(prec), val);
 	      set_field_buffer(field, 0, buf);
 	    }
 	}

@@ -42,7 +42,7 @@
 
 #include <tic.h>
 
-MODULE_ID("$Id: write_entry.c,v 1.136 2024/10/19 21:19:32 tom Exp $")
+MODULE_ID("$Id: write_entry.c,v 1.139 2024/12/21 16:42:33 tom Exp $")
 
 #if 1
 #define TRACE_OUT(p) DEBUG(2, p)
@@ -82,21 +82,25 @@ write_file(char *filename, TERMTYPE2 *tp)
     } else {
 	FILE *fp = ((_nc_access(filename, W_OK) == 0)
 		    ? safe_fopen(filename, BIN_W)
-		    : 0);
+		    : NULL);
 	size_t actual;
 
-	if (fp == 0) {
-	    perror(filename);
-	    _nc_syserr_abort("cannot open %s/%s", _nc_tic_dir(0), filename);
+	if (fp == NULL) {
+	    _nc_syserr_abort("cannot open %s/%s: (errno %d) %s",
+			     _nc_tic_dir(NULL),
+			     filename,
+			     errno,
+			     strerror(errno));
 	}
 
 	actual = fwrite(buffer, sizeof(char), (size_t) offset, fp);
 	if (actual != offset) {
 	    int myerr = ferror(fp) ? errno : 0;
 	    if (myerr) {
-		_nc_syserr_abort("error writing %s/%s: %s",
+		_nc_syserr_abort("error writing %s/%s: (errno %d) %s",
 				 _nc_tic_dir(NULL),
 				 filename,
+				 myerr,
 				 strerror(myerr));
 	    } else {
 		_nc_syserr_abort("error writing %s/%s: %u bytes vs actual %lu",
@@ -125,15 +129,19 @@ check_writeable(int code)
     static const char dirnames[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     static bool verified[sizeof(dirnames)];
 
-    const char *s = 0;
+    const char *s = NULL;
 
-    if (code == 0 || (s = (strchr) (dirnames, code)) == 0) {
-	_nc_err_abort("Illegal terminfo subdirectory \"" LEAF_FMT "\"", code);
+    if (code == 0 || (s = (strchr) (dirnames, code)) == NULL) {
+	_nc_err_abort("Illegal terminfo subdirectory \"" LEAF_FMT "\"", UChar(code));
     } else if (!verified[s - dirnames]) {
 	char dir[sizeof(LEAF_FMT)];
-	_nc_SPRINTF(dir, _nc_SLIMIT(sizeof(dir)) LEAF_FMT, code);
+	_nc_SPRINTF(dir, _nc_SLIMIT(sizeof(dir)) LEAF_FMT, UChar(code));
 	if (make_db_root(dir) < 0) {
-	    _nc_err_abort("%s/%s: permission denied", _nc_tic_dir(NULL), dir);
+	    _nc_err_abort("%s/%s: (errno %d) %s",
+			  _nc_tic_dir(NULL),
+			  dir,
+			  errno,
+			  strerror(errno));
 	} else {
 	    verified[s - dirnames] = TRUE;
 	}
@@ -211,6 +219,7 @@ make_db_root(const char *path)
 	} else if (_nc_access(path, R_OK | W_OK | X_OK) < 0) {
 	    rc = -1;		/* permission denied */
 	} else if (!(S_ISDIR(statbuf.st_mode))) {
+	    errno = ENOTDIR;
 	    rc = -1;		/* not a directory */
 	}
 #endif
@@ -248,8 +257,10 @@ _nc_set_writedir(const char *dir)
 	    }
 	}
 	if (!success) {
-	    _nc_err_abort("%s: permission denied (errno %d)",
-			  destination, errno);
+	    _nc_err_abort("%s: (errno %d) %s",
+			  destination,
+			  errno,
+			  strerror(errno));
 	}
     }
 
@@ -484,7 +495,7 @@ _nc_write_entry(TERMTYPE2 *const tp)
 
 	check_writeable(ptr[0]);
 	_nc_SPRINTF(linkname, _nc_SLIMIT(sizeof(linkname))
-		    LEAF_FMT "/%.*s", ptr[0],
+		    LEAF_FMT "/%.*s", UChar(ptr[0]),
 		    (int) sizeof(linkname) - (2 + LEAF_LEN), ptr);
 
 	if (strcmp(filename, linkname) == 0) {

@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2020-2022,2024 Thomas E. Dickey                                *
+ * Copyright 2020-2024,2025 Thomas E. Dickey                                *
  * Copyright 2006-2012,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,7 +27,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: redraw.c,v 1.18 2024/10/06 21:17:54 tom Exp $
+ * $Id: redraw.c,v 1.21 2025/07/05 15:11:35 tom Exp $
  *
  * Demonstrate the redrawwin() and wredrawln() functions.
  * Thomas Dickey - 2006/11/4
@@ -76,7 +76,7 @@ test_redraw(WINDOW *win)
 	"",
 	"Other control characters are added to the screen in printable form.",
 	"Other printable characters are added to the screen as is.",
-	0
+	NULL
     };
 
     WINDOW *win1;
@@ -85,7 +85,7 @@ test_redraw(WINDOW *win)
     int max_y, max_x;
     int beg_y, beg_x;
 
-    assert(win != 0);
+    assert(win != NULL);
 
     scrollok(win, TRUE);
     keypad(win, TRUE);
@@ -224,11 +224,8 @@ main(int argc, char *argv[])
 	case 'n':
 	    no_init = TRUE;
 	    break;
-	case OPTS_VERSION:
-	    show_version(argv);
-	    ExitProgram(EXIT_SUCCESS);
 	default:
-	    usage(ch == OPTS_USAGE);
+	    CASE_COMMON;
 	    /* NOTREACHED */
 	}
     }

@@ -1,6 +1,6 @@
 '\" t
 .\"***************************************************************************
-.\" Copyright 2018-2023,2024 Thomas E. Dickey                                *
+.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
 .\" Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -28,8 +28,8 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: curs_inopts.3x,v 1.79 2024/09/21 18:05:49 tom Exp $
-.TH curs_inopts 3X 2024-09-21 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
+.\" $Id: curs_inopts.3x,v 1.107 2025/07/05 12:55:10 tom Exp $
+.TH curs_inopts 3X 2025-07-05 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
 .ie \n(.g \{\
 .ds `` \(lq
 .ds '' \(rq
@@ -111,7 +111,11 @@ get and set \fIcurses\fR terminal input options
 .I curses
 offers configurable parameters permitting an application to control the
 handling of input from the terminal.
-Some are global,
+Some,
+such as those affecting the terminal's
+.I mode
+or line discipline,
+are global,
 applying to all windows;
 others apply only to a specific window.
 The library does not automatically apply such parameters to new or
@@ -135,19 +139,25 @@ Normally,
 the terminal driver buffers typed characters,
 not delivering them to an application
 until a line feed or carriage return is typed.
+This canonical (\*(``cooked\*('') line discipline also supports
+software flow control,
+simple line editing functions
+(character and word erase,
+and whole-line erasure or \*(``kill\*(''),
+and job control.
 .B \%cbreak
 configures the terminal in
 .IR "cbreak mode" ","
 which disables line buffering
-and erase and kill character processing
-(the interrupt,
+and erase and kill character processing \(em
+the interrupt,
 quit,
 suspend,
-and flow control characters are unaffected)
+and flow control characters are unaffected \(em
 and makes characters typed by the user immediately available to the
 program.
 .B \%nocbreak
-restores the terminal's normal (\*(``cooked\*('') line discipline.
+restores canonical (\*(``cooked\*('') mode.
 .PP
 The state of the terminal is unknown to a
 .I curses
@@ -213,7 +223,7 @@ are immediately available to the program.
 However,
 after blocking for
 .I tenths
-tenths of seconds,
+tenth-seconds,
 an input character reading function returns
 .B ERR
 if no input is pending.
@@ -250,9 +260,13 @@ If
 enabled
 .RI ( bf
 is
-.BR TRUE ),
-the input character reading function returns a value representing
-the function key,
+.BR TRUE ")"
+then when an input character reading function reads ESC,
+it waits for further input corresponding to an escape sequence
+defined by the terminal type description.
+If a valid sequence populates the input stream,
+the input character reading function
+returns a value representing the function key,
 such as
 .BR KEY_LEFT "."
 (Wide-character API users:
@@ -261,6 +275,8 @@ such as
 to indicate the availability of a function key code in its
 .I wch
 parameter.)
+If the sequence is invalid,
+the input character reading function returns only its last character.
 If disabled
 .RI ( bf
 is
@@ -299,9 +315,9 @@ call
 this is equivalent,
 on POSIX systems,
 to setting the CS7 flag on the terminal.
-The window argument,
-.IR win ,
-is always ignored.
+.I curses
+ignores the window argument
+.IR win "."
 If the
 .I \%term\%info
 string capabilities
@@ -328,7 +344,7 @@ see \fI\%termios\fP(3).
 configures the terminal to perform this translation.
 .B nonl
 disables it.
-Under its normal (\*(``cooked\*('') line discipline,
+Under its canonical (\*(``cooked\*('') line discipline,
 the terminal driver always translates carriage returns to line feeds.
 .\"
 .SS nodelay
@@ -352,10 +368,10 @@ it sets a timer while waiting for the next character.
 disables this timer.
 The purpose of the timeout is to distinguish sequences produced by a
 function key from those typed by a user.
-To configure the timeout rather than disabling it,
-see
-.B \%wtimeout
-below.
+If this timer is disabled,
+.I curses
+waits forever for subsequent keystrokes
+until it determines the escape sequence to be valid or invalid.
 .\"
 .SS "qiflush, noqiflush"
 .\"
@@ -365,14 +381,17 @@ and
 configure the terminal driver's treatment of its input and output queues
 when it handles the interrupt,
 suspend,
-or quit characters under the normal (\*(``cooked\*('')
+or quit characters under the canonical (\*(``cooked\*('')
 or cbreak line disciplines on POSIX systems;
 see \fI\%termios\fP(3).
 The default behavior is inherited from the terminal driver settings.
 Calling
 .B \%qiflush
-configures the terminal to flush the queues when any of these events
-occurs,
+configures the terminal to
+.I flush
+the queues
+(discarding their contents)
+when any of these events occurs,
 giving the impression of faster response to user input,
 but making the library's model of the screen contents incorrect.
 Calling
@@ -386,10 +405,10 @@ see
 below for a mitigation of this problem.
 You may want to call
 .B \%noqiflush
-in a signal handler
-if you want output to continue
-after the handler exits
-as though the interrupt had not occurred.
+in a signal handler if,
+after the handler exits,
+you want output to continue
+as though the signal had not occurred.
 .\"
 .SS "raw, noraw"
 .B raw
@@ -412,7 +431,7 @@ depends on terminal driver configuration parameters that
 .I curses
 does not handle.
 .B \%noraw
-restores the terminal's normal (\*(``cooked\*('') line discipline.
+restores the terminal's canonical (\*(``cooked\*('') line discipline.
 .\"
 .SS "timeout, wtimeout"
 .B \%wtimeout
@@ -424,12 +443,13 @@ uses blocking or non-blocking reads.
 If
 .I delay
 is negative,
-a blocking read is used,
+.I curses
+uses a blocking read,
 waiting indefinitely for input.
 If
 .I delay
 is zero,
-a non-blocking read is used;
+the read is non-blocking;
 an input character reading function returns
 .B ERR
 if no input is pending.
@@ -453,10 +473,12 @@ on
 Normally,
 a
 .I curses
-library checks the terminal for input while updating the screen.
-If any is found,
-the update is postponed until the next \fB\%wrefresh\fP(3X) or
-\fB\%doupdate\fP(3X) call,
+library checks the terminal's input file descriptor for activity
+with \fIpoll\fP(2) or \fI\%select\fP(2)
+while updating the screen;
+if it finds any,
+it postpones output
+until the next \fB\%wrefresh\fP(3X) or \fB\%doupdate\fP(3X) call,
 allowing faster response to user key strokes.
 The library tests the file descriptor corresponding to the
 .I FILE
@@ -511,12 +533,18 @@ the functions in the previous paragraph return
 .B ERR
 if
 .bP
-the terminal is not initialized or
+the library's
+.I \%TERMINAL
+structure for the device has not been initialized with
+\fB\%initscr\fP(3X),
+\fB\%newterm\fP(3X),
+or
+\fB\%setupterm\fP(3X),
+or
 .bP
 .I win
-is
-.B NULL
-(except for
+is a null pointer
+(except with
 .B \%intrflush
 and
 .BR meta ","
@@ -558,7 +586,7 @@ may be implemented as macros.
 and
 .B \%nocbreak
 follow historical practice in that they attempt to restore
-the terminal's normal (\*(``cooked\*('') line discipline
+the terminal's canonical (\*(``cooked\*('') line discipline
 from raw and cbreak,
 respectively.
 Mixing
@@ -568,6 +596,43 @@ calls with
 calls leads to terminal driver control states that are hard to predict
 or understand;
 doing so is not recommended.
+.PP
+.I curses
+documentation uses the terms \*(``delay\*('' and \*(``timeout\*(''
+freely to describe two related but distinct aspects of input handling,
+at the risk of confusing the user.
+The functions
+.BR \%halfdelay ","
+.BR \%nodelay ","
+.BR \%timeout ","
+and
+.B \%wtimeout
+configure whether the input character reading function
+\%(\fBwgetch\fP(3X) or \fB\%wget_wch\fP(3X))
+waits for keyboard input to begin,
+and for how long.
+.B \%keypad
+configures whether that function waits for further input
+if the first character it reads is ESC.
+Calling
+.BR \%notimeout ","
+which has nothing to do with
+.B \%timeout
+or
+.BR \%wtimeout ","
+makes this delay in expectation of further characters
+effectively infinite.
+X/Open Curses affords no means of otherwise configuring
+the length of this second delay,
+but an AIX and
+.I \%ncurses
+extension,
+.BR \%ESCDELAY ,
+is available both as an environment variable and a global symbol
+permitting the user and application,
+respectively,
+to do so;
+see \fB\%ncurses\fP(3X) and \fBcurs_variables\fP(3X).
 .SH EXTENSIONS
 .I \%ncurses
 provides four \*(``is_\*('' functions corresponding to
@@ -597,11 +662,13 @@ the function returns
 if the option is set,
 .TP
 .B 0
-if the option is reset,
+if the option is unset,
 or
 .TP
 .B \-1
-if the library is not initialized.
+if the library's
+.I \%TERMINAL
+structure for the device has not been initialized.
 .SH PORTABILITY
 Applications employing
 .I \%ncurses
@@ -610,15 +677,16 @@ extensions should condition their use on the visibility of the
 preprocessor macro.
 .PP
 Except as noted in section \*(``EXTENSIONS\*('' above,
-X/Open Curses,
-Issue 4 describes these functions.
+X/Open Curses Issue\ 4 describes these functions.
 It specifies no error conditions for them.
 .PP
-SVr4
-.I curses
-describes a successful return value only as
+SVr4 describes a successful return value only as
 \*(``an integer value other than
-.BR ERR \*(''.
+.IR ERR \*(''. \" Courier roman in source; SVID 4, vol. 3, p. 508
+.\" It continues "unless otherwise noted in the preceding routine
+.\" descriptions", but no notes otherwise are present; the man page
+.\" discusses getch()'s return value repeatedly, but never those of the
+.\" functions the page ostensibly documents.
 .PP
 .I \%ncurses
 follows X/Open Curses
@@ -638,11 +706,11 @@ function turned it off as a side effect.
 .\" https://github.com/ryanwoodsmall/oldsysv/blob/master/sysv-pdp11_man/a_man/man7/termio.7
 For best portability,
 call
-.B echo
+.I echo
 or
-.B \%noecho
+.I \%noecho
 explicitly just after initialization,
-even if your program retains the terminal's normal (\*(``cooked\*('')
+even if your program retains the terminal's canonical (\*(``cooked\*('')
 line discipline.
 .PP
 X/Open Curses is ambiguous regarding whether
@@ -654,7 +722,7 @@ and
 .IR \%nonl "."
 BSD
 .I curses
-did turn off these translations;
+turned off these translations;
 System\ V
 .I curses
 did not.
@@ -669,8 +737,8 @@ When
 .B \%keypad
 is first enabled,
 .I \%ncurses
-loads the key definitions for the current terminal description.
-If the terminal description includes extended string capabilities,
+loads the key definitions for the current terminal type description.
+If that description includes extended string capabilities,
 for example,
 by using the
 .B \-x
@@ -723,11 +791,9 @@ extended capabilities can be interpreted as key definitions.
 These are loaded after the predefined keys,
 and if a capability's value is the same as a previously loaded
 key definition,
-the later definition is the one used.
+the library uses the later definition.
 .SH HISTORY
-4BSD
-.I curses
-(1980)
+4BSD (1980)
 introduced
 .IR echo ","
 .IR \%noecho ","
@@ -737,7 +803,8 @@ introduced
 and
 .IR \%noraw "." \" also crmod and nocrmod, never standardized
 .PP
-SVr2 (1984) featured a new terminal driver,
+SVr2 (1984)
+featured a new terminal driver,
 extending the
 .I curses
 API to support it with
@@ -795,8 +862,8 @@ to
 .I \%termios
 (the POSIX terminal API).
 In the former,
-both input and output were controlled via a single option
-\*(``CRMOD\*('',
+both input and output conversions were controlled via a single option
+\%\*(``CRMOD\*('',
 while the latter separates these features.
 Because that conversion interferes with output optimization,
 .I \%ncurses

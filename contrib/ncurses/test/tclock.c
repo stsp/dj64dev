@@ -1,4 +1,4 @@
-/* $Id: tclock.c,v 1.49 2024/10/05 18:47:56 tom Exp $ */
+/* $Id: tclock.c,v 1.52 2025/07/05 15:11:35 tom Exp $ */
 
 #define NEED_TIME_H
 #include <test.priv.h>
@@ -161,11 +161,8 @@ main(int argc, char *argv[])
 	    d_option = TRUE;
 	    break;
 #endif
-	case OPTS_VERSION:
-	    show_version(argv);
-	    ExitProgram(EXIT_SUCCESS);
 	default:
-	    usage(ch == OPTS_USAGE);
+	    CASE_COMMON;
 	    /* NOTREACHED */
 	}
     }
@@ -220,7 +217,7 @@ main(int argc, char *argv[])
     for (;;) {
 	napms(100);
 
-	tim = time(0);
+	tim = time(NULL);
 	t = localtime(&tim);
 
 	hours = (t->tm_hour + (t->tm_min / 60.0));
@@ -293,7 +290,7 @@ main(int argc, char *argv[])
 int
 main(void)
 {
-    printf("This program requires the header math.h and trignometric functions\n");
+    printf("This program requires the header math.h and trigonometric functions\n");
     ExitProgram(EXIT_FAILURE);
 }
 #endif

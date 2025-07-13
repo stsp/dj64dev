@@ -1,6 +1,6 @@
 '\" t
 .\"***************************************************************************
-.\" Copyright 2018-2023,2024 Thomas E. Dickey                                *
+.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
 .\" Copyright 1998-2015,2017 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -28,8 +28,8 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: ncurses.3x,v 1.233 2024/09/21 18:02:58 tom Exp $
-.TH ncurses 3X 2024-09-21 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
+.\" $Id: ncurses.3x,v 1.255 2025/07/05 12:42:14 tom Exp $
+.TH ncurses 3X 2025-07-05 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
 .ie \n(.g \{\
 .ds `` \(lq
 .ds '' \(rq
@@ -203,8 +203,10 @@ must be called to initialize
 before use of any functions
 that access or manipulate windows or screens.
 .PP
-To get character-at-a-time input without echoing\(emmost interactive,
-screen-oriented programs want this\(emuse the following sequence.
+To get character-at-a-time input without echoing \(em
+most interactive,
+screen-oriented programs want this \(em
+use the following sequence.
 .PP
 .RS 4
 .EX
@@ -216,14 +218,16 @@ Most applications would perform further setup as follows.
 .PP
 .RS 4
 .EX
+.nf
 noqiflush();
 keypad(stdscr, TRUE);
+.fi
 .EE
 .RE
 .PP
 A
 .I curses
-program then often enters an event loop of some sort.
+program then often enters an event-handling loop.
 Call \fB\%endwin\fP(3X) before exiting.
 .SS Overview
 A
@@ -243,7 +247,7 @@ of a typical Unix terminal driver
 is in one of three modes:
 raw,
 \%cbreak,
-or normal (\*(``cooked\*('').
+or canonical (\*(``cooked\*('').
 In
 .IR curses ","
 the line discipline is a property of the screen,
@@ -322,7 +326,7 @@ which cause characters to render in such modes as
 boldfaced,
 underlined,
 or in reverse video.
-See \fB\%curs_attr\fP(3X).
+See \fB\%curs_color\fP(3X) and \fB\%curs_attr\fP(3X).
 .PP
 .I curses
 predefines constants for a small set of forms-drawing graphics
@@ -392,7 +396,7 @@ the information obtained thence overrides that obtained by
 .IR \%term\%info .
 An
 .I \%ncurses
-extension supports resizable terminals;
+extension supports resizable terminal displays;
 see \fB\%wresize\fP(3X).
 .PP
 If the environment variable
@@ -442,11 +446,13 @@ wc	a \fIwchar_t\fP or \fIwint_t\fP
 wch	a \fIcchar_t\fP
 win	pointer to a \fIWINDOW\fP
 pad	pointer to a \fIWINDOW\fP that is a pad
+pair	a foreground/background color pair identifier
 .TE
 .SS "Wide and Non-wide Character Configurations"
 This man page primarily surveys functions that appear in any
 configuration of the library.
 There are two common configurations;
+for others,
 see section \*(``ALTERNATE CONFIGURATIONS\*('' below.
 .TP 10 \" "ncursesw" + 2n
 .I \%ncurses
@@ -482,9 +488,10 @@ type.
 In either case,
 they are accessed via an integral bit mask.
 .IP
-Each cell of a
+.I \%ncurses
+stores each cell of a
 .I \%WINDOW
-is stored as a
+as a
 .IR \%chtype .
 X/Open Curses does not specify the sizes of the character code or
 color pair identifier,
@@ -513,7 +520,7 @@ where a non-wide function name contains \*(``ch\*('' or \*(``str\*('',
 prefix it with \*(``_w\*('' to obtain the wide counterpart.
 For example,
 \fB\%waddch\fP becomes \fB\%wadd_wch\fP.
-Another exception is
+An exception is
 .B \%ins_nwstr
 (and its variants),
 spelled thus instead of \*(``insn_wstr\*(''.
@@ -564,9 +571,10 @@ the structure,
 not combined into an integer as in
 .IR \%chtype .
 .PP
-Each cell of a
+.I \%ncurses
+stores each cell of a
 .I \%WINDOW
-is stored as a
+as a
 .IR \%cchar_t .
 \fB\%setcchar\fP(3X) and \fB\%getcchar\fP(3X)
 store and retrieve
@@ -619,7 +627,7 @@ neither described by X/Open Curses nor present in SVr4.
 .TS
 center tab(/);
 l l .
-\f(BIcurses\fP Function Name/Man Page
+\fIcurses\fP Function Name/Man Page
 _
 COLOR_PAIR/\fBcurs_color\fP(3X)
 PAIR_NUMBER/\fBcurs_color\fP(3X)
@@ -1099,7 +1107,7 @@ on success and
 on failure;
 see \fB\%curs_variables\fP(3X).
 Functions that return pointers return
-.B NULL
+.I NULL
 on failure.
 Typically,
 .I \%ncurses
@@ -1304,7 +1312,7 @@ accepts integral values from \-1 up to the value of the
 .I \%term\%info
 .B \%max_colors
 .RB ( colors )
-capability.
+capability for the selected terminal type.
 .SS "\fINCURSES_CONSOLE2\fP"
 (MinGW port only)
 The
@@ -1352,18 +1360,18 @@ your terminal driver may not handle them properly.
 Set this environment variable to any value to disable the feature.
 You can also adjust your \fI\%stty\fP(1) settings to avoid the problem.
 .SS "\fINCURSES_NO_MAGIC_COOKIE\fP"
-Many terminals store video attributes as a property of a character cell,
+Many terminals store video attributes as properties of a character cell,
 as
 .I curses
 does.
 Historically,
 some recorded changes in video attributes as data that logically
-.I occupies
+.I occupied
 character cells on the display,
 switching attributes on or off,
-similarly to tags in a markup language;
-these are termed \*(``magic cookies\*('',
-and must be subsequently overprinted.
+similarly to tags in a markup language,
+which then had to be overprinted to depict the cells' desired contents;
+these are termed \*(``magic cookies\*(''.
 If the
 .I \%term\%info
 entry for your terminal type does not adequately describe its handling
@@ -1494,6 +1502,7 @@ Examples follow.
 .PP
 .RS 3
 .EX
+.nf
 # linux console, if patched to provide working
 # VT100 shift\-in/shift\-out, with corresponding font.
 linux\-vt100|linux console with VT100 line\-graphics,
@@ -1502,6 +1511,7 @@ linux\-vt100|linux console with VT100 line\-graphics,
 # uxterm with vt100Graphics resource set to false
 xterm\-utf8|xterm relying on UTF\-8 line\-graphics,
         U8#1, use=xterm,
+.fi
 .EE
 .RE
 .PP
@@ -1581,7 +1591,7 @@ Descriptions in
 .I \%term\%info
 format are normally stored in a directory tree using subdirectories
 named for the common first letters of the terminal types named therein.
-This is the scheme used in System\ V.
+System\ V used this scheme.
 .bP
 If
 .I \%ncurses
@@ -1623,13 +1633,16 @@ You might produce the base64 format using \fB\%infocmp\fP(1M).
 .RS 4
 .IP
 .EX
+.nf
 TERMINFO=$(infocmp \-0 \-Q2 \-q)
 export TERMINFO
+.fi
 .EE
 .RE
 .IP
-The compiled description is used only if it corresponds to the terminal
-type identified by
+.I \%ncurses
+uses the compiled description only if it corresponds
+to the terminal type identified by
 .IR TERM .
 .PP
 Setting
@@ -1741,9 +1754,11 @@ library is as follows.
 .PP
 .RS 4
 .EX
+.nf
 .\" The dummy character prevents undesired rewriting of the next line on
 .\" installation of the man page.
 \fB#\&include <curses.h>\fP
+.fi
 .EE
 .RE
 .PP
@@ -1807,28 +1822,44 @@ You must also enable the wide-character features in the header file
 when compiling for the wide-character library
 to use the extended (wide-character) functions.
 The symbol which enables these features has changed
-since X/Open Curses, Issue 4:
+since X/Open Curses Issue\ 4:
 .bP
-Originally, the wide-character feature required the symbol
-\fB_XOPEN_SOURCE_EXTENDED\fP
+Originally,
+the wide-character feature required the symbol
+.B \%_XOPEN_SOURCE_EXTENDED
 but that was only valid for XPG4 (1996).
 .bP
-Later, that was deemed conflicting with \fB_XOPEN_SOURCE\fP defined to 500.
+Later,
+that was deemed conflicting with an
+.B \%_XOPEN_SOURCE
+value of 500.
 .bP
 As of mid-2018,
-none of the features in this implementation require a \fB_XOPEN_SOURCE\fP
+none of the features in this implementation require a
+.B \%_XOPEN_SOURCE
 feature greater than 600.
-However, X/Open Curses, Issue 7 (2009) recommends defining it to 700.
+However,
+X/Open Curses Issue\ 7 (2009) recommends defining it to 700.
 .bP
-Alternatively, you can enable the feature by defining \fBNCURSES_WIDECHAR\fP
-with the caveat that some other header file than \fBcurses.h\fP
-may require a specific value for \fB_XOPEN_SOURCE\fP
+Alternatively,
+you can enable the feature by defining
+.B \%NCURSES_WIDECHAR
+with the caveat that some header file other than
+.I \%curses.h
+may require a specific value for
+.B \%_XOPEN_SOURCE
 (or a system-specific symbol).
 .PP
-The \fI\%curses.h\fP header file installed for the wide-character
-library is designed to be compatible with the non-wide library's header.
-Only the size of the \fI\%WINDOW\fP structure differs;
-few applications require more than pointers to \fI\%WINDOW\fPs.
+The
+.I \%curses.h
+header file installed
+for the wide-character library
+is designed to be compatible with the non-wide library's header.
+Only the size of the
+.I \%WINDOW
+structure differs;
+few applications require more than pointers to
+.IR \%WINDOW "."
 .PP
 If the headers are installed allowing overwrite,
 the wide-character library's headers should be installed last,
@@ -1842,10 +1873,17 @@ All of the library names have a \*(``t\*('' appended to them
 (before any \*(``w\*('' added by
 .BR \%\-\-enable\-widec ).
 .IP
-The global variables such as \fBLINES\fP are replaced by macros to
-allow read-only access.
-At the same time, setter-functions are provided to set these values.
-Some applications (very few) may require changes to work with this convention.
+.I \%ncursest
+and
+.I \%ncursestw
+replace global variables such as
+.B \%LINES
+with macros allowing read-only access.
+At the same time,
+they provide functions to set these values.
+Very few applications require changes
+to work with this convention.
+.\" see definition of NCURSES_WRAPPED_VAR
 .TP 5
 .B \-\-with\-shared
 .tQ
@@ -1855,20 +1893,38 @@ Some applications (very few) may require changes to work with this convention.
 .tQ
 .B \-\-with\-profile
 The shared and normal (static) library names differ by their suffixes,
-e.g., \fBlibncurses.so\fP and \fBlibncurses.a\fP.
+e.g.,
+.I \%libncurses.so
+and
+.IR \%libncurses.a "."
 The debug and profiling libraries add a \*(``_g\*(''
-and a \*(``_p\*('' to the root names respectively,
-e.g., \fBlibncurses_g.a\fP and \fBlibncurses_p.a\fP.
+and a \*(``_p\*('' to the roots of these respective names,
+forming
+.I \%libncurses_g.so
+and
+.IR \%libncurses_p.a ","
+for example.
 .TP 5
 .B \-\-with\-termlib
-Low-level functions which do not depend upon whether the library
-supports wide-characters, are provided in the tinfo library.
+This option configures
+.I \%ncurses
+to provide low-level functions that do not depend
+upon wide-character support in a library named
+.IR \%tinfo "."
 .IP
-By doing this, it is possible to share the tinfo library between
-wide/normal configurations as well as reduce the size of the library
-when only low-level functions are needed.
+This arrangement enables
+.I \%tinfo
+to be shared between
+.I \%ncurses
+and
+.I \%ncursesw
+libraries
+and reduces an application's linking and/or loading times
+when it requires only low-level functions.
 .IP
-Those functions are described in these pages:
+The following pages describe low-level
+.I curses
+functions.
 .RS
 .bP
 \fB\%curs_extend\fP(3X) \- miscellaneous \fIcurses\fP extensions
@@ -1888,10 +1944,12 @@ database
 .RE
 .TP 5
 .B \-\-with\-trace
-The \fBtrace\fP function normally resides in the debug library,
-but it is sometimes useful to configure this in the shared library.
-Configure scripts should check for the function's existence rather
-than assuming it is always in the debug library.
+The
+.B trace
+function normally resides in the debug library,
+but it is sometimes useful to expose it in the shared or static library.
+Configuration scripts should check for the function's existence rather
+than assuming it is confined to the debug library.
 .SH FILES
 .TP
 .I @DATADIR@/tabset

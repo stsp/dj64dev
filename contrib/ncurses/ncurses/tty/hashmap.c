@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2019-2023,2024 Thomas E. Dickey                                *
+ * Copyright 2019-2024,2025 Thomas E. Dickey                                *
  * Copyright 1998-2015,2016 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -74,7 +74,7 @@ AUTHOR
 #define CUR SP_TERMTYPE
 #endif
 
-MODULE_ID("$Id: hashmap.c,v 1.72 2024/07/27 19:22:23 tom Exp $")
+MODULE_ID("$Id: hashmap.c,v 1.74 2025/01/12 10:51:43 tom Exp $")
 
 #ifdef HASHDEBUG
 
@@ -311,10 +311,10 @@ NCURSES_SP_NAME(_nc_hash_map) (NCURSES_SP_DCL0)
 	}
     } else {
 	/* re-hash all */
-	if (oldhash(SP_PARM) == 0)
+	if (oldhash(SP_PARM) == NULL)
 	    oldhash(SP_PARM) = typeCalloc(unsigned long,
 					    (size_t) screen_lines(SP_PARM));
-	if (newhash(SP_PARM) == 0)
+	if (newhash(SP_PARM) == NULL)
 	    newhash(SP_PARM) = typeCalloc(unsigned long,
 					    (size_t) screen_lines(SP_PARM));
 	if (!oldhash(SP_PARM) || !newhash(SP_PARM)) {
@@ -532,7 +532,7 @@ main(int argc GCC_UNUSED, char *argv[]GCC_UNUSED)
 	    do {
 		oldnums[n++] = atoi(st);
 	    } while
-		((st = strtok((char *) NULL, " ")) != 0);
+		((st = strtok((char *) NULL, " ")) != NULL);
 	    break;
 
 	case 'n':		/* use following letters as text of new lines */

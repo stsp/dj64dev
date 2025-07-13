@@ -1,5 +1,5 @@
 .\"***************************************************************************
-.\" Copyright 2018-2023,2024 Thomas E. Dickey                                *
+.\" Copyright 2018-2024,2025 Thomas E. Dickey                                *
 .\" Copyright 1998-2010,2017 Free Software Foundation, Inc.                  *
 .\"                                                                          *
 .\" Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,8 +27,8 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: form_field_validation.3x,v 1.53 2024/03/16 15:35:01 tom Exp $
-.TH form_field_validation 3X 2024-03-16 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
+.\" $Id: form_field_validation.3x,v 1.60 2025/02/15 19:37:22 tom Exp $
+.TH form_field_validation 3X 2025-02-15 "ncurses @NCURSES_MAJOR@.@NCURSES_MINOR@" "Library calls"
 .ie \n(.g \{\
 .ds `` \(lq
 .ds '' \(rq
@@ -66,7 +66,7 @@ data type validation for fields
 .fi
 .SH DESCRIPTION
 By default, no validation is done on form fields.
-You can associate a form with with a \fIfield type\fP,
+You can associate a form with a \fIfield type\fP,
 making the form library validate input.
 .SS field_arg
 Returns a pointer to the field's argument block.
@@ -174,7 +174,7 @@ trailing spaces (up to an empty field),
 or "^ *[0\-9]* *$" which is good for
 leading and trailing spaces around the digits.
 .SS TYPE_IPV4
-An Internet Protocol Version 4 address.
+An Internet Protocol Version\ 4 address.
 Required parameter:
 .bP
 none
@@ -187,7 +187,9 @@ The address itself is not validated.
 This is an \fI\%ncurses\fP extension;
 this field type may not be available in other curses implementations.
 .SH RETURN VALUE
-The functions \fBfield_type\fP and \fBfield_arg\fP return \fBNULL\fP on error.
+The functions \fBfield_type\fP and \fBfield_arg\fP return
+.I NULL
+on error.
 The function \fBset_field_type\fP returns one of the following:
 .TP 5
 .B E_OK

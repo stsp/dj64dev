@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2018-2022,2024 Thomas E. Dickey                                *
+ * Copyright 2018-2024,2025 Thomas E. Dickey                                *
  * Copyright 2003-2014,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -27,7 +27,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: background.c,v 1.27 2024/09/22 22:34:49 tom Exp $
+ * $Id: background.c,v 1.30 2025/07/05 15:21:56 tom Exp $
  */
 
 #define NEED_COLOR_CODE 1
@@ -143,12 +143,12 @@ usage(int ok)
 	," -a       invoke assume_default_colors, repeat to use in init_pair"
 #endif
 	," -b XXX   specify background color"
-	," -c XXX   specify background character"
+	," -B XXX   specify background character"
 #if HAVE_USE_DEFAULT_COLORS
 	," -d       invoke use_default_colors, repeat to use in init_pair"
 #endif
 	," -f XXX   specify foreground color"
-	," -l FILE  log window-dumps to this file"
+	," -L FILE  log window-dumps to this file"
     };
     size_t n;
 
@@ -174,7 +174,7 @@ main(int argc, char *argv[])
 
     setlocale(LC_ALL, "");
 
-    while ((ch = getopt(argc, argv, OPTS_COMMON "ab:c:df:l:")) != -1) {
+    while ((ch = getopt(argc, argv, OPTS_COMMON "B:L:ab:df:")) != -1) {
 	switch (ch) {
 #if HAVE_ASSUME_DEFAULT_COLORS
 	case 'a':
@@ -184,7 +184,7 @@ main(int argc, char *argv[])
 	case 'b':
 	    default_bg = color_code(optarg);
 	    break;
-	case 'c':
+	case 'B':
 	    if (strlen(optarg) > 1) {
 		char *check = NULL;
 		long value = strtol(optarg, &check, 0);
@@ -203,15 +203,12 @@ main(int argc, char *argv[])
 	case 'f':
 	    default_fg = color_code(optarg);
 	    break;
-	case 'l':
+	case 'L':
 	    if (!open_dump(optarg))
 		usage(FALSE);
 	    break;
-	case OPTS_VERSION:
-	    show_version(argv);
-	    ExitProgram(EXIT_SUCCESS);
 	default:
-	    usage(ch == OPTS_USAGE);
+	    CASE_COMMON;
 	    /* NOTREACHED */
 	}
     }
