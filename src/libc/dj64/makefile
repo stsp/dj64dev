@@ -72,7 +72,7 @@ uplt.o: uplt.S plt_defs.inc
 ALL_OBJS = $(addprefix ../,$(file < $(TOP)/makefile.rf))
 $(LIB)/$(LIBN): $(TOP)/makefile.rf $(ALL_OBJS) \
   thunk_calls.h thunk_asms.h $(OBJECTS) libdj64.version
-	$(XGCC) $(LDFLAGS) -shared -Wl,--version-script,libdj64.version -Wl,--no-undefined -Wl,--as-needed -Wl,-soname=$(LIBN) -Wl,-Bsymbolic -o $@ \
+	$(XGCC) $(LDFLAGS) -shared -Wl,--version-script,libdj64.version -Wl,--no-undefined -Wl,--as-needed -Wl,-soname=$(LIBN) -o $@ \
   $(ALL_OBJS) $(OBJECTS)
 	@echo "Have `nm -u $@ | grep "U " | wc -l` undefined symbols"
 
