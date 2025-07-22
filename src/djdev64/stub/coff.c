@@ -79,7 +79,7 @@ struct coff_h {
 static void read_section(char *buf, int ifile, long coffset, int sc)
 {
     long bytes;
-    _dos_seek(ifile, coffset + scns[sc].s_scnptr, SEEK_SET);
+    __dos_seek(ifile, coffset + scns[sc].s_scnptr, SEEK_SET);
     bytes = _long_read(ifile, buf, scns[sc].s_vaddr,
             scns[sc].s_size);
     stub_debug("read returned %li\n", bytes);
@@ -98,7 +98,7 @@ static void *read_coff_headers(int ifile)
     int rc;
     unsigned rd;
 
-    rc = _dos_read(ifile, &chdr, sizeof(chdr), &rd); /* get the COFF header */
+    rc = __dos_read(ifile, &chdr, sizeof(chdr), &rd); /* get the COFF header */
     if (rc || rd != sizeof(chdr)) {
         fprintf(stderr, "bad COFF header\n");
         return NULL;
@@ -108,14 +108,14 @@ static void *read_coff_headers(int ifile)
                 chdr.f_opthdr, sizeof(ohdr));
         return NULL;
     }
-    rc = _dos_read(ifile, &ohdr, sizeof(ohdr), &rd); /* get the COFF opt header */
+    rc = __dos_read(ifile, &ohdr, sizeof(ohdr), &rd); /* get the COFF opt header */
     if (rc || rd != sizeof(ohdr)) {
         fprintf(stderr, "bad COFF opt header\n");
         return NULL;
     }
     if (chdr.f_opthdr > sizeof(ohdr))
-        _dos_seek(ifile, chdr.f_opthdr - sizeof(ohdr), SEEK_CUR);
-    rc = _dos_read(ifile, scns, sizeof(scns[0]) * SCT_MAX, &rd);
+        __dos_seek(ifile, chdr.f_opthdr - sizeof(ohdr), SEEK_CUR);
+    rc = __dos_read(ifile, scns, sizeof(scns[0]) * SCT_MAX, &rd);
     if (rc || rd != sizeof(scns[0]) * SCT_MAX) {
         fprintf(stderr, "failed to read section headers\n");
         return NULL;

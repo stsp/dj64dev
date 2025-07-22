@@ -31,7 +31,7 @@ long _long_read(int file, char *buf, unsigned long offset, unsigned long size)
     while (size) {
         unsigned todo = min(size, sizeof(tmp));
         unsigned rd;
-        int err = _dos_read(file, tmp, todo, &rd);
+        int err = __dos_read(file, tmp, todo, &rd);
         if (!err) {
             /* word-align memcpy */
             memcpy(buf + offset + done, tmp, rd + (rd & 1));

@@ -51,7 +51,7 @@ static void *read_elf_headers(int ifile)
     unsigned rd;
     long beg = 0, end = 0;
 
-    rc = _dos_read(ifile, &ehdr, sizeof(ehdr), &rd); /* get the ELF header */
+    rc = __dos_read(ifile, &ehdr, sizeof(ehdr), &rd); /* get the ELF header */
     if (rc || rd != sizeof(ehdr)) {
         fprintf(stderr, "cant read ELF header\n");
         return NULL;
@@ -67,10 +67,10 @@ static void *read_elf_headers(int ifile)
         return NULL;
     }
     if (ehdr.e_phoff > sizeof(ehdr))
-        _dos_seek(ifile, ehdr.e_phoff - sizeof(ehdr), SEEK_CUR);
+        __dos_seek(ifile, ehdr.e_phoff - sizeof(ehdr), SEEK_CUR);
     h = malloc(sizeof(*h) + sizeof(Elf32_Phdr) * ehdr.e_phnum);
     assert(h);
-    rc = _dos_read(ifile, h->phdr, sizeof(Elf32_Phdr) * ehdr.e_phnum, &rd);
+    rc = __dos_read(ifile, h->phdr, sizeof(Elf32_Phdr) * ehdr.e_phnum, &rd);
     if (rc || rd != sizeof(Elf32_Phdr) * ehdr.e_phnum) {
         fprintf(stderr, "can't read phdr\n");
         return NULL;
@@ -129,7 +129,7 @@ static void read_elf_sections(void *handle, char *ptr, int ifile,
 
         if (phdr->p_type != PT_LOAD)
             continue;
-        _dos_seek(ifile, offset + phdr->p_offset, SEEK_SET);
+        __dos_seek(ifile, offset + phdr->p_offset, SEEK_SET);
         bytes = _long_read(ifile, ptr, phdr->p_vaddr, phdr->p_filesz);
         stub_debug("read returned %li\n", bytes);
         if (bytes != phdr->p_filesz) {

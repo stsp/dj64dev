@@ -18,32 +18,32 @@
 
 static struct dos_ops *dosops;
 
-unsigned _dos_open(const char *pathname, unsigned mode, int *handle)
+unsigned __dos_open(const char *pathname, unsigned mode, int *handle)
 {
     return dosops->_dos_open(pathname, mode, handle);
 }
 
-unsigned _dos_read(int handle, void *buffer, unsigned count, unsigned *numread)
+unsigned __dos_read(int handle, void *buffer, unsigned count, unsigned *numread)
 {
     return dosops->_dos_read(handle, buffer, count, numread);
 }
 
-unsigned _dos_write(int handle, const void *buffer, unsigned count, unsigned *numwrt)
+unsigned __dos_write(int handle, const void *buffer, unsigned count, unsigned *numwrt)
 {
     return dosops->_dos_write(handle, buffer, count, numwrt);
 }
 
-unsigned long _dos_seek(int handle, unsigned long offset, int origin)
+unsigned long __dos_seek(int handle, unsigned long offset, int origin)
 {
     return dosops->_dos_seek(handle, offset, origin);
 }
 
-int _dos_close(int handle)
+int __dos_close(int handle)
 {
     return dosops->_dos_close(handle);
 }
 
-int _dos_link_umb(int on)
+int __dos_link_umb(int on)
 {
     return dosops->_dos_link_umb(on);
 }
