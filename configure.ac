@@ -60,6 +60,7 @@ DJ64_CFLAGS="$CFLAGS \
 -Wold-style-definition"
 
 machine=`$CC -dumpmachine | cut -d- -f1 | sed 's/i.86/i386/'`
+CONFIG_HOST=`uname -s`
 
 AC_MSG_CHECKING([for $CC actually being clang])
 if $CC -v 2>&1 | grep 'clang' >/dev/null; then
@@ -88,6 +89,15 @@ fi
 AC_SUBST(CC_IS_CLANG)
 AC_SUBST(DJ64_CFLAGS)
 
+DJ64_EXTRA_LDFLAGS=""
+DJ64_S_EXTRA_LDFLAGS=""
+if test "$CONFIG_HOST" != "Darwin"; then
+  DJ46_EXTRA_LDFLAGS="-Wl,-Bsymbolic -Wl,--no-undefined -Wl,--as-needed"
+  DJ46_S_EXTRA_LDFLAGS="-Wl,-Bsymbolic"
+fi
+AC_SUBST(DJ64_EXTRA_LDFLAGS)
+AC_SUBST(DJ64_S_EXTRA_LDFLAGS)
+
 if test -n "$CROSS_PREFIX"; then
   AC_PATH_PROG([CROSS_AS], [${CROSS_PREFIX}as])
   if test -z "$CROSS_AS"; then
@@ -97,12 +107,9 @@ else
   AC_PATH_PROGS([CROSS_AS], [i686-linux-gnu-as i386-elf-as])
 fi
 if test -z "$CROSS_AS"; then
-  if test "$CONFIG_HOST" = "Darwin"; then
-    AC_MSG_ERROR([Please install i386-elf-binutils from https://github.com/nativeos/homebrew-i386-elf-toolchain])
-  fi
   AC_PATH_PROG([CROSS_AS], [x86_64-linux-gnu-as])
   if test -z "$CROSS_AS"; then
-    if test "$machine" = "i386" -o "$machine" = "x86_64"; then
+    if test \( "$machine" = "i386" -o "$machine" = "x86_64" \) -a "$CONFIG_HOST" != "Darwin"; then
       AC_PATH_PROG([CROSS_AS], [as])
       if test -z "$CROSS_AS"; then
         AC_PATH_PROG([CROSS_AS], [clang])
@@ -137,11 +144,14 @@ else
   AC_PATH_PROGS([CROSS_LD], [i686-linux-gnu-ld i386-elf-ld x86_64-linux-gnu-ld ld.lld])
 fi
 if test -z "$CROSS_LD"; then
-  if test "$machine" = "i386" -o "$machine" = "x86_64"; then
+  if test \( "$machine" = "i386" -o "$machine" = "x86_64" \) -a "$CONFIG_HOST" != "Darwin"; then
     AC_PATH_PROGS([CROSS_LD], [ld])
   fi
 fi
 if test -z "$CROSS_LD"; then
+  if test "$CONFIG_HOST" = "Darwin"; then
+    AC_MSG_ERROR([Please install lld or i386-elf-binutils])
+  fi
   AC_MSG_ERROR([cross-ld not found])
 fi
 
@@ -161,7 +171,7 @@ if test -n "$CROSS_PREFIX"; then
     AC_MSG_ERROR([${CROSS_PREFIX}ar not found, CROSS_PREFIX is wrong])
   fi
 else
-  AC_PATH_PROGS([CROSS_AR], [i686-linux-gnu-ar i386-elf-ar x86_64-linux-gnu-ar llvm-ar])
+  AC_PATH_PROGS([CROSS_AR], [i686-linux-gnu-ar i386-elf-ar x86_64-linux-gnu-ar llvm-ar], [], [$PATH${PATH_SEPARATOR}/usr/local/opt/llvm/bin])
 fi
 if test -z "$CROSS_AR"; then
   if test "$machine" = "i386" -o "$machine" = "x86_64"; then
@@ -178,7 +188,7 @@ if test -n "$CROSS_PREFIX"; then
     AC_MSG_ERROR([${CROSS_PREFIX}strip not found, CROSS_PREFIX is wrong])
   fi
 else
-  AC_PATH_PROGS([CROSS_STRIP], [i686-linux-gnu-strip i386-elf-strip x86_64-linux-gnu-strip llvm-strip])
+  AC_PATH_PROGS([CROSS_STRIP], [i686-linux-gnu-strip i386-elf-strip x86_64-linux-gnu-strip llvm-strip], [], [$PATH${PATH_SEPARATOR}/usr/local/opt/llvm/bin])
 fi
 if test -z "$CROSS_STRIP"; then
   if test "$machine" = "i386" -o "$machine" = "x86_64"; then

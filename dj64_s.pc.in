@@ -3,4 +3,4 @@ Description: dj64 static linking
 Version: @VERSION@
 prefix=@prefix@
 crt0=${prefix}/i386-pc-dj64/lib/crt0.elf
-Libs: -L${prefix}/i386-pc-dj64/lib64 -ldj64_s -shared -Wl,-Bsymbolic
+Libs: -L${prefix}/i386-pc-dj64/lib64 -ldj64_s -shared @DJ64_S_EXTRA_LDFLAGS@
