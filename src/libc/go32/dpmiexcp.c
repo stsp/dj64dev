@@ -694,8 +694,15 @@ _exit(int status)
   __exit (status);
 }
 
+#ifdef __APPLE__
+void _Exit(int status)
+{
+  _exit(status);
+}
+#else
 void __attribute__((alias("_exit")))
 _Exit(int status);
+#endif
 
 #ifdef TEST
 

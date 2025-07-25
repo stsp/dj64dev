@@ -83,4 +83,11 @@ do_chdir:
   return 0;
 }
 
+#ifdef __APPLE__
+int chdir(const char *mydirname)
+{
+  return __chdir(mydirname);
+}
+#else
 int __attribute__((alias("__chdir"))) chdir(const char *mydirname);
+#endif

@@ -151,7 +151,14 @@ do_getcwd:
   return buf;
 }
 
+#ifdef __APPLE__
+char * getcwd(char *buf, size_t size)
+{
+  return __getcwd(buf, size);
+}
+#else
 char * __attribute__((alias("__getcwd"))) getcwd(char *buf, size_t size);
+#endif
 
 #ifdef TEST
 

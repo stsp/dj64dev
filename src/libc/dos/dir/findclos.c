@@ -42,5 +42,13 @@ findclose(int handle)
   return 0;
 }
 
+#ifdef __APPLE__
+int __findclose(int handle);
+int __findclose(int handle)
+{
+  return findclose(handle);
+}
+#else
 int __attribute__((alias("findclose")))
 __findclose(int handle);
+#endif

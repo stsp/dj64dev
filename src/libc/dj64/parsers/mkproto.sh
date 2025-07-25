@@ -27,13 +27,11 @@ extr_proto() {
 }
 
 list_syms() {
-    LC_ALL=C nm -A "$1" | grep " $2 " | tr -s '[:blank:]' | cut -d " " -f 3 | \
-	sed 's/^_//'
+    LC_ALL=C nm -A "$1" | grep " $2 " | sed -e 's/.* //' -e 's/^_//'
 }
 
 list_syms2() {
-    LC_ALL=C nm -A "$1" | grep -E " $2 "\|" $3 " | tr -s '[:blank:]' | cut -d " " -f 3 | \
-	sed 's/^_//'
+    LC_ALL=C nm -A "$1" | grep -E " $2 "\|" $3 " | sed -e 's/.* //' -e 's/^_//'
 }
 
 TF=/tmp/tagsxx

@@ -123,4 +123,12 @@ findnext(struct ffblk *ffblk)
   }
 }
 
+#ifdef __APPLE__
+int __findnext(struct ffblk *ffblk);
+int __findnext(struct ffblk *ffblk)
+{
+  return findnext(ffblk);
+}
+#else
 int __attribute__((alias("findnext"))) __findnext(struct ffblk *ffblk);
+#endif

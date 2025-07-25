@@ -110,4 +110,12 @@ filelength(int fhandle)
   return retval;
 }
 
+#ifdef __APPLE__
+long __filelength(int fhandle);
+long __filelength(int fhandle)
+{
+  return filelength(fhandle);
+}
+#else
 long __attribute__((alias("filelength"))) __filelength(int fhandle);
+#endif

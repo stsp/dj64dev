@@ -6,7 +6,14 @@ CPPFLAGS += -I ../../djdev64/include
 P = parsers
 MP = $(P)/mkproto.sh
 GA = $(P)/gen_asms.sh
+OS = $(shell uname -s)
+ifeq ($(OS),Darwin)
+LIBN = libdj64.0.2.dylib
+LIBNS = libdj64.dylib
+else
 LIBN = libdj64.so.0.2
+LIBNS = libdj64.so
+endif
 LIBS = libdj64_s.a
 SOURCES = thunks.c thunks_a.c thunks_c.c thunks_p.c dosobj.c
 OBJECTS = $(SOURCES:.c=.o)
@@ -70,9 +77,17 @@ plt.o: plt.S plt.inc plt_defs.inc
 uplt.o: uplt.S plt_defs.inc
 
 ALL_OBJS = $(addprefix ../,$(file < $(TOP)/makefile.rf))
+
+OS = $(shell uname -s)
+ifeq ($(OS),Darwin)
+SHARED_LDFLAGS = $(LDFLAGS) -dynamiclib -install_name $(prefix)/i386-pc-dj64/lib64/$(LIBN) -compatibility_version 0.2 -current_version 0.2
+else
+SHARED_LDFLAGS = $(LDFLAGS) -shared -Wl,--version-script,libdj64.version -Wl,--no-undefined -Wl,--as-needed -Wl,-soname=$(LIBN) -Wl,-Bsymbolic
+endif
+
 $(LIB)/$(LIBN): $(TOP)/makefile.rf $(ALL_OBJS) \
   thunk_calls.h thunk_asms.h $(OBJECTS) libdj64.version
-	$(XGCC) $(LDFLAGS) -shared -Wl,--version-script,libdj64.version -Wl,--no-undefined -Wl,--as-needed -Wl,-soname=$(LIBN) -Wl,-Bsymbolic -o $@ \
+	$(XGCC) $(SHARED_LDFLAGS) -o $@ \
   $(ALL_OBJS) $(OBJECTS)
 	@echo "Have `nm -u $@ | grep "U " | wc -l` undefined symbols"
 
@@ -96,12 +111,12 @@ $(LIB)/crt0.elf: $(LIB)/libc_s.a
 $(LIB)/uplt.o: uplt.o
 	cp $< $@
 
-$(LIB)/libdj64.so: $(LIB)/$(LIBN) | $(LIB)
+$(LIB)/$(LIBNS): $(LIB)/$(LIBN) | $(LIB)
 	ln -sf $(LIBN) $@
 
-final: $(LIB)/libc_s.a $(LIB)/libdj64.so $(LIB)/$(LIBS) $(LIB)/crt0.elf \
+final: $(LIB)/libc_s.a $(LIB)/$(LIBNS) $(LIB)/$(LIBS) $(LIB)/crt0.elf \
   $(LIB)/uplt.o | $(LIB)
 
 clean::
 	$(RM) rm *.a *.tmp plt.inc asm_*.h thunk_*.h plt_*.h asym_incs.h
-	$(RM) $(LIB)/libc_s.a $(LIB)/libdj64.so*
+	$(RM) $(LIB)/libc_s.a $(LIB)/libdj64.so* $(LIB)/libdj64.*dylib

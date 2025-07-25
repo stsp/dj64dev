@@ -135,5 +135,13 @@ findfirst(const char *pathname, struct ffblk *ffblk, int attrib)
   return errno;
 }
 
+#ifdef __APPLE__
+int __findfirst(const char *pathname, struct ffblk *ffblk, int attrib);
+int __findfirst(const char *pathname, struct ffblk *ffblk, int attrib)
+{
+  return findfirst(pathname, ffblk, attrib);
+}
+#else
 int __attribute__((alias("findfirst")))
 __findfirst(const char *pathname, struct ffblk *ffblk, int attrib);
+#endif
