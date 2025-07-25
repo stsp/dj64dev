@@ -406,5 +406,12 @@ strtold(const char *s, char **sret)
   return r * sign;
 }
 
+#ifdef __APPLE__
+long double _strtold(const char *s, char **sret)
+{
+  return strtold(s, sret);
+}
+#else
 long double __attribute__((alias("strtold")))
 _strtold(const char *s, char **sret);
+#endif

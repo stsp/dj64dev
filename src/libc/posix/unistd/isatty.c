@@ -21,4 +21,12 @@ isatty(int fd)
   return 0;
 }
 
+#ifdef __APPLE__
+int __isatty(int fd);
+int __isatty(int fd)
+{
+  return isatty(fd);
+}
+#else
 int __attribute__((alias("isatty"))) __isatty(int fd);
+#endif
