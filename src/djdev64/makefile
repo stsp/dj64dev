@@ -9,28 +9,37 @@ CFLAGS += -iquote include -fpic -ggdb3 -Wall -Wmissing-prototypes -Og -MD \
 	$(CC) $(CFLAGS) -imacros $(TOP)/config.hh -c -o $@ $<
 
 LIBDIR = $(TOP)/lib
+OS = $(shell uname -s)
+ifeq ($(OS),Darwin)
+LIBN = libdjdev64.0.2.dylib
+LIBNS = libdjdev64.dylib
+SHARED_LDFLAGS = $(LDFLAGS) -dynamiclib -install_name $(libdir)/$(LIBN) -compatibility_version 0.2 -current_version 0.2
+else
 LIBN = libdjdev64.so.0.2
+LIBNS = libdjdev64.so
+SHARED_LDFLAGS = $(LDFLAGS) -shared -Wl,-soname=$(LIBN)
+endif
 LIB = $(LIBDIR)/$(LIBN)
 
 .PHONY: subs
 
-all: $(LIBDIR)/libdjdev64.so subs
+all: $(LIBDIR)/$(LIBNS) subs
 
 subs:
 	$(MAKE) -C stub
 
 clean:
 	$(MAKE) -C stub clean
-	$(RM) *.o *.d $(LIBDIR)/libdjdev64.so*
+	$(RM) *.o *.d $(LIBDIR)/libdjdev64.so* $(LIBDIR)/libdjdev64.*dylib
 
 $(LIBDIR):
 	mkdir $@
 
 $(LIB): $(OBJECTS) | $(LIBDIR)
-	$(CC) $(LDFLAGS) -shared -Wl,-soname=$(LIBN) -o $@ $^ \
+	$(CC) $(SHARED_LDFLAGS) -o $@ $^ \
   $(LIBELF_LIBS)
 
-$(LIBDIR)/libdjdev64.so: $(LIB)
+$(LIBDIR)/$(LIBNS): $(LIB)
 	ln -sf $(LIBN) $@
 
 -include $(wildcard *.d)
