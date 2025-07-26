@@ -92,8 +92,8 @@ AC_SUBST(DJ64_CFLAGS)
 DJ64_EXTRA_LDFLAGS=""
 DJ64_S_EXTRA_LDFLAGS=""
 if test "$CONFIG_HOST" != "Darwin"; then
-  DJ46_EXTRA_LDFLAGS="-Wl,-Bsymbolic -Wl,--no-undefined -Wl,--as-needed"
-  DJ46_S_EXTRA_LDFLAGS="-Wl,-Bsymbolic"
+  DJ64_EXTRA_LDFLAGS="-Wl,-Bsymbolic -Wl,--no-undefined -Wl,--as-needed"
+  DJ64_S_EXTRA_LDFLAGS="-Wl,-Bsymbolic"
 fi
 AC_SUBST(DJ64_EXTRA_LDFLAGS)
 AC_SUBST(DJ64_S_EXTRA_LDFLAGS)
