@@ -52,6 +52,11 @@ install_dj64:
 	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/include
 	cp -r $(TOP)/include $(DESTDIR)$(prefix)/i386-pc-dj64
 	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/share
+	$(INSTALL) -m 0755 configure $(DESTDIR)$(prefix)/i386-pc-dj64/share
+	$(INSTALL) -m 0755 config.sub $(DESTDIR)$(prefix)/i386-pc-dj64/share
+	$(INSTALL) -m 0755 config.guess $(DESTDIR)$(prefix)/i386-pc-dj64/share
+	$(INSTALL) -m 0755 install-sh $(DESTDIR)$(prefix)/i386-pc-dj64/share
+	$(INSTALL) -m 0644 dj64.conf.in $(DESTDIR)$(prefix)/i386-pc-dj64/share
 	$(INSTALL) -m 0644 dj64.mk $(DESTDIR)$(prefix)/i386-pc-dj64/share
 	$(INSTALL) -d $(DESTDIR)$(datadir)
 	$(INSTALL) -d $(DESTDIR)$(datadir)/pkgconfig

@@ -4,6 +4,8 @@ Version: @VERSION@
 prefix=@prefix@
 dj64prefix=${prefix}/i386-pc-dj64
 libdir=${dj64prefix}/lib64
+confscript=${dj64prefix}/share/configure
+confsrc=${dj64prefix}/share/dj64.conf.in
 makeinc=${dj64prefix}/share/dj64.mk
 cppflags=-I${dj64prefix}/include -DDJ64 -nostdinc
 xcppflags=${cppflags} -imacros ${dj64prefix}/include/dj64/a_mac.h
