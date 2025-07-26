@@ -4,16 +4,23 @@ ATOP = $(abspath $(TOP))
 export prefix
 export PKG_CONFIG_PATH := $(PKG_CONFIG_PATH):$(datadir)/pkgconfig:$(libdir)/pkgconfig
 
+OS = $(shell uname -s)
+ifeq ($(OS),Darwin)
+SHLIB_EXT = dylib
+else
+SHLIB_EXT = so
+endif
+
 DJLIBC = $(TOP)/lib/libc_s.a
 DJCRT0 = $(TOP)/lib/crt0.elf
 DJUCRT0 = $(TOP)/lib/uplt.o
-DJ64LIB = $(TOP)/lib/libdj64.so.*.*
-DJ64DEVL = $(TOP)/lib/libdj64.so
+DJ64LIB = $(TOP)/lib/libdj64.*.*.*
+DJ64DEVL = $(TOP)/lib/libdj64.$(SHLIB_EXT)
 DJ64LIBS = $(TOP)/lib/libdj64_s.a
-DJDEV64LIB = $(TOP)/lib/libdjdev64.so.*.*
-DJDEV64DEVL = $(TOP)/lib/libdjdev64.so
-DJSTUB64LIB = $(TOP)/lib/libdjstub64.so.*.*
-DJSTUB64DEVL = $(TOP)/lib/libdjstub64.so
+DJDEV64LIB = $(TOP)/lib/libdjdev64.*.*.*
+DJDEV64DEVL = $(TOP)/lib/libdjdev64.$(SHLIB_EXT)
+DJSTUB64LIB = $(TOP)/lib/libdjstub64.*.*.*
+DJSTUB64DEVL = $(TOP)/lib/libdjstub64.$(SHLIB_EXT)
 NC_BUILD = contrib/ncurses/build
 
 .PHONY: subs dj64 djdev64 demos ncurses
