@@ -3,11 +3,12 @@ MACH = $(subst -, ,$(shell $(CC) -dumpmachine))
 ifeq ($(MACH),)
 $(error unknown target architecture)
 endif
-DJ64AS = @CROSS_AS@
-DJ64ASFLAGS = @CROSS_ASFLAGS_DJ64@
-XSTRIP = @CROSS_STRIP@ --strip-debug
-XLD = @CROSS_LD@
-XLD_IMB = @XLD_IMB_OPT@
+include dj64.conf
+DJ64AS = $(CROSS_AS)
+DJ64ASFLAGS = $(CROSS_ASFLAGS_DJ64)
+XSTRIP = $(CROSS_STRIP) --strip-debug
+XLD = $(CROSS_LD)
+XLD_IMB = $(XLD_IMB_OPT)
 endif
 
 # Override external AS as termux sets it to aarch64-linux-android-clang
@@ -117,6 +118,11 @@ DJ64_XLDFLAGS += -f 0x80
 endif
 endif
 
+CONFSCR = $(shell pkg-config --variable=confscript dj64)
+CONFSRC = $(shell pkg-config --variable=confsrc dj64)
+dj64.conf: $(CONFSRC) $(CONFSCR)
+	$(CONFSCR) --with-confspec=$@:$<
+
 $(DJ64_XLIB): $(OBJECTS) $(XELF)
 	$(LD) $^ $(DJLDFLAGS) -o $@
 
@@ -164,6 +170,7 @@ endif # clean
 
 clean_dj64:
 	$(RM) $(OBJECTS) $(AS_OBJECTS) plt.o plt.inc *.tmp
+	$(RM) config.status config.log dj64.conf
 	$(RM) thunk_calls.h thunk_asms.h plt_asmc.h glob_asmdefs.h
 	$(RM) $(DJ64_XLIB) $(DJHOSTLIB) $(XELF).elf tmp.s host.elf
 

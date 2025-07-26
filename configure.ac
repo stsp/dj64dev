@@ -1,16 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([dj64dev], [0.2])
-AC_CONFIG_HEADERS([config.hh])
 AC_CONFIG_MACRO_DIRS([m4])
-AC_CONFIG_FILES([
-  Makefile.conf
-  dj64.mk
-  dj64.pc
-  dj64_s.pc
-  dj64static.pc
-  djdev64.pc
-  djstub64.pc
-])
 
 VERSION="$PACKAGE_VERSION"
 AC_SUBST(VERSION)
@@ -220,4 +210,20 @@ AC_CHECK_TYPES([__float80])
 AC_CHECK_FUNCS([dlmopen])
 AC_CHECK_DECLS([RTLD_DEEPBIND],,, [[#include <dlfcn.h>]])
 
+AC_ARG_WITH(confspec,
+  [AS_HELP_STRING([--with-confspec], [set configuration file spec])],
+  [cfiles="$withval"],
+  [
+    cfiles=" \
+      Makefile.conf \
+      dj64.pc \
+      dj64_s.pc \
+      dj64static.pc \
+      djdev64.pc \
+      djstub64.pc \
+    "
+    AC_CONFIG_HEADERS([config.hh])
+  ]
+)
+AC_CONFIG_FILES([ $cfiles ])
 AC_OUTPUT
