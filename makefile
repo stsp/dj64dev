@@ -7,8 +7,13 @@ export PKG_CONFIG_PATH := $(PKG_CONFIG_PATH):$(datadir)/pkgconfig:$(libdir)/pkgc
 OS = $(shell uname -s)
 ifeq ($(OS),Darwin)
 SHLIB_EXT = dylib
+# /usr/bin/tic can be too old
+EXTRA_NC_CONFIGURE_FLAGS = \
+    --with-tic-path=/usr/local/opt/ncurses/bin/tic \
+    --with-build-cppflags=-DHAVE_ALLOCA_H=1
 else
 SHLIB_EXT = so
+EXTRA_NC_CONFIGURE_FLAGS =
 endif
 
 DJLIBC = $(TOP)/lib/libc_s.a
@@ -137,7 +142,7 @@ L_LIBS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-L --libs-only-l 
 R_PREFIX = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=dj64prefix dj64)
 R_LIBDIR = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=libdir dj64)
 L_LDFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-other dj64) \
-  -Wl,-rpath=$(R_LIBDIR)
+  -Wl,-rpath,$(R_LIBDIR)
 $(NC_BUILD):
 	mkdir -p $@
 $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD) $(DJ64DEVL)
@@ -158,7 +163,8 @@ $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD) $(DJ64DEVL)
     --with-fallbacks=vt100,ansi,cygwin,linux,djgpp,djgpp203,djgpp204 \
     --disable-database \
     --without-tests \
-    --without-progs
+    --without-progs \
+    $(EXTRA_NC_CONFIGURE_FLAGS)
 
 ncurses: $(NC_BUILD)/Makefile
 	$(MAKE) -C $(NC_BUILD)
