@@ -4,6 +4,7 @@ AC_CONFIG_HEADERS([config.hh])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_FILES([
   Makefile.conf
+  dj64.mk
   dj64.pc
   dj64_s.pc
   dj64static.pc
@@ -106,6 +107,7 @@ if test -n "$CROSS_PREFIX"; then
 else
   AC_PATH_PROGS([CROSS_AS], [i686-linux-gnu-as i386-elf-as])
 fi
+clang_as_as=0
 if test -z "$CROSS_AS"; then
   AC_PATH_PROG([CROSS_AS], [x86_64-linux-gnu-as])
   if test -z "$CROSS_AS"; then
@@ -116,24 +118,30 @@ if test -z "$CROSS_AS"; then
         if test -z "$CROSS_AS"; then
           AC_MSG_ERROR([gnu assembler not found, please install clang or binutils])
         else
-          CROSS_ASFLAGS="-m32 -x assembler -c"
+          clang_as_as=1
+          CROSS_ASFLAGS="-m32"
         fi
-      else
-        CROSS_ASFLAGS="--32"
       fi
     else
       AC_PATH_PROG([CROSS_AS], [clang])
+      clang_as_as=1
       if test -n "$CROSS_AS"; then
-        CROSS_ASFLAGS="-x assembler -target i686-unknown-linux-gnu -c"
+        CROSS_ASFLAGS="-target i686-unknown-linux-gnu"
       else
         AC_MSG_ERROR([386 assembler not found, please install clang or binutils-i686-linux-gnu])
       fi
     fi
-  else
-    CROSS_ASFLAGS="--32"
   fi
 fi
+if test "$clang_as_as" = "1"; then
+   CROSS_ASFLAGS="$CROSS_ASFLAGS -x assembler -c"
+   CROSS_ASFLAGS_DJ64="$CROSS_ASFLAGS -Wa,-defsym,_DJ64=1"
+else
+   CROSS_ASFLAGS="--32"
+   CROSS_ASFLAGS_DJ64="$CROSS_ASFLAGS --defsym _DJ64=1"
+fi
 AC_SUBST(CROSS_ASFLAGS)
+AC_SUBST(CROSS_ASFLAGS_DJ64)
 
 if test -n "$CROSS_PREFIX"; then
   AC_PATH_PROG([CROSS_LD], [${CROSS_PREFIX}ld])
