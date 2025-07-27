@@ -89,12 +89,16 @@ fi
 AC_SUBST(CC_IS_CLANG)
 AC_SUBST(DJ64_CFLAGS)
 
+DJ64_EXTRA_CPPFLAGS=""
 DJ64_EXTRA_LDFLAGS=""
 DJ64_S_EXTRA_LDFLAGS=""
-if test "$CONFIG_HOST" != "Darwin"; then
-  DJ46_EXTRA_LDFLAGS="-Wl,-Bsymbolic -Wl,--no-undefined -Wl,--as-needed"
-  DJ46_S_EXTRA_LDFLAGS="-Wl,-Bsymbolic"
+if test "$CONFIG_HOST" = "Darwin"; then
+  DJ64_EXTRA_CPPFLAGS="-U__APPLE__"
+else
+  DJ64_EXTRA_LDFLAGS="-Wl,-Bsymbolic -Wl,--no-undefined -Wl,--as-needed"
+  DJ64_S_EXTRA_LDFLAGS="-Wl,-Bsymbolic"
 fi
+AC_SUBST(DJ64_EXTRA_CPPFLAGS)
 AC_SUBST(DJ64_EXTRA_LDFLAGS)
 AC_SUBST(DJ64_S_EXTRA_LDFLAGS)
 

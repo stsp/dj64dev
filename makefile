@@ -4,16 +4,28 @@ ATOP = $(abspath $(TOP))
 export prefix
 export PKG_CONFIG_PATH := $(PKG_CONFIG_PATH):$(datadir)/pkgconfig:$(libdir)/pkgconfig
 
+OS = $(shell uname -s)
+ifeq ($(OS),Darwin)
+SHLIB_EXT = dylib
+# /usr/bin/tic can be too old
+EXTRA_NC_CONFIGURE_FLAGS = \
+    --with-tic-path=/usr/local/opt/ncurses/bin/tic \
+    --with-build-cppflags=-DHAVE_ALLOCA_H=1
+else
+SHLIB_EXT = so
+EXTRA_NC_CONFIGURE_FLAGS =
+endif
+
 DJLIBC = $(TOP)/lib/libc_s.a
 DJCRT0 = $(TOP)/lib/crt0.elf
 DJUCRT0 = $(TOP)/lib/uplt.o
-DJ64LIB = $(TOP)/lib/libdj64.so.*.*
-DJ64DEVL = $(TOP)/lib/libdj64.so
+DJ64LIB = $(TOP)/lib/libdj64.*.*.*
+DJ64DEVL = $(TOP)/lib/libdj64.$(SHLIB_EXT)
 DJ64LIBS = $(TOP)/lib/libdj64_s.a
-DJDEV64LIB = $(TOP)/lib/libdjdev64.so.*.*
-DJDEV64DEVL = $(TOP)/lib/libdjdev64.so
-DJSTUB64LIB = $(TOP)/lib/libdjstub64.so.*.*
-DJSTUB64DEVL = $(TOP)/lib/libdjstub64.so
+DJDEV64LIB = $(TOP)/lib/libdjdev64.*.*.*
+DJDEV64DEVL = $(TOP)/lib/libdjdev64.$(SHLIB_EXT)
+DJSTUB64LIB = $(TOP)/lib/libdjstub64.*.*.*
+DJSTUB64DEVL = $(TOP)/lib/libdjstub64.$(SHLIB_EXT)
 NC_BUILD = contrib/ncurses/build
 
 .PHONY: subs dj64 djdev64 demos ncurses
@@ -130,7 +142,7 @@ L_LIBS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-L --libs-only-l 
 R_PREFIX = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=dj64prefix dj64)
 R_LIBDIR = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=libdir dj64)
 L_LDFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-other dj64) \
-  -Wl,-rpath=$(R_LIBDIR)
+  -Wl,-rpath,$(R_LIBDIR)
 $(NC_BUILD):
 	mkdir -p $@
 $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD) $(DJ64DEVL)
@@ -151,7 +163,8 @@ $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD) $(DJ64DEVL)
     --with-fallbacks=vt100,ansi,cygwin,linux,djgpp,djgpp203,djgpp204 \
     --disable-database \
     --without-tests \
-    --without-progs
+    --without-progs \
+    $(EXTRA_NC_CONFIGURE_FLAGS)
 
 ncurses: $(NC_BUILD)/Makefile
 	$(MAKE) -C $(NC_BUILD)
