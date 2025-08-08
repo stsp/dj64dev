@@ -49,10 +49,9 @@ dirname (const char *fname)
     dirpart = (char *)malloc (dirlen + 1);
     if (dirpart != NULL)
     {
-      strncpy (dirpart, fname, dirlen);
+      strlcpy (dirpart, fname, dirlen + 1);
       if (slash && *slash == ':' && dirlen == 3)
 	dirpart[2] = '.';	/* for "x:foo" return "x:." */
-      dirpart[dirlen] = '\0';
     }
 
     return dirpart;

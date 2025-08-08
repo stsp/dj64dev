@@ -571,8 +571,7 @@ setlocale(int category, const char *locale)
           }
         }
 
-        strncpy(lc_current[i], locale, LC_MAXNAMESIZE);
-        lc_current[i][LC_MAXNAMESIZE - 1] = '\0';
+        strlcpy(lc_current[i], locale, LC_MAXNAMESIZE);
       }
     }
     if (segment != -1)

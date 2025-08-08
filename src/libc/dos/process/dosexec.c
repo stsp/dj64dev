@@ -1429,7 +1429,7 @@ __dosexec_find_on_path(const char *program, char *envp[], char *buf)
     errno = ENAMETOOLONG;
     return 0;
   }
-  strncpy(buf, program, blen + 1);
+  strlcpy(buf, program, blen + 1);
   rp = buf + blen;
 
   for (ptr=program; *ptr; ptr++)

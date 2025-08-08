@@ -44,7 +44,8 @@ DJ64_CFLAGS="$CFLAGS \
 -fpic \
 -nostdinc \
 -ggdb3 \
--Og \
+-O2 \
+-ffreestanding \
 -Wall \
 -Wcast-qual \
 -Werror \

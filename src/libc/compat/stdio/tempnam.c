@@ -48,7 +48,7 @@ tempnam(const char *tmpdir, const char *pfx)
   strcpy (_template + lastc + 1, pfx);
 
   /* Create the template.  */
-  strncat (_template, x8, 8 - strlen (pfx));
+  strlcat (_template, x8, sizeof(_template));
 
   s = mktemp (_template);
   if (s)
