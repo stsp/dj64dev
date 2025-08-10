@@ -19,10 +19,6 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AX_PROG_CC_FOR_BUILD
 #AX_PROG_AR
-AC_CHECK_TOOL([AR], [ar], [:])
-if test -z "$AR" -o "$AR" = ":"; then
-  AC_MSG_ERROR(You don't have ar installed)
-fi
 
 AC_CHECK_PROGS([PKG_CONFIG], [pkg-config])
 if test -z "$PKG_CONFIG"; then
@@ -42,6 +38,7 @@ PKG_CHECK_MODULES([TG], [thunk_gen >= 1.5],, [
 DJ64_CFLAGS="$CFLAGS \
 -fno-common \
 -fpic \
+-flto=auto \
 -nostdinc \
 -ggdb3 \
 -O2 \
@@ -59,6 +56,8 @@ DJ64_CFLAGS="$CFLAGS \
 -Wno-array-bounds \
 -Wsign-compare \
 -Wold-style-definition"
+
+DJ64_LDFLAGS="$LDFLAGS -flto=auto -O2"
 
 machine=`$CC -dumpmachine | cut -d- -f1 | sed 's/i.86/i386/'`
 CONFIG_HOST=`uname -s`
@@ -80,15 +79,26 @@ if $CC -v 2>&1 | grep 'clang' >/dev/null; then
   DJ64_CFLAGS="$DJ64_CFLAGS \
     -Wno-unneeded-internal-declaration \
     -Wno-unknown-warning-option"
+
+  # for LTO we need llvm-ar when clang is used
+  AC_CHECK_TOOL([AR], [llvm-ar], [:])
+  if test -z "$AR" -o "$AR" = ":"; then
+    AC_MSG_ERROR(You don't have llvm-ar installed)
+  fi
 else
   AC_MSG_RESULT([no])
   CC_IS_CLANG=0
   DJ64_CFLAGS="$DJ64_CFLAGS \
     -Wno-error=maybe-uninitialized"
 
+  AC_CHECK_TOOL([AR], [ar], [:])
+  if test -z "$AR" -o "$AR" = ":"; then
+    AC_MSG_ERROR(You don't have ar installed)
+  fi
 fi
 AC_SUBST(CC_IS_CLANG)
 AC_SUBST(DJ64_CFLAGS)
+AC_SUBST(DJ64_LDFLAGS)
 
 DJ64_EXTRA_CPPFLAGS=""
 DJ64_EXTRA_LDFLAGS=""
