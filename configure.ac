@@ -38,7 +38,7 @@ PKG_CHECK_MODULES([TG], [thunk_gen >= 1.5],, [
 DJ64_CFLAGS="$CFLAGS \
 -fno-common \
 -fpic \
--flto=auto \
+-flto=auto -ffat-lto-objects \
 -nostdinc \
 -ggdb3 \
 -O2 \
