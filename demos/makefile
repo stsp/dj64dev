@@ -2,45 +2,28 @@ TOP ?= ..
 prefix ?= /usr/local
 INSTALL ?= install
 
+DEMOS = asmsimp file hello helloasm rmcb int86
+NOSTATIC = hello
+
 all:
-	$(MAKE) -C asmsimp
-	$(MAKE) -C file
-	$(MAKE) -C hello
-	$(MAKE) -C helloasm
-	$(MAKE) -C rmcb
-	$(MAKE) -C int86
+	set -e; $(foreach D,$(DEMOS),$(MAKE) -C $(D);)
 
 static:
-	$(MAKE) -C asmsimp static
-	$(MAKE) -C file static
-#	$(MAKE) -C hello static
-	$(MAKE) -C helloasm static
-	$(MAKE) -C rmcb static
-	$(MAKE) -C int86 static
+	set -e; $(foreach D,$(filter-out $(NOSTATIC),$(DEMOS)),$(MAKE) -C $(D) static;)
 
 djgpp/%:
-	$(MAKE) -C asmsimp/djgpp $*
-	$(MAKE) -C file/djgpp $*
-	$(MAKE) -C hello/djgpp $*
-	$(MAKE) -C helloasm/djgpp $*
-	$(MAKE) -C rmcb/djgpp $*
-	$(MAKE) -C int86/djgpp $*
+	set -e; $(foreach D,$(DEMOS),$(MAKE) -C $(D)/djgpp $*;)
 
 clean:
-	$(MAKE) -C asmsimp clean
-	$(MAKE) -C file clean
-	$(MAKE) -C hello clean
-	$(MAKE) -C helloasm clean
-	$(MAKE) -C rmcb clean
-	$(MAKE) -C int86 clean
+	$(foreach D,$(DEMOS),$(MAKE) -C $(D) clean;)
+
+rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
 src_install: clean djgpp/clean
-	for i in `find . -type d ! -path . -printf '%P\n'`; do \
-	  $(INSTALL) -d $(DESTDIR)$(prefix)/share/doc/dj64/demos/$$i; \
-	done
-	for i in `find . -type f,l ! -path . -printf '%P\n'`; do \
-	  $(INSTALL) -m 0644 $$i $(DESTDIR)$(prefix)/share/doc/dj64/demos/$$i; \
-	done
+	$(foreach D,$(DEMOS),\
+	  $(INSTALL) -d $(DESTDIR)$(prefix)/share/doc/dj64/demos/$(D);)
+	$(foreach F,$(filter-out %/djgpp,$(call rwildcard,$(DEMOS),*)),\
+	  $(INSTALL) -m 0644 $(F) $(DESTDIR)$(prefix)/share/doc/dj64/demos/$(F);)
 
 src_uninstall:
 	$(RM) -r $(DESTDIR)$(prefix)/share/doc/dj64
