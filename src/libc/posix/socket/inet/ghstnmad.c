@@ -96,11 +96,13 @@ static struct hostent host;
 static char *host_aliases[MAXALIASES];
 static char hostbuf[BUFSIZ+1];
 static struct in_addr host_addr;
+#if 0
 static char HOSTDB[PATH_MAX];               /* RD: Don't need 1K for this! */
 static FILE *hostf = NULL;
 static char hostaddr[MAXADDRS];
 static char *host_addrs[2];
 static int stayopen = 0;
+#endif
 static int hosts_multiple_addrs = 0;
 static int spoof = 0;
 static int spoofalert = 0;
@@ -1220,6 +1222,7 @@ gethostbyaddr(const char *addr, int len, int type)
 void
 _sethtent( int f )
 {
+#if 0
 	char *x;
 
     /* RD: Use configuration routines now */
@@ -1246,15 +1249,18 @@ _sethtent( int f )
     } else
 		rewind(hostf);
 	stayopen |= f;
+#endif
 }
 
 void
 _endhtent( void )
 {
+#if 0
 	if (hostf && !stayopen && !(_res.options & RES_STAYOPEN)) {
 		(void) fclose(hostf);
 		hostf = NULL;
 	}
+#endif
 }
 
 /* -------------
@@ -1265,6 +1271,7 @@ _endhtent( void )
 
 struct hostent *_gethtent (void)
 {
+#if 0
 	char *p;
 	register char *cp, **q;
 
@@ -1324,7 +1331,7 @@ struct hostent *_gethtent (void)
         h_errno = NETDB_SUCCESS;
         return (&host);
     }
-
+#endif
     /* EOF & no match */
     h_errno = HOST_NOT_FOUND;
     return (NULL);

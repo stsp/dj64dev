@@ -37,18 +37,19 @@
 #include <lsck/ini.h>       /* RD: .ini and .cfg routines     */
 
 #define	MAXALIASES	35
-
+#if 0
 static char PROTODB[1024];
 static FILE *protof = NULL;
 static char line[BUFSIZ+1];
 static struct protoent proto;
 static char *proto_aliases[MAXALIASES];
-
+#endif
 int _proto_stayopen;
 
 void
 setprotoent(int f)
 {
+#if 0
  /* IM: added correct PROTODB */
  	char *x;
 
@@ -76,22 +77,26 @@ setprotoent(int f)
     } else
 		rewind(protof);
 	_proto_stayopen |= f;
+#endif
 }
 
 
 void
 endprotoent(void)
 {
+#if 0
 	if (protof) {
 		fclose(protof);
 		protof = NULL;
 	}
 	_proto_stayopen = 0;
+#endif
 }
 
 struct protoent *
 getprotoent(void)
 {
+#if 0
 	char *p;
 	register char *cp, **q;
  	char *x;
@@ -151,4 +156,6 @@ again:
 	}
 	*q = NULL;
 	return (&proto);
+#endif
+	return NULL;
 }

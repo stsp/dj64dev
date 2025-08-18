@@ -40,17 +40,19 @@
 #include <lsck/ini.h>       /* RD: .ini and .cfg routines     */
 
 #define	MAXALIASES	35
-
+#if 0
 static char SERVDB[1024];
 static FILE *servf = NULL;
 static char line[BUFSIZ+1];
 static struct servent serv;
 static char *serv_aliases[MAXALIASES];
+#endif
 int _serv_stayopen;
 
 void
 setservent(int f)
 {
+#if 0
  	char *x;
 
     /* RD: Use configuration routine now */
@@ -77,16 +79,19 @@ setservent(int f)
     } else
 		rewind(servf);
 	_serv_stayopen |= f;
+#endif
 }
 
 void
 endservent(void)
 {
+#if 0
 	if (servf) {
 		fclose(servf);
 		servf = NULL;
 	}
 	_serv_stayopen = 0;
+#endif
 }
 
 /* --------------
@@ -97,6 +102,7 @@ endservent(void)
 
 struct servent *getservent(void)
 {
+#if 0
 	char *p;
 	register char *cp, **q;
  	char *x;
@@ -163,7 +169,7 @@ struct servent *getservent(void)
         /* Matched */
         return (&serv);
     }
-
+#endif
     /* EOF and no match */
     return (NULL);
 }

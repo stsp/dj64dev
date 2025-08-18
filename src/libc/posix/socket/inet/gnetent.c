@@ -25,23 +25,24 @@
 #include <lsck/ini.h>       /* RD: .ini and .cfg routines     */
 
 #define	MAXALIASES	35
-
+#if 0
 static char NETDB[1024];
 static FILE *netf = NULL;
 static char line[BUFSIZ+1];
 static struct netent net;
 static char *net_aliases[MAXALIASES];
-
+#endif
 int _net_stayopen;
 
 struct netent *getnetent( void );
-static char *any( register char *, const char * );
+//static char *any( register char *, const char * );
 void endnetent( void );
 void setnetent( int f );
 
 void
 setnetent( int f )
 {
+#if 0
     char *x;
 
     /* RD: Use configuration routines now */
@@ -68,16 +69,19 @@ setnetent( int f )
     } else
 		rewind(netf);
 	_net_stayopen |= f;
+#endif
 }
 
 void
 endnetent( void )
 {
+#if 0
 	if (netf) {
 		fclose(netf);
 		netf = NULL;
 	}
 	_net_stayopen = 0;
+#endif
 }
 
 /* -----------
@@ -88,6 +92,7 @@ endnetent( void )
 
 struct netent *getnetent( void )
 {
+#if 0
 	char *p;
 	register char *cp, **q;
     char *x;
@@ -150,13 +155,13 @@ struct netent *getnetent( void )
         *q = NULL;
         return (&net);
     }
-
+#endif
     /* EOF with no match = failure */
     return(NULL);
 }
 
 /* End RD */
-
+#if 0
 static char *
 any( register char *cp, const char *match )
 {
@@ -171,3 +176,4 @@ any( register char *cp, const char *match )
 	}
 	return ((char *)0);
 }
+#endif
