@@ -68,7 +68,7 @@ LSCK_IF __csock_interface =
 	__csock_recv, __csock_recvfrom,
 	__csock_send, __csock_sendto,
 	__csock_getsockname, __csock_getpeername,
-	__csock_getsockopt, NULL,
+	__csock_getsockopt, __csock_setsockopt,
 	__csock_shutdown,
 
 	/* I/O control functions */

@@ -23,5 +23,6 @@ LONG32 ___csock_getnblkio(ULONG32 fd, __out ULONG32 *nb);
 LONG32 ___csock_setnblkio(ULONG32 fd, ULONG32 nb);
 LONG32 ___csock_fionread(ULONG32 fd, __out ULONG32 *outq);
 LONG32 ___csock_getsoerr(ULONG32 fd, __out ULONG32 *outerr);
+LONG32 ___csock_setsolinger(ULONG32 fd, ULONG32 on, ULONG32 linger);
 
 #endif

@@ -156,8 +156,14 @@ extern int __csock_getsockopt (LSCK_SOCKET * /* lsd */,
 			       int *         /* rv */,
 			       int           /* level */,
 			       int           /* optname */,
-                               void *        /* optval */,
+			       void *        /* optval */,
 			       socklen_t *      /* optlen */);
+extern int __csock_setsockopt (LSCK_SOCKET * /* lsd */,
+			       int *         /* rv */,
+			       int           /* level */,
+			       int           /* optname */,
+			       const void *  /* optval */,
+			       socklen_t     /* optlen */);
 
 /* File descriptor tracking */
 extern void __csock_fd_set_usage (int /* fd */, int /* flag */);

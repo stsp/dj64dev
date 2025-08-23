@@ -40,6 +40,7 @@ SRC += c_sckopt.c
 SRC += c_sockpr.c
 AS_SRC += s_fnread.S
 AS_SRC += s_geterr.S
+AS_SRC += s_soling.S
 AS_SRC += vxd.S
 
 include $(TOP)/../makefile.inc

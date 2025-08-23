@@ -160,3 +160,36 @@ int __csock_getsockopt (LSCK_SOCKET *lsd, int *rv,
 
 	return(handled);
 }
+
+int __csock_setsockopt (LSCK_SOCKET *lsd, int *rv,
+			int level, int optname,
+                        const void *optval, socklen_t optlen)
+{
+	LSCK_SOCKET_CSOCK *csock = (LSCK_SOCKET_CSOCK *) lsd->idata;
+	int handled = 0;	/* Set if we've handled the option here. */
+
+	if (level != SOL_SOCKET) {
+		errno = EINVAL;
+		*rv   = -1;
+		return(1);
+	}
+
+	/* Buffer size checking */
+	switch(optname) {
+		case SO_LINGER: {
+			int rc;
+			const struct linger *lin = (const struct linger *)optval;
+			assert(optlen == sizeof(*lin));
+			rc = ___csock_setsolinger(csock->fd, lin->l_onoff, lin->l_linger);
+			if (rc) {
+				errno = __csock_errno(rc);
+				*rv = -1;
+			} else {
+				*rv = 0;
+			}
+			handled = 1;
+			break;
+		}
+	}
+	return handled;
+}
