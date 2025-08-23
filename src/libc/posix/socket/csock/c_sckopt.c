@@ -24,8 +24,10 @@
  */
 
 #include <time.h>
-
+#include <string.h>
+#include <assert.h>
 #include <lsck/if.h>
+#include <lsck/csock.h>
 #include "csock.h"
 
 /* ----------------------
@@ -36,6 +38,7 @@ int __csock_getsockopt (LSCK_SOCKET *lsd, int *rv,
 			int level, int optname,
                         void *optval, socklen_t *optlen)
 {
+	LSCK_SOCKET_CSOCK *csock = (LSCK_SOCKET_CSOCK *) lsd->idata;
 	int handled = 0;	/* Set if we've handled the option here. */
 	int *i_optval = (int *) optval;
 	struct timeval *tv = (struct timeval *) optval;
@@ -133,6 +136,22 @@ int __csock_getsockopt (LSCK_SOCKET *lsd, int *rv,
 		*rv        = 0;
 		handled    = 1;
 		break;
+
+	case SO_ERROR: {
+		ULONG32 val;
+		int rc;
+		assert(*optlen == sizeof(val));
+		rc = ___csock_getsoerr(csock->fd, &val);
+		if (!rc) {
+			memcpy(optval, &val, *optlen);
+			*rv = 0;
+		} else {
+			errno = __csock_errno (rc);
+			*rv = -1;
+		}
+		handled = 1;
+		break;
+	}
 
 	/* Unknown option */
 	default:

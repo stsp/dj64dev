@@ -38,6 +38,8 @@ AS_SRC += s_snblk.S
 SRC += c_shtdwn.c
 SRC += c_sckopt.c
 SRC += c_sockpr.c
+AS_SRC += s_fnread.S
+AS_SRC += s_geterr.S
 AS_SRC += vxd.S
 
 include $(TOP)/../makefile.inc

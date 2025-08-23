@@ -21,5 +21,7 @@ LONG32 ___csock_getsockname(ULONG32 fd, __out ULONG32 *addr, __out unsigned shor
 LONG32 ___csock_getpeername(ULONG32 fd, __out ULONG32 *addr, __out unsigned short *port);
 LONG32 ___csock_getnblkio(ULONG32 fd, __out ULONG32 *nb);
 LONG32 ___csock_setnblkio(ULONG32 fd, ULONG32 nb);
+LONG32 ___csock_fionread(ULONG32 fd, __out ULONG32 *outq);
+LONG32 ___csock_getsoerr(ULONG32 fd, __out ULONG32 *outerr);
 
 #endif

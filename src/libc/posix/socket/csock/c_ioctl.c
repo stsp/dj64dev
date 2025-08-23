@@ -59,23 +59,17 @@ int __csock_ioctl (LSCK_SOCKET *lsd, int *rv, int request, int *param)
 		break;
 
 	/* Amount of data that can be read atomically from the socket. */
-	case FIONREAD:
-		/* TODO: Is this correct or should it return the amount of
-		 * queued data for a stream? The Win32 API docs seem vague on
-		 * this issue. */
-		/* TODO: This should actually return the amount of data
-		 * waiting to be read. */
-		if (lsd->type == SOCK_STREAM) {
-			*param  = CSOCK_RECV_BUFSIZE;
-			*rv     = 0;
-			handled = 1;
-			break;
+	case FIONREAD: {
+		int rc = ___csock_fionread(csock->fd, (ULONG32 *)param);
+		if (!rc) {
+			*rv = 0;
+		} else {
+			errno = __csock_errno (rc);
+			*rv = -1;
 		}
-
-		ret     = -1;
-		errno   = EINVAL;
 		handled = 1;
 		break;
+	}
 
 	default:
 		handled = 0;
