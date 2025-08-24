@@ -21,7 +21,8 @@ rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(su
 
 src_install: clean djgpp/clean
 	$(foreach D,$(DEMOS),\
-	  $(INSTALL) -d $(DESTDIR)$(prefix)/share/doc/dj64/demos/$(D);)
+	  $(INSTALL) -d $(DESTDIR)$(prefix)/share/doc/dj64/demos/$(D);\
+	  $(INSTALL) -d $(DESTDIR)$(prefix)/share/doc/dj64/demos/$(D)/djgpp;)
 	$(foreach F,$(filter-out %/djgpp,$(call rwildcard,$(DEMOS),*)),\
 	  $(INSTALL) -m 0644 $(F) $(DESTDIR)$(prefix)/share/doc/dj64/demos/$(F);)
 
