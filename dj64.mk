@@ -99,8 +99,8 @@ DJ64_XLDFLAGS += -f 0x40
 else
 RP := -Wl,-rpath,/usr/local/i386-pc-dj64/lib64 \
   -Wl,-rpath,/usr/i386-pc-dj64/lib64
-ifneq ($(PREFIX),)
-RP += -Wl,-rpath,$(PREFIX)/i386-pc-dj64/lib64
+ifneq ($(prefix),)
+RP += -Wl,-rpath,$(prefix)/i386-pc-dj64/lib64
 endif
 # sort removes duplicates
 DJLDFLAGS = $(shell pkg-config --libs dj64) $(sort $(RP)) $(LDFLAGS)
