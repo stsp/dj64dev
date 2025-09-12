@@ -25,10 +25,16 @@ if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR(Install pkg-config and retry.)
 fi
 
-AC_PATH_PROGS([TIC], [tic])
-if test -z "$TIC"; then
-  AC_MSG_ERROR(Install ncurses (or ncurses-bin) and retry.)
+AC_ARG_ENABLE(ncurses,
+  AS_HELP_STRING([--disable-ncurses], [do not build ncurses]))
+if test "$enable_ncurses" != "no"; then
+  AC_PATH_PROGS([TIC], [tic])
+  if test -z "$TIC"; then
+    AC_MSG_ERROR(Install ncurses (or ncurses-bin) and retry.)
+  fi
+  NCURSES=1
 fi
+AC_SUBST(NCURSES)
 
 PKG_CHECK_MODULES([LIBELF], [libelf],, [AC_MSG_ERROR([libelf not installed])])
 PKG_CHECK_MODULES([TG], [thunk_gen >= 1.5],, [

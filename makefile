@@ -70,7 +70,9 @@ install_dj64:
 	$(INSTALL) -m 0644 dj64.pc $(DESTDIR)$(datadir)/pkgconfig
 	$(INSTALL) -m 0644 dj64_s.pc $(DESTDIR)$(datadir)/pkgconfig
 	$(INSTALL) -m 0644 dj64static.pc $(DESTDIR)$(datadir)/pkgconfig
+ifeq ($(NCURSES),1)
 	$(MAKE) -C $(NC_BUILD) install
+endif
 
 install_djdev64:
 	$(INSTALL) -d $(DESTDIR)$(datadir)
@@ -90,7 +92,9 @@ install: install_dj64 install_djdev64 install_demos
 	@echo "Done installing. You may need to run \"sudo ldconfig\" now."
 
 uninstall:
+ifeq ($(NCURSES),1)
 	$(MAKE) -C $(NC_BUILD) uninstall
+endif
 	$(RM) -r $(DESTDIR)$(prefix)/i386-pc-dj64
 	$(RM) -r $(DESTDIR)$(includedir)/djdev64
 	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj64.pc
@@ -110,7 +114,9 @@ clean: demos_clean
 	$(MAKE) -C src/djdev64 clean
 	$(RM) *.pc
 	$(RM) -r lib
+ifeq ($(NCURSES),1)
 	$(RM) -r $(NC_BUILD)
+endif
 
 deb:
 	debuild -i -us -uc -b && $(MAKE) clean >/dev/null
@@ -136,6 +142,7 @@ install_demos:
 
 $(DJ64DEVL): subs
 
+ifeq ($(NCURSES),1)
 L_CPPFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=xcppflags --define-variable=dj64prefix=$(ATOP) dj64)
 L_CFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --cflags dj64)
 L_LIBS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-L --libs-only-l --define-variable=libdir=$(ATOP)/lib dj64)
@@ -168,3 +175,6 @@ $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD) $(DJ64DEVL)
 
 ncurses: $(NC_BUILD)/Makefile
 	$(MAKE) -C $(NC_BUILD)
+else
+ncurses:
+endif
