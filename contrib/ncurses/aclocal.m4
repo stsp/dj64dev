@@ -29,7 +29,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1995-on
 dnl
-dnl $Id: aclocal.m4,v 1.1110 2025/07/12 16:15:49 tom Exp $
+dnl $Id: aclocal.m4,v 1.1119 2025/09/13 15:44:25 tom Exp $
 dnl Macros used in NCURSES auto-configuration script.
 dnl
 dnl These macros are maintained separately from NCURSES.  The copyright on
@@ -482,7 +482,7 @@ dnl Allow user to enable a normally-off option.
 AC_DEFUN([CF_ARG_ENABLE],
 [CF_ARG_OPTION($1,[$2],[$3],[$4],no)])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ARG_OPTION version: 5 updated: 2015/05/10 19:52:14
+dnl CF_ARG_OPTION version: 6 updated: 2025/08/05 04:09:09
 dnl -------------
 dnl Restricted form of AC_ARG_ENABLE that ensures user doesn't give bogus
 dnl values.
@@ -491,7 +491,7 @@ dnl Parameters:
 dnl $1 = option name
 dnl $2 = help-string
 dnl $3 = action to perform if option is not default
-dnl $4 = action if perform if option is default
+dnl $4 = action to perform if option is default
 dnl $5 = default option value (either 'yes' or 'no')
 AC_DEFUN([CF_ARG_OPTION],
 [AC_ARG_ENABLE([$1],[$2],[test "$enableval" != ifelse([$5],no,yes,no) && enableval=ifelse([$5],no,no,yes)
@@ -1444,10 +1444,52 @@ else
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CHECK_TYPE2 version: 2 updated: 2024/12/14 16:33:06
+dnl CF_CHECK_MULTIUSER version: 1 updated: 2025/09/13 11:43:46
+dnl ------------------
+dnl Runtime features which check for root permissions apply only to multiuser
+dnl systems.  Check for single-user systems by inspecting /etc/passwd.
+AC_DEFUN([CF_CHECK_MULTIUSER],[
+AC_CACHE_CHECK(for conventional multiuser system,cf_cv_multiuser,[
+	cf_cv_multiuser=no
+	if test -f /etc/passwd
+	then
+		sed \
+			-e '/true$/d' \
+			-e '/false$/d' \
+			-e '/nologin$/d' \
+			-e '/^[[^:]]*:[[^:]]*:[[0-9]]:/d' \
+			-e '/^[[^:]]*:[[^:]]*:[[0-9]][[0-9]]:/d' \
+			-e '/:$/d' < /etc/passwd >conftest.tmp
+		test -s conftest.tmp && cf_cv_multiuser=yes
+		rm -f conftest.tmp
+	fi
+])
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_CHECK_NAMED_PIPES version: 1 updated: 2025/08/08 20:44:18
+dnl --------------------
+dnl Check for existence of Windows named-pipe functions, set cache variable
+dnl to reflect the result.
+AC_DEFUN([CF_CHECK_NAMED_PIPES],[
+AC_CACHE_CHECK(for named pipe functions,cf_cv_named_pipes,[
+	cf_save_CPPFLAGS="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS -DWINVER=0x0600 -DWIN32_LEAN_AND_MEAN"
+	AC_TRY_LINK([#include <windows.h>],
+	[
+		HANDLE handle = 0;
+		ULONG pPid = 0;
+		if (GetNamedPipeInfo(handle, NULL, NULL, NULL, NULL)) {
+			if (GetNamedPipeServerProcessId(handle, &pPid)) {
+				${cf_cv_main_return:-return} (0);
+			}
+		}
+	],[cf_cv_named_pipes=yes],[cf_cv_named_pipes=no])
+	CPPFLAGS="$cf_save_CPPFLAGS"
+])dnl
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_CHECK_TYPE2 version: 3 updated: 2025/08/08 20:44:18
 dnl --------------
-dnl CF_CHECK_TYPE version: 5 updated: 2024/12/14 16:09:34
-dnl -------------
 dnl Check if the given type can be declared via the given header.
 dnl $1 = the type to check
 dnl $2 = the header (i.e., not one of the default includes)
@@ -5610,53 +5652,6 @@ int main(void)
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MAKEFLAGS version: 22 updated: 2025/07/05 16:17:37
-dnl ------------
-dnl Some 'make' programs support ${MAKEFLAGS}, some ${MFLAGS}, to pass 'make'
-dnl options to lower-levels.  It is very useful for "make -n" -- if we have it.
-dnl POSIX accommodates both by pretending they are the same variable, adding
-dnl the behavior of the latter to the former.
-AC_DEFUN([CF_MAKEFLAGS],
-[AC_REQUIRE([AC_PROG_FGREP])dnl
-
-AC_CACHE_CHECK(for makeflags variable, cf_cv_makeflags,[
-	cf_save_makeflags="$MAKEFLAGS"; unset MAKEFLAGS
-	cf_save_mflags="$MFLAGS";       unset MFLAGS
-	cf_cv_makeflags=''
-	for cf_option in '-${MAKEFLAGS}' '${MFLAGS}'
-	do
-		cat >cf_makeflags.tmp <<CF_EOF
-SHELL = $SHELL
-all :
-	@ echo '.$cf_option'
-CF_EOF
-		cf_result=`${MAKE:-make} -k -f cf_makeflags.tmp 2>/dev/null | ${FGREP-fgrep} -v "ing directory" | sed -e 's,[[ 	]]*$,,'`
-		case "$cf_result" in
-		(.*k|.*kw)
-			cf_result="`${MAKE:-make} -k -f cf_makeflags.tmp CC=cc 2>/dev/null`"
-			case "$cf_result" in
-			(.*CC=*)	cf_cv_makeflags=
-				;;
-			(*)	cf_cv_makeflags=$cf_option
-				;;
-			esac
-			break
-			;;
-		(.-)
-			;;
-		(*)
-			CF_MSG_LOG(given option \"$cf_option\", no match \"$cf_result\")
-			;;
-		esac
-	done
-	test -n "$cf_save_makeflags" && MAKEFLAGS="$cf_save_makeflags"
-	test -n "$cf_save_mflags"    && MFLAGS="$cf_save_mflags"
-	rm -f cf_makeflags.tmp
-])
-
-AC_SUBST(cf_cv_makeflags)
-])dnl
-dnl ---------------------------------------------------------------------------
 dnl CF_MAKE_PHONY version: 3 updated: 2021/01/08 16:08:21
 dnl -------------
 dnl Check if the make-program handles a ".PHONY" target, e.g,. a target which
@@ -8507,7 +8502,7 @@ AC_MSG_RESULT($sigact_bad)
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_STRUCT_TERMIOS version: 13 updated: 2023/12/03 19:38:54
+dnl CF_STRUCT_TERMIOS version: 14 updated: 2025/07/19 12:19:51
 dnl -----------------
 dnl Some machines require _POSIX_SOURCE to completely define struct termios.
 AC_DEFUN([CF_STRUCT_TERMIOS],[
@@ -10277,7 +10272,59 @@ fi
 AC_SUBST(no_x11_rgb)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_SOURCE version: 68 updated: 2024/11/09 18:07:29
+dnl CF_WITH_XTERM_KBS version: 2 updated: 2025/08/27 20:35:59
+dnl -----------------
+dnl Configure-option with platform-defaults for the "xterm+kbs" building block
+dnl in the terminfo file.
+dnl
+dnl The terminfo "kbs" value corresponds to "stty erase", and is conventionally
+dnl assigned to the key which has
+dnl
+dnl		a "Backspace" label and/or
+dnl		a backarrow symbol.
+dnl
+dnl See XTerm FAQ "Why doesn't my delete key work?"
+dnl		https://invisible-island.net/xterm/xterm.faq.html#xterm_erase
+AC_DEFUN([CF_WITH_XTERM_KBS],[
+case $host_os in
+(linux*gnu|linux*gnuabi64|linux*gnuabin32|linux*gnuabielfv*|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc|linux*musl|openbsd*|darwin*)
+	want_xterm_kbs=DEL
+	;;
+(*)
+	want_xterm_kbs=BS
+	;;
+esac
+
+AC_MSG_CHECKING(if xterm backspace-key sends BS or DEL)
+AC_ARG_WITH(xterm-kbs,
+	[[  --with-xterm-kbs[=XXX]  specify if xterm backspace-key sends BS or DEL]],
+	[with_xterm_kbs=$withval],
+	[with_xterm_kbs=auto])
+case x$with_xterm_kbs in
+(xyes|xno|xBS|xbs|x8)
+	with_xterm_kbs=BS
+	;;
+(xDEL|xdel|x127)
+	with_xterm_kbs=DEL
+	;;
+(xauto)
+	with_xterm_kbs=$want_xterm_kbs
+	;;
+(*)
+	with_xterm_kbs=$withval
+	;;
+esac
+AC_MSG_RESULT($with_xterm_kbs)
+XTERM_KBS=$with_xterm_kbs
+AC_SUBST(XTERM_KBS)
+
+if test "x$with_xterm_kbs" != "x$want_xterm_kbs"
+then
+	AC_MSG_WARN([expected --with-xterm-kbs=$want_xterm_kbs for $host_os, have $with_xterm_kbs])
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_XOPEN_SOURCE version: 69 updated: 2025/07/26 14:09:49
 dnl ---------------
 dnl Try to get _XOPEN_SOURCE defined properly that we can use POSIX functions,
 dnl or adapt to the vendor's definitions to get equivalent functionality,
@@ -10337,7 +10384,7 @@ case "$host_os" in
 	cf_xopen_source="-D_SGI_SOURCE"
 	cf_XOPEN_SOURCE=
 	;;
-(linux*gnu|linux*gnuabi64|linux*gnuabin32|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc)
+(linux*gnu|linux*gnuabi64|linux*gnuabin32|linux*gnuabielfv*|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc)
 	CF_GNU_SOURCE($cf_XOPEN_SOURCE)
 	;;
 linux*musl)

@@ -29,7 +29,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1995-on
 dnl
-dnl $Id: configure.in,v 1.799 2025/07/12 16:43:47 tom Exp $
+dnl $Id: configure.in,v 1.809 2025/09/13 15:40:47 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 dnl For additional information, see
@@ -38,7 +38,7 @@ dnl     https://invisible-island.net/autoconf/my-autoconf.html
 dnl
 dnl ---------------------------------------------------------------------------
 AC_PREREQ(2.52.20210101)
-AC_REVISION($Revision: 1.799 $)
+AC_REVISION($Revision: 1.809 $)
 AC_INIT(ncurses/base/lib_initscr.c)
 AC_CONFIG_HEADER(include/ncurses_cfg.h:include/ncurses_cfg.hin)
 
@@ -256,7 +256,6 @@ fi
 AC_PROG_MAKE_SET
 CF_MAKE_PHONY
 CF_MAKE_TAGS
-CF_MAKEFLAGS
 
 dnl These are standard among *NIX systems, but not when cross-compiling
 AC_CHECK_TOOL(RANLIB, ranlib, ':')
@@ -658,42 +657,7 @@ AC_MSG_RESULT($with_xterm_new)
 WHICH_XTERM=$with_xterm_new
 AC_SUBST(WHICH_XTERM)
 
-case $host_os in
-(linux*gnu|linux*gnuabi64|linux*gnuabin32|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc|linux*musl)
-	want_xterm_kbs=DEL
-	;;
-(*)
-	want_xterm_kbs=BS
-	;;
-esac
-
-AC_MSG_CHECKING(if xterm backspace sends BS or DEL)
-AC_ARG_WITH(xterm-kbs,
-	[[  --with-xterm-kbs[=XXX]  specify if xterm backspace sends BS or DEL]],
-	[with_xterm_kbs=$withval],
-	[with_xterm_kbs=auto])
-case x$with_xterm_kbs in
-(xyes|xno|xBS|xbs|x8)
-	with_xterm_kbs=BS
-	;;
-(xDEL|xdel|x127)
-	with_xterm_kbs=DEL
-	;;
-(xauto)
-	with_xterm_kbs=$want_xterm_kbs
-	;;
-(*)
-	with_xterm_kbs=$withval
-	;;
-esac
-AC_MSG_RESULT($with_xterm_kbs)
-XTERM_KBS=$with_xterm_kbs
-AC_SUBST(XTERM_KBS)
-
-if test "x$with_xterm_kbs" != "x$want_xterm_kbs"
-then
-	AC_MSG_WARN([expected --with-xterm-kbs=$want_xterm_kbs for $host_os, have $with_xterm_kbs])
-fi
+CF_WITH_XTERM_KBS
 
 MAKE_TERMINFO=
 if test "$use_database" = no ; then
@@ -827,6 +791,10 @@ AC_ARG_ENABLE(home-terminfo,
 AC_MSG_RESULT($with_home_terminfo)
 test "x$with_home_terminfo" = "xyes" && AC_DEFINE(USE_HOME_TERMINFO,1,[Define to 1 if $HOME/.terminfo feature is wanted])
 
+CF_CHECK_MULTIUSER
+
+if test "$cf_cv_multiuser" = yes; then
+
 AC_MSG_CHECKING(if you want to permit root to use ncurses environment variables)
 AC_ARG_ENABLE(root-environ,
 	[  --disable-root-environ  restrict root use of ncurses environment variables],
@@ -850,6 +818,14 @@ AC_ARG_ENABLE(setuid-environ,
 	[with_setuid_environ=$with_root_environ])
 AC_MSG_RESULT($with_setuid_environ)
 test "x$with_setuid_environ" = xyes && AC_DEFINE(USE_SETUID_ENVIRON,1,[Define to 1 if setuid/setgid application is allowed to use ncurses environment])
+
+else
+	if test -n "$enable_root_environ$enable_root_access$enable_setuid_environ"
+	then
+		AC_MSG_WARN(ignoring options used only for multiuser systems)
+	fi
+
+fi # cf_cv_multiuser
 
 ###   Use option --enable-symlinks to make tic use symlinks, not hard links
 ###   to reduce storage requirements for the terminfo database.
@@ -1071,6 +1047,12 @@ CF_WITH_TYPE(mmask-t,
 	[  --with-mmask-t=TYPE     override type of mmask_t],
 	NCURSES_MMASK_T,
 	$cf_dft_mmask_t)
+
+###   option --enable-lp64 can give unexpected results
+if test "$cf_cv_enable_lp64" = 1 ; then
+	test -n "$with_chtype"  && test "$NCURSES_CHTYPE"  != unsigned && AC_MSG_WARN(option --enable-lp64 overrides --with-chtype)
+	test -n "$with_mmask_t" && test "$NCURSES_MMASK_T" != unsigned && AC_MSG_WARN(option --enable-lp64 overrides --with-mmask-t)
+fi
 
 ###   use option --with-ccharw-max to override CCHARW_MAX size
 AC_MSG_CHECKING(for size CCHARW_MAX)
@@ -1597,29 +1579,35 @@ fi
 esac
 AC_SUBST(NCURSES_WGETCH_EVENTS)
 
+USE_NAMED_PIPES=0
+EXP_WIN32_DRIVER=0
+INTERNALS_HDR=
+
 case "$cf_cv_system_name" in
 (*mingw32*|*mingw64*|*-msvc*)
-	AC_MSG_CHECKING(if you want experimental-Windows driver)
-	AC_ARG_ENABLE(exp-win32,
-		[  --enable-exp-win32      compile with experimental-Windows driver],
-		[with_exp_win32=$enableval],
-		[with_exp_win32=no])
-	AC_MSG_RESULT($with_exp_win32)
+	CF_CHECK_NAMED_PIPES
+	if test "$cf_cv_named_pipes" = yes; then
+		AC_MSG_CHECKING(if you want experimental-Windows driver)
+		AC_ARG_ENABLE(exp-win32,
+			[  --enable-exp-win32      compile with experimental-Windows driver],
+			[with_exp_win32=$enableval],
+			[with_exp_win32=no])
+		AC_MSG_RESULT($with_exp_win32)
+	else
+		with_exp_win32=no
+	fi
 	if test "x$with_exp_win32" = xyes
 	then
+		AC_DEFINE(USE_NAMED_PIPES,1,[Define to 1 to use named pipes with win32 driver])
 		AC_DEFINE(EXP_WIN32_DRIVER,1,[Define to 1 to compile with experimental win32 driver])
+		USE_NAMED_PIPES=1
 		EXP_WIN32_DRIVER=1
-		INTERNALS_HDR='[$](INCDIR)/nc_win32.h'
-	else
-		INTERNALS_HDR='[$](INCDIR)/nc_mingw.h'
-		EXP_WIN32_DRIVER=0
 	fi
-	;;
-(*)
-	EXP_WIN32_DRIVER=0
-	INTERNALS_HDR=
+	INTERNALS_HDR='../include/nc_win32.h'
 	;;
 esac
+
+AC_SUBST(USE_NAMED_PIPES)
 AC_SUBST(EXP_WIN32_DRIVER)
 AC_SUBST(INTERNALS_HDR)
 
@@ -2378,6 +2366,20 @@ CF_SUBST_IF(["x$ac_cv_header_sgtty_h" = xyes],   HAVE_SGTTY_H,   1, 0)
 CF_SUBST_IF(["x$ac_cv_header_termio_h" = xyes],  HAVE_TERMIO_H,  1, 0)
 CF_SUBST_IF(["x$ac_cv_header_termios_h" = xyes], HAVE_TERMIOS_H, 1, 0)
 
+case "x${ac_cv_header_termios_h}${ac_cv_header_termio_h}${ac_cv_header_sgtty_h}${cf_cv_have_tcgetattr}" in
+(*yes*)
+	;;
+(*)
+	case "$cf_cv_system_name" in
+	(*mingw32*|*mingw64*|*-msvc*)
+		;;
+	(*)
+		AC_MSG_ERROR(No termio/termios/sgtty found)
+		;;
+	esac
+	;;
+esac
+
 ################################################################################
 test "x$use_database" = xyes && \
 SUB_MAKEFILES="$SUB_MAKEFILES misc/run_tic.sh:misc/run_tic.in"
@@ -2537,6 +2539,7 @@ AC_OUTPUT( \
 	include/MKterm.h.awk \
 	include/curses.head:include/curses.h.in \
 	include/ncurses_dll.h \
+	include/nc_win32.h \
 	include/termcap.h \
 	include/unctrl.h \
 	man/man_db.renames \

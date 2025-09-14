@@ -30,7 +30,7 @@
 /****************************************************************************
  *  Author: Thomas E. Dickey                    1996-on                     *
  ****************************************************************************/
-/* $Id: test.priv.h,v 1.224 2025/07/05 15:16:13 tom Exp $ */
+/* $Id: test.priv.h,v 1.227 2025/08/23 17:05:52 tom Exp $ */
 
 #ifndef __TEST_PRIV_H
 #define __TEST_PRIV_H 1
@@ -1084,11 +1084,8 @@ extern int TABSIZE;
 #include <sys/time.h>		/* for struct timeval */
 #undef sleep
 #define sleep(n) Sleep((n) * 1000)
-#define SIGHUP  1
-#define SIGKILL 9
-#define getlogin() "username"
 
-#elif defined(EXP_WIN32_DRIVER)
+#else /* !PDCURSES */
 
 #if defined(HAVE_NCURSESW_NCURSES_H)
 #include <ncursesw/nc_win32.h>
@@ -1098,23 +1095,23 @@ extern int TABSIZE;
 #include <nc_win32.h>
 #endif
 
-#else
+#endif /* PDCURSES */
 
-#if defined(HAVE_NCURSESW_NCURSES_H)
-#include <ncursesw/nc_mingw.h>
-#elif defined(HAVE_NCURSES_NCURSES_H)
-#include <ncurses/nc_mingw.h>
-#else
-#include <nc_mingw.h>
+#define getlogin() "username"
+
+#ifndef SIGHUP
+#define SIGHUP  1
 #endif
 
+#ifndef SIGKILL
+#define SIGKILL 9
 #endif
 
 /* conflicts in test/firstlast.c */
 #undef large
 #undef small
 
-#endif
+#endif /* WIN32... */
 
 #ifdef NEED_TIME_H
 #if TIME_WITH_SYS_TIME

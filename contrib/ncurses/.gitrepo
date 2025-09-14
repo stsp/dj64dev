@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/stsp/ncurses.git
 	branch = master
-	commit = 9637cc50463a619dab879dc7b9539b70de561802
+	commit = 9afcd95cd31d2e58ff8fb7d83f9d99c46c8761a2
 	parent = 8f297e020f3a585f5e9888115916add7b6e11b8e
 	method = merge
 	cmdver = 0.4.9

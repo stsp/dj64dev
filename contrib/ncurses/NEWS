@@ -26,7 +26,7 @@
 -- sale, use or other dealings in this Software without prior written        --
 -- authorization.                                                            --
 -------------------------------------------------------------------------------
--- $Id: NEWS,v 1.4314 2025/07/12 22:55:35 tom Exp $
+-- $Id: NEWS,v 1.4341 2025/09/13 22:52:16 tom Exp $
 -------------------------------------------------------------------------------
 
 This is a log of changes that ncurses has gone through since Zeyd started
@@ -45,6 +45,70 @@ See the AUTHORS file for the corresponding full names.
 
 Changes through 1.9.9e did not credit all contributions;
 it is not possible to add this information.
+
+20250913
+	+ update ncurses-howto.
+	+ modify MKfallback.sh to eliminate TERMINFO environment variable.
+	+ improve checks in run_tic.sh script, change some variable names to
+	  reduce packager confusion (report by Stas Sergeev).
+	+ disallow configure options which apply only to multiuser systems, to
+	  improve ports to single-user systems such as Haiku (report by Stas
+	  Sergeev).
+	+ update ncurses/wcwidth.c, for MinGW ports, from xterm.
+	+ correct _nc_to_char() for the case when wctob() is not found by
+	  configure script (report/patch by Benno Schulenberg).
+	> patches by Robin Haberkorn
+	  + modify handle_wheel case 2 to ignore the event as in case 1 for
+	    mouse version 1, since that corresponds to a button 6 or 7 event
+	    which is not supported with ABI 6.
+	  + use separate read/write pointers in the mouse event queue to work
+	    with too-close events for the click-detection to work reliably,
+	    and further improve that in case mouseinterval(0) is used to
+	    suppress click-detection.
+
+20250830
+	+ in-progress work to merge MinGW/Windows port.
+	+ build-fix for experimental Windows configuration (report by Kirill
+	  Makurin).
+	+ improve pattern used for configure --with-xterm-kbs option.
+
+20250823
+	+ improve style of MKterminfo.sh script (patches by Branden Robinson).
+	+ improve formatting/style of manpages (patches by Branden Robinson).
+	+ remove redundant definition of ConsoleInfo.
+	+ change scope of TTY, GET_TTY and SET_TTY to ncurses-internals
+
+20250816
+	+ remove redundant reference to compiler in libtool configuration of
+	  mk-1st.awk (report by Lorinczy Zsigmond).
+	+ build-fixes for --enable-exp-win32 configuration
+	+ improve formatting/style of manpages (patches by Branden Robinson).
+
+20250809
+	+ add configure check for Win32 named pipes feature, using that to make
+	  nc_mingw.h obsolete in favor of nc_win32.h
+	+ amend limit used in alloc_pair, by applying an adjustment for default
+	  colors only when the maximum number of color pairs is greater than
+	  the maximum number of colors (report by "Ingvix").
+
+20250802
+	+ fixes for reading Unicode characters in MinGW/Windows port (report by
+	  Axel Reinhold).
+
+20250726
+	+ modify configure script cases for $host_os, to accommodate 64-bit
+	  big-endian POWER linux with glibc (patch by Cosima Neidahl).
+	+ add warning to configure script to address conflict between the
+	  --enable-lp64 option and the options for overriding the types used
+	  for chtype and mmask_t.
+
+20250720
+	+ further improve readability of header-files
+	+ add a consistency-check for termio(s)/tty headers, to help with
+	  cross-compiles (report by Stas Sergeev).
+	+ remove some unused configure-macros
+	+ add xterm+keypad to pccon+base -TD
+	+ trim trailing blanks from a few files (report by Stas Sergeev).
 
 20250712
 	+ improve readability of term.h

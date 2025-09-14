@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright 2018-2021,2024 Thomas E. Dickey                                *
+ * Copyright 2018-2024,2025 Thomas E. Dickey                                *
  * Copyright 2008-2014,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
@@ -31,17 +31,19 @@
  * Author: Juergen Pfeifer, 2008-on                                         *
  ****************************************************************************/
 
-/* $Id: win32_curses.h,v 1.4 2024/08/31 18:17:44 tom Exp $ */
+/* $Id: win32_curses.h,v 1.7 2025/08/23 17:06:56 tom Exp $ */
 
 /*
  * This is the interface we use on Windows to mimic the control of the settings
  * of what acts like the classic TTY - the Windows Console.
  */
 
-#if (defined(_WIN32) || defined(_WIN64))
 #ifndef _NC_WIN32_CURSES_H
 #define _NC_WIN32_CURSES_H 1
 
+#include <nc_win32.h>
+
+#if (defined(_WIN32) || defined(_WIN64))
 struct winconmode
 {
   unsigned long dwFlagIn;
@@ -56,17 +58,12 @@ extern NCURSES_EXPORT(int)   _nc_console_flush(void* handle);
 /*
   A few definitions of Unix functions we need to emulate
 */
-#define SIGHUP  1
-#define SIGKILL 9
-
-#undef  getlogin
-#define getlogin() getenv("USERNAME")
-
 #undef  ttyname
 #define ttyname(fd) NULL
 
 #undef sleep
 #define sleep(n) Sleep((n) * 1000)
 
-#endif /* _NC_WIN32_CURSES_H */
 #endif /* _WIN32||_WIN64 */
+
+#endif /* _NC_WIN32_CURSES_H */

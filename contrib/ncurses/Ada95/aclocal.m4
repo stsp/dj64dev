@@ -29,7 +29,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey
 dnl
-dnl $Id: aclocal.m4,v 1.230 2025/07/05 20:20:37 tom Exp $
+dnl $Id: aclocal.m4,v 1.232 2025/07/26 18:14:09 tom Exp $
 dnl Macros used in NCURSES Ada95 auto-configuration script.
 dnl
 dnl These macros are maintained separately from NCURSES.  The copyright on
@@ -2854,53 +2854,6 @@ AC_SUBST(BROKEN_LINKER)
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MAKEFLAGS version: 22 updated: 2025/07/05 16:17:37
-dnl ------------
-dnl Some 'make' programs support ${MAKEFLAGS}, some ${MFLAGS}, to pass 'make'
-dnl options to lower-levels.  It is very useful for "make -n" -- if we have it.
-dnl POSIX accommodates both by pretending they are the same variable, adding
-dnl the behavior of the latter to the former.
-AC_DEFUN([CF_MAKEFLAGS],
-[AC_REQUIRE([AC_PROG_FGREP])dnl
-
-AC_CACHE_CHECK(for makeflags variable, cf_cv_makeflags,[
-	cf_save_makeflags="$MAKEFLAGS"; unset MAKEFLAGS
-	cf_save_mflags="$MFLAGS";       unset MFLAGS
-	cf_cv_makeflags=''
-	for cf_option in '-${MAKEFLAGS}' '${MFLAGS}'
-	do
-		cat >cf_makeflags.tmp <<CF_EOF
-SHELL = $SHELL
-all :
-	@ echo '.$cf_option'
-CF_EOF
-		cf_result=`${MAKE:-make} -k -f cf_makeflags.tmp 2>/dev/null | ${FGREP-fgrep} -v "ing directory" | sed -e 's,[[ 	]]*$,,'`
-		case "$cf_result" in
-		(.*k|.*kw)
-			cf_result="`${MAKE:-make} -k -f cf_makeflags.tmp CC=cc 2>/dev/null`"
-			case "$cf_result" in
-			(.*CC=*)	cf_cv_makeflags=
-				;;
-			(*)	cf_cv_makeflags=$cf_option
-				;;
-			esac
-			break
-			;;
-		(.-)
-			;;
-		(*)
-			CF_MSG_LOG(given option \"$cf_option\", no match \"$cf_result\")
-			;;
-		esac
-	done
-	test -n "$cf_save_makeflags" && MAKEFLAGS="$cf_save_makeflags"
-	test -n "$cf_save_mflags"    && MFLAGS="$cf_save_mflags"
-	rm -f cf_makeflags.tmp
-])
-
-AC_SUBST(cf_cv_makeflags)
-])dnl
-dnl ---------------------------------------------------------------------------
 dnl CF_MAKE_PHONY version: 3 updated: 2021/01/08 16:08:21
 dnl -------------
 dnl Check if the make-program handles a ".PHONY" target, e.g,. a target which
@@ -5417,7 +5370,7 @@ AC_ARG_WITH(system-type,
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_SOURCE version: 68 updated: 2024/11/09 18:07:29
+dnl CF_XOPEN_SOURCE version: 69 updated: 2025/07/26 14:09:49
 dnl ---------------
 dnl Try to get _XOPEN_SOURCE defined properly that we can use POSIX functions,
 dnl or adapt to the vendor's definitions to get equivalent functionality,
@@ -5477,7 +5430,7 @@ case "$host_os" in
 	cf_xopen_source="-D_SGI_SOURCE"
 	cf_XOPEN_SOURCE=
 	;;
-(linux*gnu|linux*gnuabi64|linux*gnuabin32|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc)
+(linux*gnu|linux*gnuabi64|linux*gnuabin32|linux*gnuabielfv*|linux*gnueabi|linux*gnueabihf|linux*gnux32|uclinux*|gnu*|mint*|k*bsd*-gnu|cygwin|msys|mingw*|linux*uclibc)
 	CF_GNU_SOURCE($cf_XOPEN_SOURCE)
 	;;
 linux*musl)
