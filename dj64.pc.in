@@ -9,5 +9,5 @@ cppflags=-I${dj64prefix}/include -DDJ64 -nostdinc @DJ64_EXTRA_CPPFLAGS@
 xcppflags=${cppflags} -imacros ${dj64prefix}/include/dj64/a_mac.h
 crt0=${dj64prefix}/lib/uplt.o
 extras=${prefix}/share/dj64-extras
-Cflags: -fpic -ffreestanding
+Cflags: -fpic -ffreestanding -fno-stack-protector
 Libs: -L${libdir} -ldj64 -shared @DJ64_EXTRA_LDFLAGS@

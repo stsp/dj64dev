@@ -149,7 +149,7 @@ L_LIBS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-L --libs-only-l 
 R_PREFIX = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=dj64prefix dj64)
 R_LIBDIR = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=libdir dj64)
 L_LDFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-other dj64) \
-  -Wl,-rpath,$(R_LIBDIR)
+  -Wl,-rpath=$(R_LIBDIR) -nostdlib
 $(NC_BUILD):
 	mkdir -p $@
 $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD) $(DJ64DEVL)
