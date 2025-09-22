@@ -13,7 +13,7 @@ endif
 
 # find the suitable cross-assembler
 DJ64AS = $(CROSS_PREFIX)as
-DJ64ASFLAGS = --32 --defsym _DJ64=1
+DJ64ASFLAGS = --32 --defsym _DJ64=1 $(ASFLAGS)
 XSTRIP = $(CROSS_PREFIX)strip --strip-debug
 XLD = $(CROSS_PREFIX)ld
 XLD_IMB = -Ttext-segment
@@ -70,9 +70,9 @@ endif # filter clean install
 # omitting -c. Note that plain as also doesn't work for termux.
 AS = $(CC) -x assembler-with-cpp -c
 
-DJ64CFLAGS = $(shell pkg-config --cflags dj64)
-XCPPFLAGS = $(shell pkg-config --variable=xcppflags dj64)
-ASCPPFLAGS = $(shell pkg-config --variable=cppflags dj64)
+DJ64CFLAGS = $(shell pkg-config --cflags dj64) $(CFLAGS)
+XCPPFLAGS = $(shell pkg-config --variable=xcppflags dj64) $(CPPFLAGS)
+DJ64ASCPPFLAGS = $(shell pkg-config --variable=cppflags dj64) $(ASCPPFLAGS)
 
 LD = $(CC)
 
@@ -118,7 +118,7 @@ ifneq ($(shell grep "ASMCFUNC" $(PDHDR) | grep -cv "$(HASH)define"),0)
 PLT_O = plt.o
 endif
 endif
-GLOB_ASM = $(wildcard glob_asm.h)
+GLOB_ASM ?= $(wildcard glob_asm.h)
 
 ifneq ($(AS_OBJECTS),)
 XLDFLAGS = -melf_i386 -static
@@ -177,13 +177,13 @@ $(DJ64_XLIB): $(OBJECTS) $(XELF)
 	$(LD) $^ $(DJLDFLAGS) -o $@
 
 %.o: %.c
-	$(CC) $(DJ64CFLAGS) $(XCPPFLAGS) $(CFLAGS) -I. -o $@ -c $<
+	$(CC) $(DJ64CFLAGS) $(XCPPFLAGS) -I. -o $@ -c $<
 %.o: %.S
-	$(CPP) -x assembler-with-cpp $(ASCPPFLAGS) $< | \
+	$(CPP) -x assembler-with-cpp $(DJ64ASCPPFLAGS) $< | \
 	    $(DJ64AS) $(DJ64ASFLAGS) -o $@ -
 plt.o: plt.inc $(GLOB_ASM)
 	echo "#include <dj64/plt.S.inc>" | \
-	    $(CPP) -x assembler-with-cpp $(ASCPPFLAGS) -I. - | \
+	    $(CPP) -x assembler-with-cpp $(DJ64ASCPPFLAGS) -I. - | \
 	    $(DJ64AS) $(DJ64ASFLAGS) -o $@ -
 thunks_c.o: thunk_calls.h
 thunks_p.o: thunk_asms.h plt_asmc.h
