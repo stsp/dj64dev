@@ -27,7 +27,6 @@ Package: dj64-dev
 Architecture: any
 Section: libdevel
 Depends: dj64 (= ${binary:Version}), ${misc:Depends},
-    thunk-gen,
     gcc,
     binutils-i686-linux-gnu,
     pkgconf

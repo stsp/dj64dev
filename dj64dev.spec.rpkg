@@ -66,7 +66,6 @@ This package contains runtime libraries for dj64-built programs.
 %package dj64-devel
 Summary: dj64 development tools and headers
 Requires: dj64dev-dj64 = {{{ git_dir_version }}}
-Requires: thunk-gen
 Requires: gcc
 Requires: binutils
 Requires: binutils-x86_64-linux-gnu
