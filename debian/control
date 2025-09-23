@@ -28,7 +28,6 @@ Architecture: any
 Section: libdevel
 Depends: dj64 (= ${binary:Version}), ${misc:Depends},
     thunk-gen,
-    djstub (>= 0.2~),
     gcc,
     binutils-i686-linux-gnu,
     pkgconf
