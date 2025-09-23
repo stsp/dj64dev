@@ -22,7 +22,6 @@ BuildRequires: bash
 BuildRequires: gcc
 BuildRequires: binutils
 BuildRequires: binutils-x86_64-linux-gnu
-BuildRequires: coreutils
 BuildRequires: elfutils-libelf-devel
 BuildRequires: thunk-gen
 BuildRequires: pkgconf-pkg-config
