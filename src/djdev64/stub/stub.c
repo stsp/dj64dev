@@ -329,15 +329,13 @@ int djstub_main(int argc, char *argv[], char *envp[],
 
     strncpy(stubinfo.magic, "dj64 (C) stsp", sizeof(stubinfo.magic));
     stubinfo.size = sizeof(stubinfo);
-    i = 0;
+    i = 3;
     while(*envp) {
         i += strlen(*envp) + 1;
         envp++;
     }
-    if (i) {
+    if (argv && argv[0])
         i += strlen(argv[0]) + 1;
-        i += 3;
-    }
     stub_debug("env size %i\n", i);
     stubinfo.env_size = i;
     stubinfo.minstack = 0x80000;
