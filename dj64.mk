@@ -110,7 +110,7 @@ ifneq ($(AS_OBJECTS),)
 XELF = tmp.o
 endif
 
-.INTERMEDIATE: $(DJ64_XLIB) $(XELF) $(XELF).elf tmp.s
+.INTERMEDIATE: $(XELF) $(XELF).elf tmp.s
 
 ifneq ($(PDHDR),)
 HASH := \#
