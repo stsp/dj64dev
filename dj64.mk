@@ -211,11 +211,12 @@ endif # TGMK
 endif # PDHDR
 
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
-LNK_VER = $(lastword $(shell djlink -v))
+LNK_VER = $(lastword $(shell djlink -v 2>/dev/null))
 ifeq ($(LNK_VER),)
-$(error djlink is too old)
-endif
+$(warning djlink missing or too old)
+else
 LINK = djlink
+endif
 endif # clean
 
 clean_dj64:
