@@ -382,8 +382,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
     /* if we load 2 payloads, use larger estimate */
     if ((dyn && pl32) || BARE_STUB() || compact_va) {
         stubinfo.initial_size = VA_SZ;
-        stubinfo.upl_base = va + MB;
-        stubinfo.upl_size = VA_SZ - MB;
+        stubinfo.upl_base = va;
+        stubinfo.upl_size = VA_SZ;
     } else {
         stubinfo.initial_size = max(va_size, 0x10000);
     }
