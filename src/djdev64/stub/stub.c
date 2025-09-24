@@ -184,6 +184,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     struct ldops *ops = NULL;
     int STFLAGS_OFF = 0x2c;
     int compact_va = 0;
+    int emb_ov = 0;
     uint8_t stub_ver = 0;
 #define BARE_STUB() (stub_ver == 0)
 
@@ -279,6 +280,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 noffset = offs;
                 if (stub_ver < 6 || !(buf[FLG2_OFF] & STFLG2_EMBOV))
                     noffset += coffsize;
+                else
+                    emb_ov = 1;
             }
             if (buf[FLG1_OFF] & STFLG1_COMPACT)
                 compact_va = 1;
@@ -400,7 +403,13 @@ int djstub_main(int argc, char *argv[], char *envp[],
     ops->read_sections(handle, lin2ptr(mem_lin), va, pfile, dyn ? 0 : coffset);
     ops->close(handle);
     unregister_dosops();
-    if (dyn && pl32) {
+#define PASS_EMBOV_TO_SECOND_LDR 1
+    if (dyn && pl32
+#if PASS_EMBOV_TO_SECOND_LDR
+        /* pass emb_ov format to another (libelf-based) loader */
+        && !emb_ov
+#endif
+       ) {
         uint32_t va2;
         uint32_t va_size2;
 
@@ -422,6 +431,10 @@ int djstub_main(int argc, char *argv[], char *envp[],
         ops->read_sections(handle, lin2ptr(mem_lin), va, ifile, coffset);
         ops->close(handle);
         unregister_dosops();
+#if !PASS_EMBOV_TO_SECOND_LDR
+        if (emb_ov)
+            stubinfo.flags &= ~(STFLG2_EMBOV << 8);
+#endif
     }
 
     /* set base */
@@ -446,7 +459,11 @@ int djstub_main(int argc, char *argv[], char *envp[],
 
     stubinfo.self_fd = ifile;
     stubinfo.self_offs = coffset;
+#if PASS_EMBOV_TO_SECOND_LDR
+    stubinfo.self_size = (emb_ov ? 0 : coffsize);
+#else
     stubinfo.self_size = coffsize;
+#endif
     stubinfo.payload_offs = noffset;
     stubinfo.payload_size = nsize;
     stubinfo.payload2_offs = noffset2;
