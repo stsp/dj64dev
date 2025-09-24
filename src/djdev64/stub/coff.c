@@ -76,11 +76,11 @@ struct coff_h {
     uint32_t entry;
 };
 
-static void read_section(char *buf, int ifile, long coffset, int sc)
+static void read_section(char *buf, uint32_t va, int ifile, long coffset, int sc)
 {
     long bytes;
     __dos_seek(ifile, coffset + scns[sc].s_scnptr, SEEK_SET);
-    bytes = _long_read(ifile, buf, scns[sc].s_vaddr,
+    bytes = _long_read(ifile, buf, scns[sc].s_vaddr - va,
             scns[sc].s_size);
     stub_debug("read returned %li\n", bytes);
     if (bytes != scns[sc].s_size) {
@@ -151,12 +151,12 @@ static uint32_t get_coff_entry(void *handle)
     return h->entry;
 }
 
-static void read_coff_sections(void *handle, char *ptr, int ifile,
+static void read_coff_sections(void *handle, char *ptr, uint32_t va, int ifile,
         uint32_t offset)
 {
     struct coff_h *h = handle;
-    read_section(ptr, ifile, offset, SCT_TEXT);
-    read_section(ptr, ifile, offset, SCT_DATA);
+    read_section(ptr, va, ifile, offset, SCT_TEXT);
+    read_section(ptr, va, ifile, offset, SCT_DATA);
     memset(ptr + scns[SCT_BSS].s_vaddr, 0, scns[SCT_BSS].s_size +
         (scns[SCT_BSS].s_size & 1));
     free(h);

@@ -389,13 +389,15 @@ int djstub_main(int argc, char *argv[], char *envp[],
     }
     info.size = PAGE_ALIGN(stubinfo.initial_size);
     /* allocate mem */
-    __dpmi_allocate_memory(&info);
+    rc = __dpmi_allocate_memory(&info);
+    if (rc)
+        exit(EXIT_FAILURE);
     stubinfo.memory_handle = info.handle;
     mem_lin = info.address;
     mem_base = mem_lin - va;
     stubinfo.mem_base = mem_base;
     stub_debug("mem_lin 0x%x mem_base 0x%x\n", mem_lin, mem_base);
-    ops->read_sections(handle, lin2ptr(mem_base), pfile, dyn ? 0 : coffset);
+    ops->read_sections(handle, lin2ptr(mem_lin), va, pfile, dyn ? 0 : coffset);
     ops->close(handle);
     unregister_dosops();
     if (dyn && pl32) {
@@ -417,7 +419,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
             exit(EXIT_FAILURE);
         if (compact_va && va2 + va_size2 - va > MB)
             exit(EXIT_FAILURE);
-        ops->read_sections(handle, lin2ptr(mem_base), ifile, coffset);
+        ops->read_sections(handle, lin2ptr(mem_lin), va, ifile, coffset);
         ops->close(handle);
         unregister_dosops();
     }
