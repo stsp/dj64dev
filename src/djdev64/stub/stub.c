@@ -320,6 +320,18 @@ int djstub_main(int argc, char *argv[], char *envp[],
             ops = &coff_ops;
         } else if (buf[0] == 0x7f && buf[1] == 0x45 &&
                 buf[2] == 0x4c && buf[3] == 0x46) { /* it's an ELF */
+            if (!coffset) {
+                assert(pfile == -1);
+                dyn++;
+                pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
+                if (pfile == -1)
+                    return -1;
+                stubinfo.cpl_fd = uput(pfile);
+                compact_va = 1;  // TODO - evaluate?
+                emb_ov = 1;
+                stubinfo.flags = ((STFLG2_EMBOV) << 8) | STFLG1_COMPACT;
+                nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
+            }
             done = 1;
             ops = &elf_ops;
         } else {
