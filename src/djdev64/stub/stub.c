@@ -204,7 +204,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
 
     register_dpmiops(dpmiops);
     stubinfo.cpl_fd = -1;
-    for (i = 0; envp[i]; i++) {
+    for (i = 0; envp && envp[i]; i++) {
         const char *s = "ELFLOAD=";
         int l = strlen(s);
         if (strncmp(envp[i], s, l) == 0) {
@@ -330,7 +330,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     strncpy(stubinfo.magic, "dj64 (C) stsp", sizeof(stubinfo.magic));
     stubinfo.size = sizeof(stubinfo);
     i = 3;
-    while(*envp) {
+    while(envp && *envp) {
         i += strlen(*envp) + 1;
         envp++;
     }
@@ -340,8 +340,12 @@ int djstub_main(int argc, char *argv[], char *envp[],
     stubinfo.env_size = i;
     stubinfo.minstack = 0x80000;
     stubinfo.minkeep = 0x4000;
-    strncpy(stubinfo.argv0, _basename(argv[0]), sizeof(stubinfo.argv0));
-    stubinfo.argv0[sizeof(stubinfo.argv0) - 1] = '\0';
+    if (argv) {
+        strncpy(stubinfo.argv0, _basename(argv[0]), sizeof(stubinfo.argv0));
+        stubinfo.argv0[sizeof(stubinfo.argv0) - 1] = '\0';
+    } else {
+        stubinfo.argv0[0] = '\0';
+    }
     /* basename seems unused and produces warning about missing 0-terminator */
 //    strncpy(stubinfo.basename, _fname(argv0), sizeof(stubinfo.basename));
 //    stubinfo.basename[sizeof(stubinfo.basename) - 1] = '\0';
