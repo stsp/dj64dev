@@ -220,6 +220,15 @@ if test -z "$CROSS_STRIP"; then
   AC_MSG_ERROR([cross-strip not found])
 fi
 
+if test -n "$CROSS_PREFIX"; then
+  AC_PATH_PROG([XOBJCOPY], [${CROSS_PREFIX}objcopy])
+  if test -z "$XOBJCOPY"; then
+    AC_MSG_ERROR([${CROSS_PREFIX}objcopy not found, CROSS_PREFIX is wrong])
+  fi
+else
+  AC_PATH_PROGS([XOBJCOPY], [i686-linux-gnu-objcopy x86_64-linux-gnu-objcopy llvm-objcopy objcopy])
+fi
+
 AC_CHECK_PROGS([UCTAGS], [uctags ctags])
 AC_CHECK_PROGS([URTAGS], [ureadtags readtags])
 if test -z "$UCTAGS" -o -z "$URTAGS"; then
