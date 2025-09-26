@@ -117,7 +117,7 @@ static uint32_t get_elf_va(void *handle)
     return h->va;
 }
 
-static void read_elf_sections(void *handle, char *ptr, int ifile,
+static void read_elf_sections(void *handle, char *ptr, uint32_t va, int ifile,
         uint32_t offset)
 {
     struct elf_h *h = handle;
@@ -130,7 +130,7 @@ static void read_elf_sections(void *handle, char *ptr, int ifile,
         if (phdr->p_type != PT_LOAD)
             continue;
         __dos_seek(ifile, offset + phdr->p_offset, SEEK_SET);
-        bytes = _long_read(ifile, ptr, phdr->p_vaddr, phdr->p_filesz);
+        bytes = _long_read(ifile, ptr, phdr->p_vaddr - va, phdr->p_filesz);
         stub_debug("read returned %li\n", bytes);
         if (bytes != phdr->p_filesz) {
             fprintf(stderr, "err reading %i bytes, got %li\n",

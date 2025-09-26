@@ -39,7 +39,7 @@ XASCPP = $(call CROSS_ASCPP, -I $(TOP)/../../include $(1))
 %.o : %.S
 	$(call XASCPP,$<) -o $@
 %.o : %.s
-	$(call XASCPP,$<) -x assembler-with-cpp -o $@
+	$(call XASCPP,$<) -o $@
 
 LIB=$(TOP)/../../lib
 BIN=$(TOP)/../../bin

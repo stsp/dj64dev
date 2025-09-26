@@ -6,7 +6,7 @@ struct ldops {
     uint32_t (*get_va)(void *handle);
     uint32_t (*get_length)(void *handle);
     uint32_t (*get_entry)(void *handle);
-    void (*read_sections)(void *handle, char *ptr, int ifile,
+    void (*read_sections)(void *handle, char *ptr, uint32_t va, int ifile,
             uint32_t offset);
     void (*close)(void *handle);
 };

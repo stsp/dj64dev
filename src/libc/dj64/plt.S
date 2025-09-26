@@ -193,7 +193,7 @@ plt_init:
     movl %esi, __plt_ctrl
 
     movl %fs:STUBINFO_FLAGS, %ecx
-    testw $0x4080, %cx
+    testw $0xc080, %cx
     jnz 111f
     movl %fs:STUBINFO_UENTRY, %eax
     movl $AUX_USER, %ebx
@@ -303,14 +303,7 @@ plt_init:
     jc 222f
     /* resolve upl */
     movl %fs:STUBINFO_ELFLOAD_ARG, %eax
-    movl %fs:STUBINFO_UPL_BASE, %ebx
-    movl %fs:STUBINFO_UPL_SIZE, %ecx
-    movl %fs:STUBINFO_MEM_BASE, %edx
-    pushl $AUX_USER
-    pushl $DL_ELFLOAD
-    call ctrl
-    popl %ecx
-    popl %ecx
+    call resolve_upl
     // failure is not fatal, just no upl
     jc 555f
     // eax has uentry
@@ -351,7 +344,30 @@ perr:
     popl %eax
     popl %eax
     jc 2b
+    movl %fs:STUBINFO_FLAGS, %ecx
+    testw $0x8000, %cx
+    jz 11b
+    /* for emb_ov invoke second loader */
+    movl $0, %eax  /* reserve */
+    call resolve_upl
     jmp 11b
+
+resolve_upl:
+    movl %fs:STUBINFO_UPL_BASE, %ebx
+    movl %fs:STUBINFO_UPL_SIZE, %ecx
+    movl %fs:STUBINFO_MEM_BASE, %edx
+    pushl $AUX_USER
+    pushl $DL_ELFLOAD
+    call ctrl
+    popl %ecx
+    popl %ecx
+    // failure is not fatal, just no upl
+    jc 33f
+    // eax has uentry
+    movl $AUX_USER, %ebx
+    call uplt_init
+33:
+    ret
 
 .global ctrl
 ctrl:

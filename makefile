@@ -26,6 +26,7 @@ DJDEV64LIB = $(TOP)/lib/libdjdev64.*.*.*
 DJDEV64DEVL = $(TOP)/lib/libdjdev64.$(SHLIB_EXT)
 DJSTUB64LIB = $(TOP)/lib/libdjstub64.*.*.*
 DJSTUB64DEVL = $(TOP)/lib/libdjstub64.$(SHLIB_EXT)
+DJELFLOAD = $(TOP)/lib/elfload.com
 NC_BUILD = contrib/ncurses/build
 
 .PHONY: subs dj64 djdev64 demos ncurses
@@ -57,6 +58,8 @@ install_dj64:
 	$(INSTALL) -m 0644 $(DJLIBC) $(DESTDIR)$(prefix)/i386-pc-dj64/lib
 	$(INSTALL) -m 0644 $(DJCRT0) $(DESTDIR)$(prefix)/i386-pc-dj64/lib
 	$(INSTALL) -m 0644 $(DJUCRT0) $(DESTDIR)$(prefix)/i386-pc-dj64/lib
+	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/bin
+	$(INSTALL) -m 0644 $(DJELFLOAD) $(DESTDIR)$(prefix)/i386-pc-dj64/bin
 	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
 	$(INSTALL) $(DJ64LIB) $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
 	cp -fP $(DJ64DEVL) $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
