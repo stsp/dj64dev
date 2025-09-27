@@ -9,7 +9,7 @@ all ::
 	$(MAKE) -C dj64 final
 
 MAKEFILE_LIB = 1
-include $(TOP)/../makefile.inc
+include $(srcdir)/$(TOP)/../makefile.inc
 
 ifneq ($(wildcard makefile.oi),)
 include makefile.oi

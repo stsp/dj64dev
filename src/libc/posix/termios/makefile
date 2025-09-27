@@ -24,4 +24,5 @@ SRC += ttyscrn.c
 SRC += readhook.c
 SRC += writhook.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

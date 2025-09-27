@@ -4,4 +4,5 @@ TOP=../../..
 SRC += readv.c
 SRC += writev.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

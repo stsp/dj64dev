@@ -3,10 +3,10 @@
 #include <stdint.h>
 
 #define EPS FLT_EPSILON
-static const float toint = 1/EPS;
 
 float rintf(float x)
 {
+	const float toint = 1/EPS;
 	union {float f; uint32_t i;} u = {x};
 	int e = u.i>>23 & 0xff;
 	int s = u.i>>31;

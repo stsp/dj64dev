@@ -5,4 +5,5 @@ AS_SRC += my_cs.S
 AS_SRC += my_ds.S
 AS_SRC += my_ss.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

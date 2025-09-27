@@ -6,4 +6,5 @@ AS_SRC += cntrl87.S
 AS_SRC += fpreset.S
 AS_SRC += stat87.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

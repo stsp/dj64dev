@@ -4,4 +4,5 @@ TOP=../..
 AS_SRC += farptr.S
 AS_SRC += farptr_gs.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

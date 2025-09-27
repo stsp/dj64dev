@@ -5,6 +5,15 @@ datarootdir := @datarootdir@
 datadir := @datadir@
 includedir := @includedir@
 
+abs_top_srcdir = @abs_top_srcdir@
+abs_top_builddir = @abs_top_builddir@
+SUBDIR = $(patsubst /%,%,$(subst $(abs_top_builddir)/src,,$(CURDIR)))
+srcdir = $(patsubst %/,%,$(abs_top_srcdir)/src/$(SUBDIR))
+vpath %.c $(srcdir)
+vpath %.h $(srcdir)
+vpath %.S $(srcdir)
+vpath %.s $(srcdir)
+
 CC := @CC@
 CC_FOR_BUILD := @CC_FOR_BUILD@
 CC_IS_CLANG := @CC_IS_CLANG@

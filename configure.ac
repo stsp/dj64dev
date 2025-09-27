@@ -19,6 +19,9 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AX_PROG_CC_FOR_BUILD
 #AX_PROG_AR
+AC_PROG_LN_S
+AC_PROG_SED
+AC_PROG_GREP
 
 AC_CHECK_PROGS([PKG_CONFIG], [pkg-config])
 if test -z "$PKG_CONFIG"; then
@@ -241,5 +244,24 @@ fi
 AC_CHECK_TYPES([__float80])
 AC_CHECK_FUNCS([dlmopen])
 AC_CHECK_DECLS([RTLD_DEEPBIND],,, [[#include <dlfcn.h>]])
+
+if ! test -f Makefile.conf.in; then
+  AC_MSG_NOTICE([Populating makefiles...])
+  wd=`pwd`
+  abssrcdir=`cd $srcdir && pwd`
+  if test "${wd#$abssrcdir}" != "$wd" ; then
+    builddir=".${wd#$abssrcdir}"
+  else
+    builddir="$wd"
+  fi
+  mkdir -p `(cd $abssrcdir; find src demos -type d -print)`
+  $LN_S -f $abssrcdir/Makefile.conf.in Makefile.conf.in
+  for i in `(cd $abssrcdir; find . \( -path './demos/*' -o -path './src/*' \
+      -o -path ./makefile \) -a -name 'makefile' -print
+    )`; do
+    echo  $LN_S -f $abssrcdir/${i#./} $i
+    $LN_S -f $abssrcdir/${i#./} $i
+  done
+fi
 
 AC_OUTPUT

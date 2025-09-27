@@ -7,4 +7,5 @@ SRC += modfl.c
 SRC += modf.c
 SRC += huge_val.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

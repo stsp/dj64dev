@@ -4,4 +4,5 @@ TOP=../..
 SRC += mapmem.c
 SRC += setattr.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

@@ -36,11 +36,11 @@ all: Makefile.conf dj64 djdev64 ncurses
 	@echo "Done building. You may need to run \"sudo make install\" now."
 	@echo "You can first run \"sudo make uninstall\" to purge the prev install."
 
-Makefile.conf config.status: Makefile.conf.in configure
-	./configure
+Makefile.conf config.status: Makefile.conf.in $(abs_top_srcdir)/configure
+	$(abs_top_srcdir)/configure
 
-configure: configure.ac
-	autoreconf -v -i -I m4
+$(abs_top_srcdir)/configure: $(abs_top_srcdir)/configure.ac
+	cd $(@D) && autoreconf -v -i -I m4
 
 subs:
 	$(MAKE) -C src
@@ -65,9 +65,9 @@ install_dj64:
 	cp -fP $(DJ64DEVL) $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
 	$(INSTALL) -m 0644 $(DJ64LIBS) $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
 	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/include
-	cp -r $(TOP)/include $(DESTDIR)$(prefix)/i386-pc-dj64
+	cp -r $(abs_top_srcdir)/include $(DESTDIR)$(prefix)/i386-pc-dj64
 	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/share
-	$(INSTALL) -m 0644 dj64.mk $(DESTDIR)$(prefix)/i386-pc-dj64/share
+	$(INSTALL) -m 0644 $(abs_top_srcdir)/dj64.mk $(DESTDIR)$(prefix)/i386-pc-dj64/share
 	$(INSTALL) -d $(DESTDIR)$(datadir)
 	$(INSTALL) -d $(DESTDIR)$(datadir)/pkgconfig
 	$(INSTALL) -m 0644 dj64.pc $(DESTDIR)$(datadir)/pkgconfig
@@ -83,7 +83,7 @@ install_djdev64:
 	$(INSTALL) -m 0644 djdev64.pc $(DESTDIR)$(datadir)/pkgconfig
 	$(INSTALL) -m 0644 djstub64.pc $(DESTDIR)$(datadir)/pkgconfig
 	$(INSTALL) -d $(DESTDIR)$(includedir)/djdev64
-	cp -rL $(TOP)/src/djdev64/include/djdev64 $(DESTDIR)$(includedir)
+	cp -rL $(abs_top_srcdir)/src/djdev64/include/djdev64 $(DESTDIR)$(includedir)
 	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -m 0755 $(DJDEV64LIB) $(DESTDIR)$(libdir)
 	cp -fP $(DJDEV64DEVL) $(DESTDIR)$(libdir)
@@ -122,10 +122,10 @@ ifeq ($(NCURSES),1)
 endif
 
 deb:
-	debuild -i -us -uc -b && $(MAKE) clean >/dev/null
+	debuild -i -us -uc -b
 
 rpm:
-	make clean
+	$(MAKE) clean
 	rpkg local && $(MAKE) clean >/dev/null
 
 demos:
@@ -146,7 +146,7 @@ install_demos:
 $(DJ64DEVL): subs
 
 ifeq ($(NCURSES),1)
-L_CPPFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=xcppflags --define-variable=dj64prefix=$(ATOP) dj64)
+L_CPPFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=xcppflags --define-variable=dj64prefix=$(abs_top_srcdir) dj64)
 L_CFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --cflags dj64)
 L_LIBS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-L --libs-only-l --define-variable=libdir=$(ATOP)/lib dj64)
 R_PREFIX = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=dj64prefix dj64)
@@ -163,7 +163,7 @@ $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD) $(DJ64DEVL)
 	  CFLAGS="$(CFLAGS) $(L_CFLAGS)" \
 	  LIBS="$(L_LIBS)" \
 	  LDFLAGS="$(L_LDFLAGS)" \
-  ../configure --host=$(shell uname -m)-pc-linux-gnu \
+  $(abs_top_srcdir)/contrib/ncurses/configure --host=$(shell uname -m)-pc-linux-gnu \
     --prefix=$(R_PREFIX) \
     --libdir=$(R_LIBDIR) \
     --without-manpages \

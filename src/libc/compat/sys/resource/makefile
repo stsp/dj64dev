@@ -6,4 +6,5 @@ SRC += resource.c
 SRC += gtrlimit.c
 SRC += strlimit.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

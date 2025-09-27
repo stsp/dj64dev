@@ -26,4 +26,5 @@ SRC += iswalnum.c
 SRC += iswalpha.c
 SRC += iswdigit.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

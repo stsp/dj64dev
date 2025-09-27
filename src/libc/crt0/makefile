@@ -17,6 +17,7 @@ SRC += rfinfo.c
 SRC += dfinfo.c
 AS_SRC += crt0.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc
 
 crt0.o : crt0.S exit16.ah sbrk16.ah

@@ -6,4 +6,5 @@ AS_SRC += pltctrl32.S
 AS_SRC += upltinit32.S
 SRC += elfexec.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

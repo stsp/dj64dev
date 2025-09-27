@@ -28,6 +28,7 @@ SRC += syserr1.c
 SRC += syserr2.c
 SRC += syserr3.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc
 
 strlen.o: EXTRA_CFLAGS += -fno-builtin-strlen

@@ -7,4 +7,5 @@ SRC += creat.c
 SRC += fcntl.c
 SRC += open.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

@@ -39,4 +39,5 @@ SRC += i_pton.c
 SRC += i_ntop.c
 SRC += gaddrinf.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

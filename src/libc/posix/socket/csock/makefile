@@ -43,4 +43,5 @@ AS_SRC += s_geterr.S
 AS_SRC += s_soling.S
 AS_SRC += vxd.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

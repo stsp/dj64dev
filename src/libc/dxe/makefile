@@ -10,4 +10,5 @@ SRC += dlunregs.c
 SRC += dxe3stat.c
 SRC += dlopen.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

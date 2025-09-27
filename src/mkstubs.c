@@ -62,7 +62,8 @@ main(int argc, char **argv)
 
     i++;
   }
-  fprintf(mk, "\ninclude $(TOP)/../makefile.inc\n");
+  fprintf(mk, "\ninclude $(TOP)/../../Makefile.conf\n");
+  fprintf(mk, "\ninclude $(srcdir)/$(TOP)/../makefile.inc\n");
   fprintf(oh, "\n");
   fclose(mk);
   fclose(oh);

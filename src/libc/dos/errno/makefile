@@ -5,4 +5,5 @@ TOP=../..
 SRC += doserr2e.c
 SRC += doserrno.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

@@ -12,4 +12,5 @@ SRC += getdisk.c
 SRC += setdisk.c
 SRC += srchpath.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

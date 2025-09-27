@@ -8,7 +8,8 @@ TOP=.
 
 LIBNAME=c
 
-include $(TOP)/../makefile.lib
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.lib
 
 .PHONY: all info tex texinfo doc libc2.tex
 

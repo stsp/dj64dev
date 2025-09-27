@@ -6,4 +6,5 @@ SRC += imaxdiv.c
 SRC += strimax.c
 SRC += strumax.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

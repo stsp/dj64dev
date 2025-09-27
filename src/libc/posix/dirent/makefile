@@ -9,4 +9,5 @@ SRC += rewinddi.c
 SRC += seekdir.c
 SRC += telldir.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

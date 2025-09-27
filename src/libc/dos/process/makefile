@@ -12,4 +12,5 @@ SRC += spawnv.c
 SRC += spawnvp.c
 SRC += spawnvpe.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

@@ -5,4 +5,5 @@ TOP=../..
 SRC += siglist.c
 SRC += psignal.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

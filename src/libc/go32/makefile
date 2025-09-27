@@ -16,4 +16,5 @@ SRC += gorvec.c
 SRC += infostrc.c
 AS_SRC += overflow.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

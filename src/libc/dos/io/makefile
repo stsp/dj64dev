@@ -28,4 +28,5 @@ SRC += unlock.c
 SRC += unlock64.c
 SRC += flushdc.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

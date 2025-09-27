@@ -1,7 +1,8 @@
 # Copyright (C) 1994 DJ Delorie, see COPYING.DJ for details
 TOP = .
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc
 
 all:: $(LIB)/elfload.com
 

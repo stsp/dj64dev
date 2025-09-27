@@ -25,4 +25,5 @@ SRC += sgnbitd.c
 SRC += sgnbitf.c
 SRC += sgnbitld.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

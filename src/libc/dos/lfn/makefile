@@ -11,4 +11,5 @@ SRC += lfnftime.c
 SRC += lfnshort.c
 SRC += is_dos83.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

@@ -32,4 +32,5 @@ SRC += sockmark.c
 #SRC += uname.c
 SRC += windows.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

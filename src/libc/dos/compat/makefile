@@ -27,4 +27,5 @@ SRC += d_settim.c
 SRC += d_strerr.c
 SRC += d_write.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc
