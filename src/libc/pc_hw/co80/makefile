@@ -18,4 +18,5 @@ SRC += scupdate.c
 SRC += scupdl.c
 SRC += scvbell.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

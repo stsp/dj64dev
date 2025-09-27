@@ -82,4 +82,5 @@ AS_SRC += d0e01.S
 AS_SRC += dpmi_lar.S
 AS_SRC += dpmi_lsl.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

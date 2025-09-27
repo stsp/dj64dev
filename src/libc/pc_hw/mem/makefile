@@ -19,4 +19,5 @@ SRC += dmpw.c
 #AS_SRC += mdl.S
 #AS_SRC += mdw.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

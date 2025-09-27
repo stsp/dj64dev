@@ -1,9 +1,10 @@
 # Copyright (C) 1998 DJ Delorie, see COPYING.DJ for details
 # Copyright (C) 1995 DJ Delorie, see COPYING.DJ for details
 TOP = ..
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc
 
-STUBH = $(TOP)/../../include/libc/stubs.h
+STUBH = $(srcdir)/$(TOP)/../../include/libc/stubs.h
 
 all :: makefil2
 	$(MAKE) -f makefil2

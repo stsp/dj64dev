@@ -2,7 +2,7 @@ TOP = ../..
 include $(TOP)/Makefile.conf
 SOURCES = djdev64.c elf.c djexec.c
 OBJECTS = $(SOURCES:.c=.o)
-CFLAGS += -iquote include -fpic -ggdb3 -Wall -Wmissing-prototypes -Og -MD \
+CFLAGS += -iquote $(srcdir)/include -fpic -ggdb3 -Wall -Wmissing-prototypes -Og -MD \
   $(LIBELF_CFLAGS)
 
 %.o: %.c

@@ -41,4 +41,5 @@ SRC += system.c
 #        here.
 nmalloc.o: EXTRA_CFLAGS := -fno-builtin-malloc
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

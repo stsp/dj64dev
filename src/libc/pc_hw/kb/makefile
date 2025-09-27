@@ -7,4 +7,5 @@ SRC += getxkey.c
 SRC += getxkstr.c
 SRC += kbhit.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

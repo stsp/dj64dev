@@ -37,4 +37,5 @@ SRC += setftime.c
 SRC += settime.c
 SRC += truename.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

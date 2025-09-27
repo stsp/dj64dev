@@ -15,4 +15,5 @@ SRC += sigprocm.c
 SRC += sigpendi.c
 SRC += sigsuspe.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

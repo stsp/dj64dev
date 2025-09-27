@@ -20,4 +20,5 @@ AS_SRC += outp.S
 AS_SRC += outpw.S
 AS_SRC += ow.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

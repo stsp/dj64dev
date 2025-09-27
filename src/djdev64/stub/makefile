@@ -3,14 +3,14 @@ include $(TOP)/Makefile.conf
 prefix ?= /usr/local
 SOURCES = coff.c elf.c util.c stub.c dpmiwrp.c dos.c
 OBJECTS = $(SOURCES:.c=.o)
-CFLAGS += -iquote ../include -fpic -ggdb3 -Wall -Og -MD \
+CFLAGS += -iquote $(srcdir)/../include -fpic -ggdb3 -Wall -Og -MD \
   -DCRT0=\"$(prefix)/i386-pc-dj64/lib/crt0.elf\"
 SYM_VER = 5
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-%.version: %.version.in makefile
+%.version: $(srcdir)/%.version.in makefile
 	sed \
 		-e 's!@SYM_VER[@]!$(SYM_VER)!g' \
 		$< >$@

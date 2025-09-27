@@ -4,4 +4,5 @@ TOP=../..
 #AS_SRC += longjmp.S
 #AS_SRC += setjmp.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

@@ -7,4 +7,5 @@ SRC += hcreate.c
 SRC += lfind.c
 SRC += tsearch_avl.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

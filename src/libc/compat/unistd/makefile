@@ -27,4 +27,5 @@ SRC += usleep.c
 SRC += vfork.c
 SRC += xsymlink.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

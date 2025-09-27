@@ -19,4 +19,5 @@ SRC += vscanf.c
 #AS_SRC += vfscanf.S
 SRC += vsscanf.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

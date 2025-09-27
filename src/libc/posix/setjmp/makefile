@@ -4,4 +4,5 @@ TOP=../..
 #AS_SRC += siglongj.S
 #AS_SRC += sigsetjm.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

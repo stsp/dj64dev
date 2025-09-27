@@ -11,4 +11,5 @@ SRC += float_le.c
 SRC += float_lm.c
 SRC += float_lx.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

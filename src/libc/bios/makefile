@@ -10,4 +10,5 @@ SRC += biosprin.c
 SRC += biostime.c
 SRC += b_time.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

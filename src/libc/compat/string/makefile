@@ -21,7 +21,8 @@ SRC += strnicmp.c
 SRC += strsep.c
 SRC += strupr.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc
 
 stpcpy.o:	EXTRA_CFLAGS += -fno-builtin-stpcpy
 stpncpy.o:	EXTRA_CFLAGS += -fno-builtin-stpncpy

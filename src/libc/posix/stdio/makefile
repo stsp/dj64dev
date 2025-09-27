@@ -9,4 +9,5 @@ SRC += fileno.c
 SRC += popen.c
 SRC += vdprintf.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

@@ -54,4 +54,5 @@ SRC += ttyname.c
 AS_SRC += unlink.S
 SRC += write.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

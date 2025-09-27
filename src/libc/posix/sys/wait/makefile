@@ -4,4 +4,5 @@ TOP=../../..
 SRC += wait.c
 SRC += waitpid.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

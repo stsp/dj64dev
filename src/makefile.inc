@@ -8,6 +8,8 @@ include $(TOP)/../../Makefile.conf
 
 SHELL := bash -o pipefail
 
+vpath %.ah $(srcdir)
+
 # for mkproto.sh
 export CROSS_LD
 export UCTAGS
@@ -22,10 +24,11 @@ CPPFLAGS += -DDJ64 -D_IN_DJ64 -D__DJGPP__ -nostdinc
 # Moved setting of $(GCC{L}_OPT) to top of file
 #
 XGCC = $(CC) $(DJ64_CFLAGS)
-XCPP = $(CPP) -I . -I $(TOP)/../../include $(CPPFLAGS) \
-  -imacros $(TOP)/../../config.hh
-CROSS_ASCPP = $(CPP) -x assembler-with-cpp $(1) | $(CROSS_AS) $(CROSS_ASFLAGS) -
-XASCPP = $(call CROSS_ASCPP, -I $(TOP)/../../include $(1))
+XCPP = $(CPP) -I . -I $(srcdir)/$(TOP)/../../include $(CPPFLAGS) \
+  -imacros $(TOP)/../../config.hh -iquote $(srcdir)
+CROSS_ASCPP = $(CPP) -x assembler-with-cpp $(1) | \
+  $(CROSS_AS) $(CROSS_ASFLAGS) -I $(srcdir) -
+XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1))
 
 # Have to process with intermediate file, because with a single pipe
 # the partially preprocessed (before cpp hit an error) input is fed

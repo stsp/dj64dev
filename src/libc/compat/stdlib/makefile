@@ -26,4 +26,5 @@ SRC += rand48.c
 SRC += memalign.c
 SRC += valloc.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

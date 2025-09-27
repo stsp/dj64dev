@@ -7,4 +7,5 @@ SRC += clock.c
 SRC += uclock.c
 AS_SRC += rdtsc.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

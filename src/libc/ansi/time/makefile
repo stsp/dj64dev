@@ -6,4 +6,5 @@ SRC += difftime.c
 SRC += strftime.c
 SRC += time.c
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc

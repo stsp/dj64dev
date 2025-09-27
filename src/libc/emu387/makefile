@@ -4,4 +4,5 @@ TOP=..
 SRC += npxsetup.c
 AS_SRC += fpu.S
 
-include $(TOP)/../makefile.inc
+include $(TOP)/../../Makefile.conf
+include $(srcdir)/$(TOP)/../makefile.inc
