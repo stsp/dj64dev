@@ -25,8 +25,8 @@ jobs:
 
     - name: Build
       run: |
-        make -j 9
-        sudo make install
+        make deb
+        sudo dpkg -i ../dj64*.deb
 
     - name: Set up test environment
       run: |
