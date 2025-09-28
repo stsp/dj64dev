@@ -330,6 +330,15 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 compact_va = 1;  // TODO - evaluate?
                 emb_ov = 1;
                 stubinfo.flags = ((STFLG2_EMBOV) << 8) | STFLG1_COMPACT;
+#define SHM_NOEXEC 1
+#define SHM_EXCL   2
+#define SHM_NEW_NS 4
+#define SHM_NS     8
+
+#define SHM_FLAGS0 (SHM_NOEXEC | SHM_EXCL | SHM_NEW_NS)
+#define SHM_FLAGS1 (SHM_NOEXEC | SHM_EXCL | SHM_NS)
+#define SHM_FLAGS (SHM_FLAGS0 | (SHM_FLAGS1 << 8))
+                stubinfo.flags |= SHM_FLAGS;
                 nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
             }
             done = 1;
