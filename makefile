@@ -1,4 +1,7 @@
-TOP ?= .
+srcdir = .
+abs_top_builddir = .
+abs_top_srcdir = .
+TOP = $(abs_top_builddir)
 ATOP = $(abspath $(TOP))
 -include Makefile.conf
 export prefix
@@ -36,7 +39,7 @@ all: Makefile.conf dj64 djdev64 ncurses
 	@echo "Done building. You may need to run \"sudo make install\" now."
 	@echo "You can first run \"sudo make uninstall\" to purge the prev install."
 
-Makefile.conf config.status: Makefile.conf.in $(abs_top_srcdir)/configure
+Makefile.conf config.status: $(abs_top_srcdir)/Makefile.conf.in $(abs_top_srcdir)/configure
 	$(abs_top_srcdir)/configure
 
 $(abs_top_srcdir)/configure: $(abs_top_srcdir)/configure.ac
