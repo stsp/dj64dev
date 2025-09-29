@@ -127,6 +127,15 @@ err:
 
 static const char *var_list[] = { "_crt0_startup_flags", NULL };
 
+static int cp(const char *from, const char *to)
+{
+    char buf[1024];
+    size_t sz = snprintf(buf, sizeof(buf), "cp %s %s", from, to);
+    if (sz >= sizeof(buf))
+        return -1;
+    return system(buf);
+}
+
 static void *emu_dlmopen(int handle, const char *filename, int flags,
     char **r_path)
 {
@@ -144,9 +153,10 @@ static void *emu_dlmopen(int handle, const char *filename, int flags,
     else
         p++;
     unlink(path);
-    err = symlink(filename, path);
+    /* glibc compares inodes from stat(), so symlinks do not help - use cp */
+    err = cp(filename, path);
     if (err) {
-        perror("symlink()");
+        fprintf(stderr, "cp() failed");
         goto err_free;
     }
     ret = dlopen(path, flags);
