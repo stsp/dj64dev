@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([dj64dev], [0.2])
+AC_INIT([dj64dev], [0.4])
 AC_CONFIG_HEADERS([config.hh])
 AC_CONFIG_MACRO_DIRS([m4])
 AC_CONFIG_FILES([

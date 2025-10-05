@@ -1,4 +1,4 @@
-project('dj64dev', 'c', version: '0.1')
+project('dj64dev', 'c', version: '0.4')
 
 tg = dependency('thunk_gen')
 TGMK = tg.get_variable('makeinc')
