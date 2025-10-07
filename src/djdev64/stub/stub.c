@@ -481,7 +481,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     stubinfo.self_fd = ifile;
     stubinfo.self_offs = coffset;
 #if PASS_EMBOV_TO_SECOND_LDR
-    stubinfo.self_size = (emb_ov ? 0 : coffsize);
+    stubinfo.self_size = ((emb_ov && dyn && pl32) ? 0 : coffsize);
 #else
     stubinfo.self_size = coffsize;
 #endif
