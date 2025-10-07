@@ -210,14 +210,12 @@ include $(TGMK)
 endif # TGMK
 endif # PDHDR
 
-ifeq ($(filter clean,$(MAKECMDGOALS)),)
 LNK_VER = $(lastword $(shell djlink -v 2>/dev/null))
 ifeq ($(LNK_VER),)
 $(warning djlink missing or too old)
 else
 LINK = djlink
 endif
-endif # clean
 
 clean_dj64:
 	$(RM) $(OBJECTS) $(AS_OBJECTS) plt.o plt.inc *.tmp
