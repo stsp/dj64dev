@@ -23,6 +23,9 @@ AC_PROG_LN_S
 AC_PROG_SED
 AC_PROG_GREP
 
+# termux uses PREFIX var for default prefix
+AC_PREFIX_DEFAULT([${PREFIX:-/usr/local}])
+
 AC_CHECK_PROGS([PKG_CONFIG], [pkg-config])
 if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR(Install pkg-config and retry.)
