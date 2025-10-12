@@ -200,7 +200,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     }
     if ((ver & 0xff) != DJSTUB_API_VERSION) {
         error("Stub version mismatch: want 0x%x got 0x%x\n", DJSTUB_API_VERSION, ver);
-        exit(1);
+//        exit(1);
     }
 
     register_dpmiops(dpmiops);
