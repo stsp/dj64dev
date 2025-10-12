@@ -198,8 +198,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
         }
         ver = DJSTUB_API_VERSION;
     }
-    if (ver != DJSTUB_API_VERSION) {
-        error("Version mismatch: want %i got %i\n", DJSTUB_API_VERSION, ver);
+    if ((ver & 0xff) != DJSTUB_API_VERSION) {
+        error("Stub version mismatch: want 0x%x got 0x%x\n", DJSTUB_API_VERSION, ver);
         exit(1);
     }
 
@@ -492,7 +492,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     dosops->_dos_seek(ifile, noffset, SEEK_SET);
     if (nsize > 0)
         stub_debug("Found payload of size %i at 0x%x\n", nsize, noffset);
-    stubinfo.stubinfo_ver |= DJSTUB_VERSION;
+    stubinfo.stubinfo_ver |= DJSTUB_VERSION | ((ver & 0xff00) << 16);
 
     unregister_dpmiops();
 
