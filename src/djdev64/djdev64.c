@@ -23,6 +23,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <errno.h>
 #include "djdev64/dj64init.h"
 #include "djdev64/djdev64.h"
 #include "elf_priv.h"
@@ -130,10 +131,25 @@ static const char *var_list[] = { "_crt0_startup_flags", NULL };
 static int cp(const char *from, const char *to)
 {
     char buf[1024];
+    int ret;
     size_t sz = snprintf(buf, sizeof(buf), "cp %s %s", from, to);
     if (sz >= sizeof(buf))
         return -1;
-    return system(buf);
+    ret = system(buf);
+    switch (ret) {
+        case -1:
+            fprintf(stderr, "system(cp) failed: %s\n", strerror(errno));
+            break;
+        case 0:
+            break;
+        case 127:
+            fprintf(stderr, "system(cp): shell unavailable\n");
+            break;
+        default:
+            fprintf(stderr, "system(cp): command failed with %i\n", ret);
+            break;
+    }
+    return ret;
 }
 
 static void *emu_dlmopen(int handle, const char *filename, int flags,
@@ -156,18 +172,25 @@ static void *emu_dlmopen(int handle, const char *filename, int flags,
     /* glibc compares inodes from stat(), so symlinks do not help - use cp */
     err = cp(filename, path);
     if (err) {
-        fprintf(stderr, "cp() failed");
+        fprintf(stderr, "cp(%s %s) failed\n", filename, path);
+#if 1
         goto err_free;
+#else
+        free(path);
+        /* try as-is */
+        path = strdup(filename);
+#endif
     }
     ret = dlopen(path, flags);
     if (!ret)
-        goto err_free;
+        goto err_unlink;
 
     *r_path = path;
     return ret;
 
-err_free:
+err_unlink:
     unlink(path);
+err_free:
     free(path);
     return NULL;
 }
@@ -250,8 +273,9 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
     }
     if (!dlh) {
         char cmd[1024];
-        const char *d = findmnt(path);
+        const char *d;
         fprintf(stderr, "cannot dlopen %s: %s\n", path, dlerror());
+        d = findmnt(path);
         if (!d)
             return -1;
         snprintf(cmd, sizeof(cmd), "grep %.256s /proc/mounts | grep noexec", d);
