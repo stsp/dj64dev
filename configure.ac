@@ -190,7 +190,13 @@ if ! $CROSS_LD --image-base=0x0 -v >/dev/null 2>&1; then
 else
   AC_MSG_RESULT([yes])
   XLD_IMB_OPT=--image-base
-  XLD_IMB_OPT_ALIGN=-Ttext-segment=0
+  AC_MSG_CHECKING([ld supports -Ttext-segment])
+  if ! $CROSS_LD -Ttext-segment=0 -v >/dev/null 2>&1; then
+    AC_MSG_RESULT([no])
+  else
+    AC_MSG_RESULT([yes])
+    XLD_IMB_OPT_ALIGN=-Ttext-segment=0
+  fi
 fi
 AC_SUBST(XLD_IMB_OPT)
 AC_SUBST(XLD_IMB_OPT_ALIGN)
