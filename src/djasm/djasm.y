@@ -179,7 +179,7 @@ void emits(Symbol *s, int offset, int rel);
 void modrm(int mod, int reg, int rm);
 void reg(int reg);
 void addr32(int sib);
-void sortsyms();
+void sortsyms(int (*)(void const *, void const *));
 
 int istemp(char *symname, char which);
 int islocal(char *symname);
