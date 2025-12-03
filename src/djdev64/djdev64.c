@@ -205,7 +205,7 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
     dj64done_t *done;
     dj64init_once_t *init_once;
     dj64cdispatch_t **cdisp;
-    void *main;
+    void *m;
     void *dlh = NULL;
     const char **v;
     char *path2 = NULL;
@@ -290,8 +290,8 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
         return -1;
     }
 
-    main = dlsym(dlh, "main");
-    if (!main) {
+    m = dlsym(dlh, "main");
+    if (!m) {
         fprintf(stderr, "cannot find main\n");
         goto err_close;
     }
@@ -317,7 +317,7 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
         goto err_close;
     }
     full = (use_dlm || (flags & FLG_STATIC) || !handles);
-    cdisp = init(handles, &eops, main, full);
+    cdisp = init(handles, &eops, m, full);
     if (!cdisp) {
         fprintf(stderr, _S(DJ64_INIT_FN) " failed\n");
         goto err_close;
