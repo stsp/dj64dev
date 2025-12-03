@@ -54,7 +54,7 @@ export RTAGS
 list_syms $TL T | xargs -I '{}' bash -c "extr_proto $TF '{}' ASMFUNC" | nl -v 0 | sed -E 's/^ *//' >$1
 list_syms $TL U | xargs -I '{}' bash -c "extr_proto $TF '{}' ASMCFUNC" | nl -v 0 | sed -E 's/^ *//' >$2
 echo "#define THUNK_INCS 1" >$3
-list_syms2 $TL U T | xargs -L 1 $URTAGS -t $TF | expand | tr -s '[:blank:]' | \
+list_syms2 $TL U T | xargs -n 1 $URTAGS -t $TF | expand | tr -s '[:blank:]' | \
 	cut -d " " -f 2 | sort | uniq | \
 	sed -E 's/.*(include)\/(.*)/#\1 "\2"/' >>$3
 shift 3
