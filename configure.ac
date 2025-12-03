@@ -50,7 +50,6 @@ PKG_CHECK_MODULES([TG], [thunk_gen >= 1.5],, [
 DJ64_CFLAGS="$CFLAGS \
 -fno-common \
 -fpic \
--flto=auto -ffat-lto-objects \
 -nostdinc \
 -ggdb3 \
 -O2 \
@@ -69,7 +68,13 @@ DJ64_CFLAGS="$CFLAGS \
 -Wsign-compare \
 -Wold-style-definition"
 
-DJ64_LDFLAGS="$LDFLAGS -flto=auto -O2"
+DJ64_LDFLAGS="$LDFLAGS"
+
+AC_ARG_ENABLE(lto, AS_HELP_STRING([--disable-lto], [disable LTO]))
+if test "$enable_lto" != "no" ; then
+  DJ64_CFLAGS="$DJ64_CFLAGS -flto=auto -ffat-lto-objects"
+  DJ64_LDFLAGS="$DJ64_LDFLAGS -flto=auto -O2"
+fi
 
 machine=`$CC -dumpmachine | cut -d- -f1 | sed 's/i.86/i386/'`
 CONFIG_HOST=`uname -s`
