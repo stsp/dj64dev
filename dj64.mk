@@ -21,9 +21,12 @@ XLD_IMB = -Ttext-segment
 ifeq ($(CROSS_PREFIX),)
 CROSS_PREFIX := i686-linux-gnu-
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
+CROSS_PREFIX := i686-unknown-linux-gnu-
+ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 CROSS_PREFIX := x86_64-linux-gnu-
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 CROSS_PREFIX :=
+endif
 endif
 endif
 else ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)

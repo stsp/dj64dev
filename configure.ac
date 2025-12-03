@@ -131,7 +131,7 @@ if test -n "$CROSS_PREFIX"; then
     AC_MSG_ERROR([${CROSS_PREFIX}as not found, CROSS_PREFIX is wrong])
   fi
 else
-  AC_PATH_PROGS([CROSS_AS], [i686-linux-gnu-as i386-elf-as])
+  AC_PATH_PROGS([CROSS_AS], [i686-linux-gnu-as i686-unknown-linux-gnu-as i386-elf-as])
 fi
 if test -z "$CROSS_AS"; then
   AC_PATH_PROG([CROSS_AS], [x86_64-linux-gnu-as])
@@ -168,7 +168,7 @@ if test -n "$CROSS_PREFIX"; then
     AC_MSG_ERROR([${CROSS_PREFIX}ld not found, CROSS_PREFIX is wrong])
   fi
 else
-  AC_PATH_PROGS([CROSS_LD], [i686-linux-gnu-ld i386-elf-ld x86_64-linux-gnu-ld ld.lld])
+  AC_PATH_PROGS([CROSS_LD], [i686-linux-gnu-ld i686-unknown-linux-gnu-ld i386-elf-ld x86_64-linux-gnu-ld ld.lld])
 fi
 if test -z "$CROSS_LD"; then
   if test \( "$machine" = "i386" -o "$machine" = "x86_64" \) -a "$CONFIG_HOST" != "Darwin"; then
@@ -207,7 +207,7 @@ if test -n "$CROSS_PREFIX"; then
     AC_MSG_ERROR([${CROSS_PREFIX}ar not found, CROSS_PREFIX is wrong])
   fi
 else
-  AC_PATH_PROGS([CROSS_AR], [i686-linux-gnu-ar i386-elf-ar x86_64-linux-gnu-ar llvm-ar], [], [$PATH${PATH_SEPARATOR}/usr/local/opt/llvm/bin])
+  AC_PATH_PROGS([CROSS_AR], [i686-linux-gnu-ar i686-unknown-linux-gnu-ar i386-elf-ar x86_64-linux-gnu-ar llvm-ar], [], [$PATH${PATH_SEPARATOR}/usr/local/opt/llvm/bin])
 fi
 if test -z "$CROSS_AR"; then
   if test "$machine" = "i386" -o "$machine" = "x86_64"; then
@@ -224,7 +224,7 @@ if test -n "$CROSS_PREFIX"; then
     AC_MSG_ERROR([${CROSS_PREFIX}strip not found, CROSS_PREFIX is wrong])
   fi
 else
-  AC_PATH_PROGS([CROSS_STRIP], [i686-linux-gnu-strip i386-elf-strip x86_64-linux-gnu-strip llvm-strip], [], [$PATH${PATH_SEPARATOR}/usr/local/opt/llvm/bin])
+  AC_PATH_PROGS([CROSS_STRIP], [i686-linux-gnu-strip i686-unknown-linux-gnu-strip i386-elf-strip x86_64-linux-gnu-strip llvm-strip], [], [$PATH${PATH_SEPARATOR}/usr/local/opt/llvm/bin])
 fi
 if test -z "$CROSS_STRIP"; then
   if test "$machine" = "i386" -o "$machine" = "x86_64"; then
@@ -241,7 +241,7 @@ if test -n "$CROSS_PREFIX"; then
     AC_MSG_ERROR([${CROSS_PREFIX}objcopy not found, CROSS_PREFIX is wrong])
   fi
 else
-  AC_PATH_PROGS([XOBJCOPY], [i686-linux-gnu-objcopy x86_64-linux-gnu-objcopy llvm-objcopy objcopy])
+  AC_PATH_PROGS([XOBJCOPY], [i686-linux-gnu-objcopy i686-unknown-linux-gnu-objcopy x86_64-linux-gnu-objcopy llvm-objcopy objcopy])
 fi
 
 AC_CHECK_PROGS([UCTAGS], [uctags ctags])
