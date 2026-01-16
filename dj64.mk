@@ -5,7 +5,7 @@ $(error unknown target architecture)
 endif
 OS = $(shell uname -s)
 NATIVE=0
-ifneq ($(filter x86_64 amd64 i686 i386,$(MACH)),)
+ifneq ($(filter x86_64 amd64 i686 i586 i386,$(MACH)),)
 ifneq ($(OS), Darwin)
 NATIVE = 1
 endif
@@ -23,9 +23,12 @@ CROSS_PREFIX := i686-linux-gnu-
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 CROSS_PREFIX := i686-unknown-linux-gnu-
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
+CROSS_PREFIX := i586-suse-linux-
+ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 CROSS_PREFIX := x86_64-linux-gnu-
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 CROSS_PREFIX :=
+endif
 endif
 endif
 endif
