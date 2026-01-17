@@ -19,7 +19,7 @@ LIBS = libdj64_s.a
 SOURCES = thunks.c thunks_a.c thunks_c.c thunks_p.c dosobj.c
 OBJECTS = $(SOURCES:.c=.o)
 
-.INTERMEDIATE: thunk_syms.s thunk_syms.ss
+#.INTERMEDIATE: thunk_syms.s thunk_syms.ss
 thunk_syms.ss: thunk_syms.c asm_incsn.h
 ifeq ($(CC_IS_CLANG),1)
 	$(XCPP) -CC -g0 $< | $(CC) -xc - -target i686-unknown-linux-gnu -S $(EXTRA_CFLAGS) -o $@
