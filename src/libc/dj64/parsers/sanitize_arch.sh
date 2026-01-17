@@ -1,7 +1,7 @@
-F_STRS=.arch\|.addrsig\|.fpu\|.eabi_attribute
-ARCH=`head -n 1 $1 | grep .arch | cut -d " " -f 2`
+F_STRS=\\.arch\|\\.addrsig\|\\.fpu\|\\.eabi_attribute\|\\.option\|\\.attribute
+ARCH=`grep .arch $1 | cut -d " " -f 2`
 if [ -z "$ARCH" ]; then
-  cat $1 | grep -E -v $F_STRS
+  grep -E -v $F_STRS $1
   exit 0
 fi
-cat $1 | grep -E -v $F_STRS | sed 's/.align/.p2align/g'
+grep -E -v $F_STRS $1 | sed -E 's/\.align/\.p2align/g'
