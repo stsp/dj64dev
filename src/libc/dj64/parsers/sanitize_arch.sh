@@ -1,5 +1,5 @@
 F_STRS=\\.arch\|\\.addrsig\|\\.fpu\|\\.eabi_attribute
-ARCH=`head -n 1 $1 | grep .arch | cut -d " " -f 2`
+ARCH=`grep .arch $1 | cut -d " " -f 2`
 if [ -z "$ARCH" ]; then
   cat $1 | grep -E -v $F_STRS
   exit 0
