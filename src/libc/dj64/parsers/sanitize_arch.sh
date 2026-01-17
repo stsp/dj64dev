@@ -4,4 +4,4 @@ if [ -z "$ARCH" ]; then
   grep -E -v $F_STRS $1
   exit 0
 fi
-grep -E -v $F_STRS $1 | sed 's/.align/.p2align/g'
+grep -E -v $F_STRS $1 | sed -E 's/\.align/\.p2align/g'
