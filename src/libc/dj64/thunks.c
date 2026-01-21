@@ -23,7 +23,7 @@
  * NOTE: this file is a port of thunks.cc file from fdpp project.
  * In fdpp project it is distributed under the terms of GNU GPLv3+
  * and is copyrighted (C) 2018-2023  Stas Sergeev (stsp).
- * As a sole author of the aforementioned dosobj.cc, I donate the
+ * As a sole author of the aforementioned thunks.cc, I donate the
  * code to dj64dev project, allowing to re-license it under the terms
  * of GNU LGPLv3+.
  *
