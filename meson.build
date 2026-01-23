@@ -1,6 +1,6 @@
 project('dj64dev', 'c', version: '0.4')
 
-tg = dependency('thunk_gen')
+tg = dependency('thunk_gen', version: '>= 1.5')
 TGMK = tg.get_variable('makeinc')
 TG = tg.get_variable('binary')
 tgbin = find_program(['thunk_gen', TG])
