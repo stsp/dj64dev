@@ -144,18 +144,16 @@ if test -z "$CROSS_AS"; then
     if test \( "$machine" = "i386" -o "$machine" = "x86_64" \) -a "$CONFIG_HOST" != "Darwin"; then
       AC_PATH_PROG([CROSS_AS], [as])
       if test -z "$CROSS_AS"; then
-        AC_PATH_PROG([CROSS_AS], [clang])
-        if test -z "$CROSS_AS"; then
-          AC_MSG_ERROR([gnu assembler not found, please install clang or binutils])
-        else
-          CROSS_ASFLAGS="-m32 -x assembler -c"
-        fi
+        AC_MSG_NOTICE([Using ${CC} as as...])
+        CROSS_AS=${CC}
+        CROSS_ASFLAGS="-m32 -x assembler -c"
       else
         CROSS_ASFLAGS="--32"
       fi
     else
       AC_PATH_PROG([CROSS_AS], [clang])
       if test -n "$CROSS_AS"; then
+        AC_MSG_NOTICE([Using clang as as...])
         CROSS_ASFLAGS="-x assembler -target i686-unknown-linux-gnu -c"
       else
         AC_MSG_ERROR([386 assembler not found, please install clang or binutils-i686-linux-gnu])
