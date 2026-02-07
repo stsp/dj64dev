@@ -44,7 +44,7 @@ ifeq ($(NATIVE), 1)
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 # found nothing, try built-in assembler
 DJ64AS = $(CC) -x assembler
-DJ64ASFLAGS = -m32 -Wa,-defsym,_DJ64=1 -c
+DJ64ASFLAGS = -m32 -Wa,-defsym,_DJ64=1 -c $(ASFLAGS)
 endif
 
 else
@@ -54,7 +54,7 @@ ifeq ($(shell clang --version 2>/dev/null),)
 $(error cross-binutils not installed)
 endif
 DJ64AS = clang -x assembler -target i686-unknown-linux-gnu
-DJ64ASFLAGS = -Wa,-defsym,_DJ64=1 -c
+DJ64ASFLAGS = -Wa,-defsym,_DJ64=1 -c $(ASFLAGS)
 ifeq ($(OS), Darwin)
 ifeq ($(shell command -v brew &>/dev/null),)
 export PATH += :$(shell brew --prefix llvm)/bin
