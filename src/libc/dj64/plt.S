@@ -44,8 +44,12 @@ SHM_LINEAR = 0xc
 SHM_NAME = 0x10
 SHM_FLAGS = 0x16
 SHM_HANDLE2 = 0x18
+
+.p2align 4
 shm_block: .fill 0x1c, 1, 0
+.p2align 4
 shm_block2: .fill 0x1c, 1, 0
+
 handle: .long 0
 maddr: .long 0
 SHM_NOEXEC = 1
