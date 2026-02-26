@@ -58,10 +58,7 @@ functionality, but the shared memory support is mandatory.
 
 ## building and installing
 First, you need to install [thunk_gen](https://github.com/stsp/thunk_gen/).
-Pre-built packages are available
-[for ubuntu](https://code.launchpad.net/~stsp-0/+archive/ubuntu/thunk-gen)
-and
-[for fedora](https://copr.fedorainfracloud.org/coprs/stsp/dosemu2/).<br/>
+Pre-built packages are available [for ubuntu](https://code.launchpad.net/~stsp-0/+archive/ubuntu/thunk-gen), [for fedora](https://copr.fedorainfracloud.org/coprs/stsp/dosemu2/), and for debian, since forky you can install thunk-gen via `apt install thunk-gen`.<br/>
 Then run `make`.<br/>
 For installing run `sudo make install`.<br/>
 
