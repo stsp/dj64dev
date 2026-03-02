@@ -128,28 +128,38 @@ err:
 
 static const char *var_list[] = { "_crt0_startup_flags", NULL };
 
-static int cp(const char *from, const char *to)
+static int copy_file(const char *src, const char *dest)
 {
-    char buf[1024];
-    int ret;
-    size_t sz = snprintf(buf, sizeof(buf), "cp %s %s", from, to);
-    if (sz >= sizeof(buf))
+    char buffer[4096];
+    size_t bytes;
+    int rc = 0;
+    FILE *source = fopen(src, "rb");
+    FILE *destination = fopen(dest, "wb");
+
+    if (!source || !destination) {
+        if (source) {
+            fprintf(stderr, "failed to open for writing %s\n", dest);
+            fclose(source);
+        } else {
+            fprintf(stderr, "failed to open for reading %s\n", src);
+        }
         return -1;
-    ret = system(buf);
-    switch (ret) {
-        case -1:
-            fprintf(stderr, "system(cp) failed: %s\n", strerror(errno));
-            break;
-        case 0:
-            break;
-        case 127:
-            fprintf(stderr, "system(cp): shell unavailable\n");
-            break;
-        default:
-            fprintf(stderr, "system(cp): command failed with %i\n", ret);
-            break;
     }
-    return ret;
+
+    while ((bytes = fread(buffer, 1, sizeof(buffer), source)) > 0) {
+        size_t wr = fwrite(buffer, 1, bytes, destination);
+        if (wr != bytes) {
+            fprintf(stderr, "failed to write to %s\n", dest);
+            rc = -1;
+            break;
+        }
+    }
+
+    fclose(source);
+    fclose(destination);
+    if (rc)
+        remove(dest);
+    return rc;
 }
 
 static void *emu_dlmopen(int handle, const char *filename, int flags,
@@ -170,7 +180,7 @@ static void *emu_dlmopen(int handle, const char *filename, int flags,
         p++;
     unlink(path);
     /* glibc compares inodes from stat(), so symlinks do not help - use cp */
-    err = cp(filename, path);
+    err = copy_file(filename, path);
     if (err) {
         fprintf(stderr, "cp(%s %s) failed\n", filename, path);
 #if 1
