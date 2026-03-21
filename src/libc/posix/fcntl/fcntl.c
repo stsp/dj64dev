@@ -281,8 +281,13 @@ fcntl(int fd, int cmd, ...)
   func = __FSEXT_get_function(fd);
   if (func)
   {
-    int rv;
-    if (__FSEXT_func_wrapper(func, __FSEXT_fcntl, &rv, fd, cmd))
+    int rv, arg;
+
+    va_start(ap, cmd);
+    arg = va_arg(ap, int);
+    va_end(ap);
+
+    if (__FSEXT_func_wrapper(func, __FSEXT_fcntl, &rv, fd, cmd, arg))
       return rv;
   }
 

@@ -337,8 +337,17 @@ int ioctl(int fd, int cmd, ...)
    ** see if this is a file system extension file
    **
    */
-  if (func && __FSEXT_func_wrapper(func, __FSEXT_ioctl, &rv, fd))
-    return rv;
+  if (func)
+  {
+    char *arg;
+
+    va_start(args, cmd);
+    arg = va_arg(args, char *);
+    va_end(args);
+
+    if (__FSEXT_func_wrapper(func, __FSEXT_ioctl, &rv, fd, cmd, arg))
+      return rv;
+  }
 
   va_start(args, cmd);
 

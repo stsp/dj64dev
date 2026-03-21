@@ -145,7 +145,7 @@ __extension__ typedef unsigned long long int uintmax_t;
 
 #endif /* (__STDC_VERSION__ >= 199901L) || !__STRICT_ANSI__ */
 
-#ifndef __dj_ENFORCE_ANSI_FREESTANDIGN
+#ifndef __dj_ENFORCE_ANSI_FREESTANDING
 
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) \
   || !defined(__STRICT_ANSI__) || defined(__cplusplus)
