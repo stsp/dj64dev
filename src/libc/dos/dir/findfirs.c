@@ -105,9 +105,8 @@ findfirst(const char *pathname, struct ffblk *ffblk, int attrib)
       return 0;
     }
   }
-  else
+  /* else: not using LFN, or LFN unsupported for that drive */
   {
-
     #define _sizeof_dos_ffblk 44
     /* There will be a _sizeof_dos_ffblk character return value from findfirst
        in the DTA.  Put the file name before this.  First set the DTA to be
