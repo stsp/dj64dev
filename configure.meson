@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+echo this isnt working yet, use configure
+exit 1
+
 BLD="build"
 
 while getopts "b:h" opt; do
