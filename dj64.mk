@@ -76,7 +76,10 @@ endif # filter clean install
 # omitting -c. Note that plain as also doesn't work for termux.
 AS = $(CC) -x assembler-with-cpp -c
 
-DJ64CFLAGS = $(shell pkg-config --cflags dj64) $(CFLAGS)
+DJ64CFLAGS := $(shell pkg-config --cflags dj64) $(CFLAGS)
+ifneq ($(.SHELLSTATUS),0)
+$(error dj64-dev not installed)
+endif
 XCPPFLAGS = $(shell pkg-config --variable=xcppflags dj64) $(CPPFLAGS)
 DJ64ASCPPFLAGS = $(shell pkg-config --variable=cppflags dj64) $(ASCPPFLAGS)
 
@@ -100,7 +103,10 @@ ifeq ($(DJ64STATIC),0)
 $(error DJ64STATIC must be empty, not 0)
 endif
 ifeq ($(DJ64STATIC),1)
-DJLDFLAGS = $(shell pkg-config --libs dj64_s)
+DJLDFLAGS := $(shell pkg-config --libs dj64_s)
+ifneq ($(.SHELLSTATUS),0)
+$(error dj64-dev-static not installed)
+endif
 DJ64_XLDFLAGS += -f 0x40
 else
 RP := -Wl,-rpath,/usr/local/i386-pc-dj64/lib64 \
@@ -109,7 +115,10 @@ ifneq ($(prefix),)
 RP += -Wl,-rpath,$(prefix)/i386-pc-dj64/lib64
 endif
 # sort removes duplicates
-DJLDFLAGS = $(shell pkg-config --libs dj64) $(sort $(RP)) $(LDFLAGS)
+DJLDFLAGS := $(shell pkg-config --libs dj64) $(sort $(RP)) $(LDFLAGS)
+ifneq ($(.SHELLSTATUS),0)
+$(error dj64-dev not installed)
+endif
 endif
 DJ64_XLIB = libtmp.so
 ifneq ($(AS_OBJECTS),)
@@ -129,7 +138,11 @@ GLOB_ASM ?= $(wildcard glob_asm.h)
 ifneq ($(AS_OBJECTS),)
 XLDFLAGS = -melf_i386 -static
 ifeq ($(DJ64STATIC),1)
-XLDFLAGS += $(shell pkg-config --static --libs dj64static)
+S := $(shell pkg-config --static --libs dj64static)
+ifneq ($(.SHELLSTATUS),0)
+$(error dj64-dev-static not installed)
+endif
+XLDFLAGS += $(S)
 DJ64_XLDFLAGS += -f 0x4000
 else
 XLDFLAGS += $(shell pkg-config --variable=crt0 dj64) $(XLD_IMB)=$(LOADADDR)
@@ -173,7 +186,11 @@ tmp.s:
 	@eval "$$script"
 else
 ifeq ($(DJ64STATIC),1)
-DJ64_XLDFLAGS += -l $(shell pkg-config --variable=crt0 dj64_s) -f 0x4000
+S := $(shell pkg-config --variable=crt0 dj64_s)
+ifneq ($(.SHELLSTATUS),0)
+$(error dj64-dev-static not installed)
+endif
+DJ64_XLDFLAGS += -l $(S) -f 0x4000
 else
 DJ64_XLDFLAGS += -f 0x80
 endif
