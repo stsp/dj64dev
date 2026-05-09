@@ -1,4 +1,5 @@
-F_STRS=\\.arch\|\\.addrsig\|\\.fpu\|\\.eabi_attribute\|\\.option\|\\.attribute
+F_STRS=\\.arch\|\\.addrsig\|\\.fpu\|\\.eabi_attribute\|\\.option\|\
+\\.attribute\|\\.aeabi_subsection\|\\.aeabi_attribute
 ARCH=`grep .arch $1 | cut -d " " -f 2`
 if [ -z "$ARCH" ]; then
   grep -E -v $F_STRS $1
