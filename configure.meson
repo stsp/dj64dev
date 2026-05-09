@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+BLD="build"
+
+while getopts "b:h" opt; do
+  case "$opt" in
+    b)
+      BLD="$OPTARG"
+      ;;
+    h)
+      usage
+      exit 0
+      ;;
+    \?)
+      exit 1
+      ;;
+  esac
+done
+shift $(($OPTIND-1))
+
+TOP=$(dirname "$0")
+
+meson setup \
+  --buildtype=debugoptimized -Db_lto=true \
+  $* $BLD $TOP
+[ "$?" = "0" ] || exit 1
+
+echo
+echo "Done configure"
+echo "Now run \"meson devenv -C $BLD meson compile --verbose\" to build"
+echo "After that you can do \"meson devenv -C $BLD meson install\" to install"
