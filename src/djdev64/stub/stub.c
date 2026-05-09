@@ -210,8 +210,10 @@ int djstub_main(int argc, char *argv[], char *envp[],
         int l = strlen(s);
         if (strncmp(envp[i], s, l) == 0) {
             pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-            if (pfile == -1)
+            if (pfile == -1) {
+                error("unable to open %s\n", CRT0);
                 return -1;
+            }
             stubinfo.cpl_fd = uput(pfile);
             stubinfo.elfload_arg = atoi(envp[i] + l);
             ops = &elf_ops;
@@ -257,8 +259,10 @@ int djstub_main(int argc, char *argv[], char *envp[],
             if (!(buf[FLG2_OFF] & STFLG2_C32PL)) {
                 dyn++;
                 pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-                if (pfile == -1)
+                if (pfile == -1) {
+                    error("unable to open %s\n", CRT0);
                     return -1;
+                }
                 stubinfo.cpl_fd = uput(pfile);
                 ops = &elf_ops;
             } else {
@@ -324,8 +328,10 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 assert(pfile == -1);
                 dyn++;
                 pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-                if (pfile == -1)
+                if (pfile == -1) {
+                    error("unable to open %s\n", CRT0);
                     return -1;
+                }
                 stubinfo.cpl_fd = uput(pfile);
                 compact_va = 1;  // TODO - evaluate?
                 emb_ov = 1;
