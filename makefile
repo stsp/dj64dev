@@ -99,7 +99,9 @@ install: install_dj64 install_djdev64 install_demos
 
 uninstall:
 ifeq ($(NCURSES),1)
+ifneq ($(wildcard $(NC_BUILD)),)
 	$(MAKE) -C $(NC_BUILD) uninstall
+endif
 endif
 	$(RM) -r $(DESTDIR)$(prefix)/i386-pc-dj64
 	$(RM) -r $(DESTDIR)$(includedir)/djdev64
