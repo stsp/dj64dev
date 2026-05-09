@@ -20,6 +20,8 @@ shift $(($OPTIND-1))
 
 TOP=$(dirname "$0")
 
+[ -f ${TOP}/configure ] || autoreconf -v -i ${TOP}
+
 meson setup \
   --buildtype=debugoptimized -Db_lto=true \
   $* $BLD $TOP
