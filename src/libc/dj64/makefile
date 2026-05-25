@@ -13,6 +13,7 @@ LIBN = libdj64.0.2.dylib
 LIBNS = libdj64.dylib
 else
 LIBN = libdj64.so.0.2
+LIBNV = libdj64.so.0
 LIBNS = libdj64.so
 endif
 LIBS = libdj64_s.a
@@ -83,7 +84,7 @@ OS = $(shell uname -s)
 ifeq ($(OS),Darwin)
 SHARED_LDFLAGS = $(DJ64_LDFLAGS) -dynamiclib -install_name $(prefix)/i386-pc-dj64/lib64/$(LIBN) -compatibility_version 0.2 -current_version 0.2
 else
-SHARED_LDFLAGS = $(DJ64_LDFLAGS) -shared -Wl,--version-script,$(srcdir)/libdj64.version -Wl,--no-undefined -Wl,--as-needed -Wl,-soname=$(LIBN) -Wl,-Bsymbolic
+SHARED_LDFLAGS = $(DJ64_LDFLAGS) -shared -Wl,--version-script,$(srcdir)/libdj64.version -Wl,--no-undefined -Wl,--as-needed -Wl,-soname=$(LIBNV) -Wl,-Bsymbolic
 endif
 
 $(LIB)/$(LIBN): $(TOP)/makefile.rf $(ALL_OBJS) \
@@ -112,10 +113,10 @@ $(LIB)/crt0.elf: $(LIB)/libc_s.a
 $(LIB)/uplt.o: uplt.o
 	cp $< $@
 
-$(LIB)/$(LIBNS): $(LIB)/$(LIBN) | $(LIB)
+$(LIB)/$(LIBNS) $(LIB)/$(LIBNV): $(LIB)/$(LIBN) | $(LIB)
 	ln -sf $(LIBN) $@
 
-final: $(LIB)/libc_s.a $(LIB)/$(LIBNS) $(LIB)/$(LIBS) $(LIB)/crt0.elf \
+final: $(LIB)/libc_s.a $(LIB)/$(LIBNS) $(LIB)/$(LIBNV) $(LIB)/$(LIBS) $(LIB)/crt0.elf \
   $(LIB)/uplt.o | $(LIB)
 
 clean::

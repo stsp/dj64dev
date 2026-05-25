@@ -23,13 +23,14 @@ LIBNS = libdjstub64.dylib
 SHARED_LDFLAGS = $(LDFLAGS) -dynamiclib -install_name $(libdir)/$(LIBN) -compatibility_version 0.2 -current_version 0.2
 else
 LIBN = libdjstub64.so.0.2
+LIBNV = libdjstub64.so.0
 LIBNS = libdjstub64.so
-SHARED_LDFLAGS = $(LDFLAGS) -shared -Wl,-soname=$(LIBN) \
+SHARED_LDFLAGS = $(LDFLAGS) -shared -Wl,-soname=$(LIBNV) \
 	-Wl,--version-script=libdjstub.version
 endif
 LIB = $(LIBDIR)/$(LIBN)
 
-all: $(LIBDIR)/$(LIBNS)
+all: $(LIBDIR)/$(LIBNS) $(LIBDIR)/$(LIBNV)
 
 clean:
 	$(RM) *.o *.d $(LIBDIR)/libdjstub64.so* $(LIBDIR)/libdjstub64.*dylib
@@ -41,7 +42,7 @@ $(LIB): $(OBJECTS) libdjstub.version | $(LIBDIR)
 	$(CC) $(SHARED_LDFLAGS) \
 		-o $@ $(OBJECTS)
 
-$(LIBDIR)/$(LIBNS): $(LIB)
+$(LIBDIR)/$(LIBNS) $(LIBDIR)/$(LIBNV): $(LIB)
 	ln -sf $(LIBN) $@
 
 -include $(wildcard *.d)
