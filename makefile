@@ -30,6 +30,7 @@ DJDEV64LIB = $(TOP)/lib/libdjdev64.*.*.*
 DJDEV64LIBV = $(TOP)/lib/libdjdev64.*.*
 DJDEV64DEVL = $(TOP)/lib/libdjdev64.$(SHLIB_EXT)
 DJSTUB64LIB = $(TOP)/lib/libdjstub64.*.*.*
+DJSTUB64LIBV = $(TOP)/lib/libdjstub64.*.*
 DJSTUB64DEVL = $(TOP)/lib/libdjstub64.$(SHLIB_EXT)
 DJELFLOAD = $(TOP)/lib/elfload.com
 NC_BUILD = contrib/ncurses/build
@@ -95,6 +96,7 @@ install_djdev64:
 	cp -fP $(DJDEV64LIBV) $(DESTDIR)$(libdir)
 	cp -fP $(DJDEV64DEVL) $(DESTDIR)$(libdir)
 	$(INSTALL) -m 0755 $(DJSTUB64LIB) $(DESTDIR)$(libdir)
+	cp -fP $(DJSTUB64LIBV) $(DESTDIR)$(libdir)
 	cp -fP $(DJSTUB64DEVL) $(DESTDIR)$(libdir)
 
 install: install_dj64 install_djdev64 install_demos
@@ -118,6 +120,7 @@ endif
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJDEV64LIBV))
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJDEV64LIB))
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJSTUB64DEVL))
+	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJSTUB64LIBV))
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJSTUB64LIB))
 	ldconfig
 	$(MAKE) -C demos src_uninstall
