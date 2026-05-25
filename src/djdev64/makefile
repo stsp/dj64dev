@@ -16,14 +16,15 @@ LIBNS = libdjdev64.dylib
 SHARED_LDFLAGS = $(LDFLAGS) -dynamiclib -install_name $(libdir)/$(LIBN) -compatibility_version 0.2 -current_version 0.2
 else
 LIBN = libdjdev64.so.0.2
+LIBNV = libdjdev64.so.0
 LIBNS = libdjdev64.so
-SHARED_LDFLAGS = $(LDFLAGS) -shared -Wl,-soname=$(LIBN)
+SHARED_LDFLAGS = $(LDFLAGS) -shared -Wl,-soname=$(LIBNV)
 endif
 LIB = $(LIBDIR)/$(LIBN)
 
 .PHONY: subs
 
-all: $(LIBDIR)/$(LIBNS) subs
+all: $(LIBDIR)/$(LIBNS) $(LIBDIR)/$(LIBNV) subs
 
 subs:
 	$(MAKE) -C stub
@@ -39,7 +40,7 @@ $(LIB): $(OBJECTS) | $(LIBDIR)
 	$(CC) $(SHARED_LDFLAGS) -o $@ $^ \
   $(LIBELF_LIBS)
 
-$(LIBDIR)/$(LIBNS): $(LIB)
+$(LIBDIR)/$(LIBNS) $(LIBDIR)/$(LIBNV): $(LIB)
 	ln -sf $(LIBN) $@
 
 -include $(wildcard *.d)
