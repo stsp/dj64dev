@@ -23,6 +23,7 @@ DJLIBC = $(TOP)/lib/libc_s.a
 DJCRT0 = $(TOP)/lib/crt0.elf
 DJUCRT0 = $(TOP)/lib/uplt.o
 DJ64LIB = $(TOP)/lib/libdj64.*.*.*
+DJ64LIBV = $(TOP)/lib/libdj64.*.*
 DJ64DEVL = $(TOP)/lib/libdj64.$(SHLIB_EXT)
 DJ64LIBS = $(TOP)/lib/libdj64_s.a
 DJDEV64LIB = $(TOP)/lib/libdjdev64.*.*.*
@@ -65,6 +66,7 @@ install_dj64:
 	$(INSTALL) -m 0644 $(DJELFLOAD) $(DESTDIR)$(prefix)/i386-pc-dj64/bin
 	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
 	$(INSTALL) $(DJ64LIB) $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
+	cp -fP $(DJ64LIBV) $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
 	cp -fP $(DJ64DEVL) $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
 	$(INSTALL) -m 0644 $(DJ64LIBS) $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
 	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/include
