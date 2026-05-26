@@ -1,0 +1,11 @@
+Name: dj32
+Description: dj32 libs
+Version: @VERSION@
+prefix=@prefix@
+dj32prefix=@sysroot@
+libdir=${dj32prefix}/lib
+makeinc=${dj32prefix}/share/dj32.mk
+cppflags=-I${dj32prefix}/include -DDJ64 -nostdinc
+xcppflags=${cppflags} -imacros ${dj32prefix}/include/dj64/a_mac.h
+Cflags: -fno-pic -fno-pie -ffreestanding -fno-stack-protector
+Libs: ${libdir}/libc_s.a ${libdir}/libdj64_s.a

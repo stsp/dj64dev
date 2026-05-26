@@ -7,7 +7,9 @@ makemake.exe: makemake.c
 
 subs: makemake.exe
 	$(MAKE) -C libc
+ifeq ($(USE64),1)
 	$(MAKE) -C dosemu2
+endif
 
 .PHONY: clean
 clean: makemake.exe

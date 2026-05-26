@@ -9,6 +9,7 @@ AC_CONFIG_FILES([
   dj64static.pc
   djdev64.pc
   djstub64.pc
+  dj32.pc
 ])
 
 VERSION="$PACKAGE_VERSION"
@@ -26,22 +27,42 @@ AC_PROG_GREP
 # termux uses PREFIX var for default prefix
 AC_PREFIX_DEFAULT([${PREFIX:-/usr/local}])
 
-AC_ARG_WITH(sysroot, [AS_HELP_STRING([--with-sysroot=dir],
-  [sysroot directory. default: ${prefix}/i386-pc-dj64])],
-  sysroot="$withval", [
-    if test "x$prefix" = xNONE; then
-      sysroot=${ac_default_prefix}/i386-pc-dj64
-    else
-      sysroot=${prefix}/i386-pc-dj64
-    fi
-  ]
-)
-AC_SUBST(sysroot)
-
 AC_CHECK_PROGS([PKG_CONFIG], [pkg-config])
 if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR(Install pkg-config and retry.)
 fi
+
+AC_ARG_ENABLE(64bit,
+  AS_HELP_STRING([--disable-64bit], [do not build 64bit components (reduced build)]))
+if test "$enable_64bit" != "no"; then
+  USE64=1
+  ARCH_DIR=i386-pc-dj64
+  AC_DEFINE([USE64], 1, [ Define this to enable 64bit components ])
+  PKG_CHECK_MODULES([LIBELF], [libelf],, [AC_MSG_ERROR([libelf not installed])])
+
+  AC_CHECK_FUNCS([dlmopen])
+  AC_CHECK_DECLS([RTLD_DEEPBIND],,, [[#include <dlfcn.h>]])
+
+  CFLAGS="$CFLAGS -fpic"
+else
+  USE64=0
+  ARCH_DIR=i386-pc-dj32
+  AC_MSG_WARN([not building 64bit components])
+  CFLAGS="$CFLAGS -fno-pic"
+fi
+AC_SUBST(USE64)
+
+AC_ARG_WITH(sysroot, [AS_HELP_STRING([--with-sysroot=dir],
+  [sysroot directory. default: ${prefix}/${ARCH_DIR}])],
+  sysroot="$withval", [
+    if test "x$prefix" = xNONE; then
+      sysroot=${ac_default_prefix}/${ARCH_DIR}
+    else
+      sysroot=${prefix}/${ARCH_DIR}
+    fi
+  ]
+)
+AC_SUBST(sysroot)
 
 AC_ARG_ENABLE(ncurses,
   AS_HELP_STRING([--disable-ncurses], [do not build ncurses]))
@@ -54,14 +75,12 @@ if test "$enable_ncurses" != "no"; then
 fi
 AC_SUBST(NCURSES)
 
-PKG_CHECK_MODULES([LIBELF], [libelf],, [AC_MSG_ERROR([libelf not installed])])
 PKG_CHECK_MODULES([TG], [thunk_gen >= 1.5],, [
   AC_MSG_ERROR([thunk-gen >= 1.5 not installed])
 ])
 
 DJ64_CFLAGS="$CFLAGS \
 -fno-common \
--fpic \
 -nostdinc \
 -ggdb3 \
 -O2 \
@@ -270,8 +289,6 @@ if ! $UCTAGS --version | grep "Universal Ctags" >/dev/null; then
 fi
 
 AC_CHECK_TYPES([__float80])
-AC_CHECK_FUNCS([dlmopen])
-AC_CHECK_DECLS([RTLD_DEEPBIND],,, [[#include <dlfcn.h>]])
 
 if ! test -f Makefile.conf.in; then
   AC_MSG_NOTICE([Populating makefiles...])

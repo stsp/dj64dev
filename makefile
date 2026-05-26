@@ -37,7 +37,10 @@ NC_BUILD = contrib/ncurses/build
 
 .PHONY: subs dj64 djdev64 demos ncurses
 
-all: Makefile.conf dj64 djdev64 ncurses
+ifeq ($(USE64),1)
+DJDEV64 = djdev64
+endif
+all: Makefile.conf dj64 $(DJDEV64) ncurses
 	@echo
 	@echo "Done building. You may need to run \"sudo make install\" now."
 	@echo "You can first run \"sudo make uninstall\" to purge the prev install."
@@ -57,8 +60,14 @@ subs:
 djdev64: djdev64.pc djstub64.pc
 	$(MAKE) -C src/djdev64
 
-dj64: dj64.pc dj64_s.pc dj64static.pc subs
+ifeq ($(USE64),1)
+DJ64PC = dj64.pc dj64_s.pc dj64static.pc
+else
+DJ64PC = dj32.pc
+endif
+dj64: $(DJ64PC) subs
 
+ifeq ($(USE64),1)
 install_dj64:
 	$(INSTALL) -d $(DESTDIR)$(sysroot)/lib
 	$(INSTALL) -m 0644 $(DJLIBC) $(DESTDIR)$(sysroot)/lib
@@ -124,6 +133,23 @@ endif
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJSTUB64LIB))
 	ldconfig
 	$(MAKE) -C demos src_uninstall
+else
+install:
+	$(INSTALL) -d $(DESTDIR)$(sysroot)/lib
+	$(INSTALL) -m 0644 $(DJLIBC) $(DESTDIR)$(sysroot)/lib
+	$(INSTALL) -m 0644 $(DJ64LIBS) $(DESTDIR)$(sysroot)/lib
+	$(INSTALL) -d $(DESTDIR)$(datadir)
+	$(INSTALL) -d $(DESTDIR)$(datadir)/pkgconfig
+	$(INSTALL) -m 0644 dj32.pc $(DESTDIR)$(datadir)/pkgconfig
+	$(INSTALL) -d $(DESTDIR)$(sysroot)/include
+	cp -r $(abs_top_srcdir)/include $(DESTDIR)$(sysroot)
+	$(INSTALL) -d $(DESTDIR)$(sysroot)/share
+	$(INSTALL) -m 0644 $(abs_top_srcdir)/dj32.mk $(DESTDIR)$(sysroot)/share
+
+uninstall:
+	$(RM) -r $(DESTDIR)$(sysroot)
+	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj32.pc
+endif
 
 clean: demos_clean
 	$(MAKE) -C src clean

@@ -121,8 +121,12 @@ $(LIB)/uplt.o: uplt.o
 $(LIB)/$(LIBNS) $(LIB)/$(LIBNV): $(LIB)/$(LIBN) | $(LIB)
 	ln -sf $(LIBN) $@
 
+ifeq ($(USE64),1)
 final: $(LIB)/libc_s.a $(LIB)/$(LIBNS) $(LIB)/$(LIBNV) $(LIB)/$(LIBS) $(LIB)/crt0.elf \
   $(LIB)/uplt.o | $(LIB)
+else
+final: $(LIB)/libc_s.a $(LIB)/$(LIBS) | $(LIB)
+endif
 
 clean::
 	$(RM) rm *.a *.tmp plt.inc asm_*.h thunk_*.h plt_*.h asym_incs.h
