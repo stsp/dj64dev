@@ -228,7 +228,7 @@ matcher(struct re_guts *g, const char *string, size_t nmatch,
 static const char *			/* == stop (success) always */
 dissect(struct match *m, const char *start, const char *stop, sopno startst, sopno stopst)
 {
-	int i;
+	unsigned int i;
 	sopno ss;	/* start sop of current subRE */
 	sopno es;	/* end sop of current subRE */
 	const char *sp;	/* start of string matched by it */
@@ -262,7 +262,7 @@ dissect(struct match *m, const char *start, const char *stop, sopno startst, sop
 		/* figure out what it matched */
 		switch (OP(m->g->strip[ss])) {
 		case OEND:
-			assert(nope);
+			assert(0);
 			break;
 		case OCHAR:
 			sp++;
@@ -278,7 +278,7 @@ dissect(struct match *m, const char *start, const char *stop, sopno startst, sop
 			break;
 		case OBACK_:
 		case O_BACK:
-			assert(nope);
+			assert(0);
 			break;
 		/* cases where length of match is hard to find */
 		case OQUEST_:
@@ -381,7 +381,7 @@ dissect(struct match *m, const char *start, const char *stop, sopno startst, sop
 		case OOR1:
 		case OOR2:
 		case O_CH:
-			assert(nope);
+			assert(0);
 			break;
 		case OLPAREN:
 			i = OPND(m->g->strip[ss]);
@@ -394,7 +394,7 @@ dissect(struct match *m, const char *start, const char *stop, sopno startst, sop
 			m->pmatch[i].rm_eo = sp - m->offp;
 			break;
 		default:		/* uh oh */
-			assert(nope);
+			assert(0);
 			break;
 		}
 	}
@@ -412,7 +412,7 @@ static const char *			/* == stop (success) or NULL (failure) */
 backref(struct match *m, const char *start, const char *stop, sopno startst,
     sopno stopst, sopno lev)
 {
-	int i;
+	unsigned int i;
 	sopno ss;	/* start sop of current subRE */
 	const char *sp;	/* start of string matched by it */
 	sopno ssub;	/* start sop of subsubRE */
@@ -516,7 +516,7 @@ backref(struct match *m, const char *start, const char *stop, sopno startst,
 			return(NULL);
 		assert(m->pmatch[i].rm_so != -1);
 		len = m->pmatch[i].rm_eo - m->pmatch[i].rm_so;
-		assert(stop - m->beginp >= len);
+		assert(stop - m->beginp >= (int)len);
 		if (sp > stop - len)
 			return(NULL);	/* not enough left to match */
 		ssp = m->offp + m->pmatch[i].rm_so;
@@ -593,12 +593,12 @@ backref(struct match *m, const char *start, const char *stop, sopno startst,
 		return(NULL);
 		break;
 	default:		/* uh oh */
-		assert(nope);
+		assert(0);
 		break;
 	}
 
 	/* "can't happen" */
-	assert(nope);
+	assert(0);
 	/* NOTREACHED */
 	return((char *)NULL);	/* dummy */
 }
@@ -885,7 +885,7 @@ step(struct re_guts *g, sopno start, sopno stop, states bef, int ch, states aft)
 			FWD(aft, aft, 1);
 			break;
 		default:		/* ooooops... */
-			assert(nope);
+			assert(0);
 			break;
 		}
 	}
