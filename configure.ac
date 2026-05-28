@@ -54,6 +54,7 @@ DJ64_CFLAGS="$CFLAGS \
 -ggdb3 \
 -O2 \
 -ffreestanding \
+-fno-stack-protector \
 -Wall \
 -Wcast-qual \
 -Werror \
