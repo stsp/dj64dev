@@ -41,7 +41,15 @@ Description: dj64 static libraries
  This package contains static libraries for dj64.
  May be needed on non-glibc systems.
 
-Package: djdev64
+Package: libdjdev64-0
+Replaces: djdev64
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: djdev64 runtime libraries
+ This package contains runtime libraries for djdev64-enabled DPMI host.
+
+Package: libdjstub64-0
+Replaces: djdev64
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: djdev64 runtime libraries
@@ -50,7 +58,9 @@ Description: djdev64 runtime libraries
 Package: djdev64-dev
 Architecture: any
 Section: libdevel
-Depends: djdev64 (= ${binary:Version}), ${misc:Depends}
+Depends: libdjdev64-0 (= ${binary:Version}),
+    libdjstub64-0 (= ${binary:Version}),
+    ${misc:Depends}
 Description: djdev64 development libraries and headers
  This package contains development libraries and headers for
  djdev64-enabled DPMI host.
