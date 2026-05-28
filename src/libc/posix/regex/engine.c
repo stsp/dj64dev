@@ -522,7 +522,7 @@ backref(struct match *m, const char *start, const char *stop, sopno startst,
 		ssp = m->offp + m->pmatch[i].rm_so;
 		if (memcmp(sp, ssp, len) != 0)
 			return(NULL);
-		while (m->g->strip[ss] != SOP(O_BACK, i))
+		while (m->g->strip[ss] != (int)SOP(O_BACK, i))
 			ss++;
 		return(backref(m, sp+len, stop, ss+1, stopst, lev));
 		break;
