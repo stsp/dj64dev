@@ -19,7 +19,7 @@ Description: 64-bit djgpp-compatible dev suite
 
 Package: dj64
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}
 Description: runtime libraries for dj64
  This package contains runtime libraries for dj64-built programs.
 
