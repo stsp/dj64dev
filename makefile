@@ -5,7 +5,7 @@ TOP = $(abs_top_builddir)
 ATOP = $(abspath $(TOP))
 -include Makefile.conf
 export prefix
-export PKG_CONFIG_PATH := $(PKG_CONFIG_PATH):$(datadir)/pkgconfig:$(libdir)/pkgconfig
+export PKG_CONFIG_PATH := $(PKG_CONFIG_PATH):$(libdir)/pkgconfig
 
 OS = $(shell uname -s)
 ifeq ($(OS),Darwin)
@@ -76,19 +76,19 @@ install_dj64:
 	$(INSTALL) -d $(DESTDIR)$(sysroot)/share
 	$(INSTALL) -m 0644 $(abs_top_srcdir)/dj64.mk $(DESTDIR)$(sysroot)/share
 	$(INSTALL) -d $(DESTDIR)$(datadir)
-	$(INSTALL) -d $(DESTDIR)$(datadir)/pkgconfig
-	$(INSTALL) -m 0644 dj64.pc $(DESTDIR)$(datadir)/pkgconfig
-	$(INSTALL) -m 0644 dj64_s.pc $(DESTDIR)$(datadir)/pkgconfig
-	$(INSTALL) -m 0644 dj64static.pc $(DESTDIR)$(datadir)/pkgconfig
+	$(INSTALL) -d $(DESTDIR)$(libdir)/pkgconfig
+	$(INSTALL) -m 0644 dj64.pc $(DESTDIR)$(libdir)/pkgconfig
+	$(INSTALL) -m 0644 dj64_s.pc $(DESTDIR)$(libdir)/pkgconfig
+	$(INSTALL) -m 0644 dj64static.pc $(DESTDIR)$(libdir)/pkgconfig
 ifeq ($(NCURSES),1)
 	$(MAKE) -C $(NC_BUILD) install
 endif
 
 install_djdev64:
 	$(INSTALL) -d $(DESTDIR)$(datadir)
-	$(INSTALL) -d $(DESTDIR)$(datadir)/pkgconfig
-	$(INSTALL) -m 0644 djdev64.pc $(DESTDIR)$(datadir)/pkgconfig
-	$(INSTALL) -m 0644 djstub64.pc $(DESTDIR)$(datadir)/pkgconfig
+	$(INSTALL) -d $(DESTDIR)$(libdir)/pkgconfig
+	$(INSTALL) -m 0644 djdev64.pc $(DESTDIR)$(libdir)/pkgconfig
+	$(INSTALL) -m 0644 djstub64.pc $(DESTDIR)$(libdir)/pkgconfig
 	$(INSTALL) -d $(DESTDIR)$(includedir)/djdev64
 	cp -rL $(abs_top_srcdir)/src/djdev64/include/djdev64 $(DESTDIR)$(includedir)
 	$(INSTALL) -d $(DESTDIR)$(libdir)
@@ -111,11 +111,11 @@ endif
 endif
 	$(RM) -r $(DESTDIR)$(sysroot)
 	$(RM) -r $(DESTDIR)$(includedir)/djdev64
-	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj64.pc
-	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj64_s.pc
-	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj64static.pc
-	$(RM) $(DESTDIR)$(datadir)/pkgconfig/djdev64.pc
-	$(RM) $(DESTDIR)$(datadir)/pkgconfig/djstub64.pc
+	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj64.pc
+	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj64_s.pc
+	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj64static.pc
+	$(RM) $(DESTDIR)$(libdir)/pkgconfig/djdev64.pc
+	$(RM) $(DESTDIR)$(libdir)/pkgconfig/djstub64.pc
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJDEV64DEVL))
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJDEV64LIBV))
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJDEV64LIB))
