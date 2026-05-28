@@ -60,21 +60,21 @@ djdev64: djdev64.pc djstub64.pc
 dj64: dj64.pc dj64_s.pc dj64static.pc subs
 
 install_dj64:
-	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/lib
-	$(INSTALL) -m 0644 $(DJLIBC) $(DESTDIR)$(prefix)/i386-pc-dj64/lib
-	$(INSTALL) -m 0644 $(DJCRT0) $(DESTDIR)$(prefix)/i386-pc-dj64/lib
-	$(INSTALL) -m 0644 $(DJUCRT0) $(DESTDIR)$(prefix)/i386-pc-dj64/lib
-	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/bin
-	$(INSTALL) -m 0644 $(DJELFLOAD) $(DESTDIR)$(prefix)/i386-pc-dj64/bin
-	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
-	$(INSTALL) $(DJ64LIB) $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
-	cp -fP $(DJ64LIBV) $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
-	cp -fP $(DJ64DEVL) $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
-	$(INSTALL) -m 0644 $(DJ64LIBS) $(DESTDIR)$(prefix)/i386-pc-dj64/lib64
-	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/include
-	cp -r $(abs_top_srcdir)/include $(DESTDIR)$(prefix)/i386-pc-dj64
-	$(INSTALL) -d $(DESTDIR)$(prefix)/i386-pc-dj64/share
-	$(INSTALL) -m 0644 $(abs_top_srcdir)/dj64.mk $(DESTDIR)$(prefix)/i386-pc-dj64/share
+	$(INSTALL) -d $(DESTDIR)$(sysroot)/lib
+	$(INSTALL) -m 0644 $(DJLIBC) $(DESTDIR)$(sysroot)/lib
+	$(INSTALL) -m 0644 $(DJCRT0) $(DESTDIR)$(sysroot)/lib
+	$(INSTALL) -m 0644 $(DJUCRT0) $(DESTDIR)$(sysroot)/lib
+	$(INSTALL) -d $(DESTDIR)$(sysroot)/bin
+	$(INSTALL) -m 0644 $(DJELFLOAD) $(DESTDIR)$(sysroot)/bin
+	$(INSTALL) -d $(DESTDIR)$(sysroot)/lib64
+	$(INSTALL) $(DJ64LIB) $(DESTDIR)$(sysroot)/lib64
+	cp -fP $(DJ64LIBV) $(DESTDIR)$(sysroot)/lib64
+	cp -fP $(DJ64DEVL) $(DESTDIR)$(sysroot)/lib64
+	$(INSTALL) -m 0644 $(DJ64LIBS) $(DESTDIR)$(sysroot)/lib64
+	$(INSTALL) -d $(DESTDIR)$(sysroot)/include
+	cp -r $(abs_top_srcdir)/include $(DESTDIR)$(sysroot)
+	$(INSTALL) -d $(DESTDIR)$(sysroot)/share
+	$(INSTALL) -m 0644 $(abs_top_srcdir)/dj64.mk $(DESTDIR)$(sysroot)/share
 	$(INSTALL) -d $(DESTDIR)$(datadir)
 	$(INSTALL) -d $(DESTDIR)$(datadir)/pkgconfig
 	$(INSTALL) -m 0644 dj64.pc $(DESTDIR)$(datadir)/pkgconfig
@@ -109,7 +109,7 @@ ifneq ($(wildcard $(NC_BUILD)),)
 	$(MAKE) -C $(NC_BUILD) uninstall
 endif
 endif
-	$(RM) -r $(DESTDIR)$(prefix)/i386-pc-dj64
+	$(RM) -r $(DESTDIR)$(sysroot)
 	$(RM) -r $(DESTDIR)$(includedir)/djdev64
 	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj64.pc
 	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj64_s.pc
