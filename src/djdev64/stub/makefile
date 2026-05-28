@@ -4,7 +4,7 @@ prefix ?= /usr/local
 SOURCES = coff.c elf.c util.c stub.c dpmiwrp.c dos.c
 OBJECTS = $(SOURCES:.c=.o)
 CFLAGS += -iquote $(srcdir)/../include -fpic -ggdb3 -Wall -Og -MD \
-  -DCRT0=\"$(prefix)/i386-pc-dj64/lib/crt0.elf\"
+  -DCRT0=\"$(sysroot)/lib/crt0.elf\"
 SYM_VER = 5
 
 %.o: %.c
