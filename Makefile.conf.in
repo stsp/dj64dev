@@ -4,6 +4,7 @@ libdir := @libdir@
 datarootdir := @datarootdir@
 datadir := @datadir@
 includedir := @includedir@
+sysroot := @sysroot@
 
 abs_top_srcdir = @abs_top_srcdir@
 abs_top_builddir = @abs_top_builddir@

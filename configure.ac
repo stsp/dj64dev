@@ -26,6 +26,18 @@ AC_PROG_GREP
 # termux uses PREFIX var for default prefix
 AC_PREFIX_DEFAULT([${PREFIX:-/usr/local}])
 
+AC_ARG_WITH(sysroot, [AS_HELP_STRING([--with-sysroot=dir],
+  [sysroot directory. default: ${prefix}/i386-pc-dj64])],
+  sysroot="$withval", [
+    if test "x$prefix" = xNONE; then
+      sysroot=${ac_default_prefix}/i386-pc-dj64
+    else
+      sysroot=${prefix}/i386-pc-dj64
+    fi
+  ]
+)
+AC_SUBST(sysroot)
+
 AC_CHECK_PROGS([PKG_CONFIG], [pkg-config])
 if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR(Install pkg-config and retry.)
@@ -54,6 +66,7 @@ DJ64_CFLAGS="$CFLAGS \
 -ggdb3 \
 -O2 \
 -ffreestanding \
+-fno-stack-protector \
 -Wall \
 -Wcast-qual \
 -Werror \
