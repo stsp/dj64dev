@@ -109,7 +109,7 @@ $(error dj64-dev-static not installed)
 endif
 DJ64_XLDFLAGS += -f 0x40
 else
-RP := -Wl,-rpath,$(shell pkg-config --variable=dj64prefix dj64)
+RP := -Wl,-rpath,$(shell pkg-config --variable=dj64prefix dj64)/lib64
 # sort removes duplicates
 DJLDFLAGS := $(shell pkg-config --libs dj64) $(sort $(RP)) $(LDFLAGS)
 ifneq ($(.SHELLSTATUS),0)
