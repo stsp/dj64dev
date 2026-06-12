@@ -238,3 +238,12 @@ __crt1_startup(main_t *main)
   errno = 0;	/* ANSI says errno should be zero at program startup */
   exit(main(__crt0_argc, __crt0_argv, _environ));
 }
+
+#if !USE64
+extern int main(int, char **, char **);
+void
+___crt1_startup(void)
+{
+  __crt1_startup(main);
+}
+#endif

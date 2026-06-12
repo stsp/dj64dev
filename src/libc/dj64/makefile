@@ -19,6 +19,12 @@ endif
 LIBS = libdj64_s.a
 SOURCES = thunks.c thunks_a.c thunks_c.c thunks_p.c dosobj.c
 OBJECTS = $(SOURCES:.c=.o)
+ifeq ($(USE64),1)
+PLT_S = plt.S
+else
+PLT_S = plt32.S
+endif
+PLT_O = $(PLT_S:.S=.o)
 
 #.INTERMEDIATE: thunk_syms.s thunk_syms.ss
 thunk_syms.ss: thunk_syms.c asm_incsn.h
@@ -80,7 +86,7 @@ thunks_a.o: asm_incs.h plt_asmc.h asym_incs.h
 thunks_c.o: thunk_incs.h thunk_calls.h
 thunks_p.o: thunk_incs.h thunk_asms.h
 
-plt.o: plt.S plt.inc $(srcdir)/plt_defs.inc
+$(PLT_O): $(PLT_S) plt.inc $(srcdir)/plt_defs.inc
 uplt.o: uplt.S $(srcdir)/plt_defs.inc
 
 ALL_OBJS = $(addprefix ../,$(file < $(TOP)/makefile.rf))
@@ -104,9 +110,9 @@ $(LIB)/$(LIBS): $(TOP)/makefile.rf $(ALL_OBJS) \
 	$(AR) cr $@ $(ALL_OBJS) $(OBJECTS)
 	$(AR) s $@
 
-$(LIB)/libc_s.a: libc_tmp.a plt.o | $(LIB)
+$(LIB)/libc_s.a: libc_tmp.a $(PLT_O) | $(LIB)
 	cp -f $< libctmp.a
-	$(CROSS_AR) q libctmp.a plt.o
+	$(CROSS_AR) q libctmp.a $(PLT_O)
 	$(CROSS_AR) s libctmp.a
 	mv -f libctmp.a $@
 

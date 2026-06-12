@@ -26,7 +26,8 @@ CPPFLAGS += -DDJ64 -D_IN_DJ64 -D__DJGPP__ -nostdinc
 XGCC = $(CC) $(DJ64_CFLAGS)
 XCPP = $(CPP) -I . -I $(srcdir)/$(TOP)/../../include $(CPPFLAGS) \
   -imacros $(TOP)/../../config.hh -iquote $(srcdir)
-CROSS_ASCPP = $(CPP) -x assembler-with-cpp $(1) | \
+CROSS_ASCPP = $(CPP) -x assembler-with-cpp \
+  -imacros $(TOP)/../../config.hh $(1) | \
   $(CROSS_AS) $(CROSS_ASFLAGS) -I $(srcdir) -
 XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1))
 
