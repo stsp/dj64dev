@@ -22,6 +22,7 @@ OBJECTS = $(SOURCES:.c=.o)
 ifeq ($(USE64),1)
 PLT_S = plt.S
 else
+SOURCES += dj32.c
 PLT_S = plt32.S
 endif
 PLT_O = $(PLT_S:.S=.o)

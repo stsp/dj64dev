@@ -244,6 +244,7 @@ extern int main(int, char **, char **);
 void
 ___crt1_startup(void)
 {
+  dj32_init();
   __crt1_startup(main);
 }
 #endif
