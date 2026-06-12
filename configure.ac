@@ -48,7 +48,7 @@ else
   USE64=0
   ARCH_DIR=i386-pc-dj32
   AC_MSG_WARN([not building 64bit components])
-  CFLAGS="$CFLAGS -fno-pic"
+  CFLAGS="$CFLAGS -fno-pic -march=i386 -fcf-protection=none"
 fi
 AC_SUBST(USE64)
 
