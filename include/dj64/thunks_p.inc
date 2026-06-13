@@ -41,6 +41,7 @@
 #define __ARG_PTR_FAR_A(t)
 #define __RET(t, v) v
 #define __RET_PTR(t, v) djaddr2ptr(v)
+#define __NORET NORETURN
 #ifdef _IN_DJ64
 #define __CALL(n, s, l, f) dj64_asm_call(n, s, l, f)
 #define __CALL_v_nr(n, s, l, f) dj64_asm_noret(n, s, l, f)
