@@ -71,7 +71,7 @@ DJ64_XLIB = $(XELF)
 	$(CPP) -x assembler-with-cpp $(DJ64ASCPPFLAGS) $< | \
 	    $(DJ64AS) $(DJ64ASFLAGS) -o $@ -
 plt.o: plt.inc $(GLOB_ASM)
-	echo "#include <dj64/plt32.S.inc>" | \
+	echo "#include <dj64/plt.S.inc>" | \
 	    $(CPP) -x assembler-with-cpp $(DJ64ASCPPFLAGS) -I. - | \
 	    $(DJ64AS) $(DJ64ASFLAGS) -o $@ -
 thunks_c.o: thunk_calls.h

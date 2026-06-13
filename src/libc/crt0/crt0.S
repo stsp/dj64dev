@@ -122,7 +122,9 @@ _start:
 	stosl
 #endif
 
+#ifdef USE64
 	call plt_init
+#endif
 
 /* Enable NULL pointer protection if DPMI supports it */
 	testb	$0x1, __crt0_startup_flags+1		/* include/crt0.h */
@@ -347,9 +349,11 @@ no_memory:
 ___exit:
 	movb	4+OFF(%esp), %al
 exit:
+#ifdef USE64
 	pushl	%eax
 	call	plt_done
 	popl	%eax
+#endif
 	movb	%al, %cl
 	xorl	%eax,%eax
 	movw	%ax,%fs

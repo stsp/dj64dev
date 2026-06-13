@@ -27,7 +27,6 @@ ifeq ($(USE64),1)
 PLT_S = plt.S
 else
 SOURCES += dj32.c
-PLT_S = plt32.S
 endif
 PLT_O = $(PLT_S:.S=.o)
 
@@ -88,8 +87,16 @@ endif
 
 thunks.o: thunk_calls.h thunk_asms.h thunk_incs.h asym_incs.h
 thunks_a.o: asm_incs.h plt_asmc.h asym_incs.h
-thunks_c.o: thunk_incs.h thunk_calls.h
+thunks_c.o: thunk_c1.h thunk_c32.h thunk_incs.h thunk_calls.h
 thunks_p.o: thunk_p1.h thunk_incs.h thunk_asms.h
+
+thunk_c32.h: thunk_calls.tmp $(TGM4)
+	($(TG) $(TFLAGS) 1 <$< | $(TGS) $(TGM4) >$@_) \
+		|| ($(RM) $@_ ; false)
+	($(TG) $(TFLAGS) 2 <$< >$@__) \
+		|| ($(RM) $@__ ; false)
+	cat $@_ $@__ >$@
+	rm -f $@_ $@__
 
 $(PLT_O): $(PLT_S) plt.inc $(srcdir)/plt_defs.inc
 uplt.o: uplt.S $(srcdir)/plt_defs.inc
