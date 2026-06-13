@@ -78,7 +78,11 @@ static int _libid;
 #define STATIC
 #endif
 
+#ifndef DJ32
 #include "thunk_asms.h"
+#else
+#include "thunk_p32.h"
+#endif
 
 static const struct athunk _asm_pthunks[] = {
 #define ASMCSYM(s, n) [n] = { _S(_##s) },

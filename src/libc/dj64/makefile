@@ -7,10 +7,6 @@ CPPFLAGS += -I $(srcdir)/../../djdev64/include
 P = $(srcdir)/parsers
 MP = $(P)/mkproto.sh
 GA = $(P)/gen_asms.sh
-ifeq ($(USE64),0)
-# override thunk-gen
-TGM4 = $(P)/thunks32.m4
-endif
 OS = $(shell uname -s)
 ifeq ($(OS),Darwin)
 LIBN = libdj64.0.2.dylib
@@ -88,15 +84,7 @@ endif
 thunks.o: thunk_calls.h thunk_asms.h thunk_incs.h asym_incs.h
 thunks_a.o: asm_incs.h plt_asmc.h asym_incs.h
 thunks_c.o: thunk_c1.h thunk_c32.h thunk_incs.h thunk_calls.h
-thunks_p.o: thunk_p1.h thunk_incs.h thunk_asms.h
-
-thunk_c32.h: thunk_calls.tmp $(TGM4)
-	($(TG) $(TFLAGS) 1 <$< | $(TGS) $(TGM4) >$@_) \
-		|| ($(RM) $@_ ; false)
-	($(TG) $(TFLAGS) 2 <$< >$@__) \
-		|| ($(RM) $@__ ; false)
-	cat $@_ $@__ >$@
-	rm -f $@_ $@__
+thunks_p.o: thunk_p1.h thunk_p32.h thunk_incs.h thunk_asms.h
 
 $(PLT_O): $(PLT_S) plt.inc $(srcdir)/plt_defs.inc
 uplt.o: uplt.S $(srcdir)/plt_defs.inc
