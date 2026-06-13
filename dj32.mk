@@ -74,8 +74,8 @@ plt.o: plt.inc $(GLOB_ASM)
 	echo "#include <dj64/plt.S.inc>" | \
 	    $(CPP) -x assembler-with-cpp $(DJ64ASCPPFLAGS) -I. - | \
 	    $(DJ64AS) $(DJ64ASFLAGS) -o $@ -
-thunks_c.o: thunk_calls.h
-thunks_p.o: thunk_asms.h plt_asmc.h
+thunks_c.o: thunk_c1.h thunk_c32.h thunk_calls.h
+thunks_p.o: thunk_p1.h thunk_p32.h thunk_asms.h plt_asmc.h
 
 ifneq ($(PDHDR),)
 ifneq ($(GLOB_ASM),)
