@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Stas Sergeev <stsp@users.sourceforge.net>
 Standards-Version: 3.9.7
 Build-Depends:
-    thunk-gen (>= 1.2~),
+    thunk-gen (>= 1.9~),
     binutils-i686-linux-gnu,
     universal-ctags,
     autoconf,
