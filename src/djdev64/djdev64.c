@@ -337,7 +337,7 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
         char buf[256];
         int *vh1, *vh2;
 
-        snprintf(buf, sizeof(buf), "_%s", *v);
+        snprintf(buf, sizeof(buf), "____%s", *v);
         vh1 = dlsym(dlh, *v);
         vh2 = dlsym(dlh, buf);
         if (vh1 && vh2)
