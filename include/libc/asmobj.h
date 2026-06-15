@@ -27,8 +27,22 @@
 #define __ASYM(x) __##x()
 #define __ASYM_L(x) (*__##x())
 
-#define __S(x) #x
-#define _S(x) __S(x)
+#ifndef _IN_DJ64
+#if defined(DJ64) && !defined(DJ32)
+#define USE64 1
+#else
+#define USE64 0
+#endif
+#endif
+
+#if USE64
+#define __SS(x) #x
+#define _____djgpp_base_address *____djgpp_base_address()
+#else
+#define __SS(x) ({extern char x[]; x;})
+#define _____djgpp_base_address 0
+#endif
+#define _SS(x) __SS(x)
 
 #ifndef IN_ASMOBJ
 
@@ -43,7 +57,7 @@
 #define ASMh(t, x) \
 t *___##x(int handle) \
 { \
-  return (t *)djaddr2ptr2(djthunk_get_h(handle, _S(_##x)), sizeof(t)); \
+  return (t *)djaddr2ptr2(djthunk_get_h(handle, _SS(_##x)), sizeof(t)); \
 }
 
 #ifdef _IN_DJ64
@@ -91,7 +105,7 @@ t *___##x(int handle) \
 #define ASM_Ni(t, x) \
 t *__##x(void) \
 { \
-  return (t *)djaddr2ptr2(djthunk_get(_S(_##x)), sizeof(t)); \
+  return (t *)djaddr2ptr2(djthunk_get(_SS(_##x)), sizeof(t)); \
 }
 #endif
 
@@ -101,7 +115,7 @@ t *__##x(void) \
 #define ASM(t, x) \
 t *__##x(void) \
 { \
-  return (t *)djaddr2ptr2(djthunk_get(_S(_##x)), sizeof(t)); \
+  return (t *)djaddr2ptr2(djthunk_get(_SS(_##x)), sizeof(t)); \
 }
 
 unsigned *____djgpp_base_address(void);
@@ -110,26 +124,26 @@ unsigned *____djgpp_base_address(void);
 #define ASM_F(x) \
 unsigned __##x(void) \
 { \
-  return (djthunk_get(_S(_##x)) - *____djgpp_base_address()); \
+  return (djthunk_get(_SS(_##x)) - _____djgpp_base_address); \
 }
 
 #undef ASM_N
 #define ASM_N(t, x) t *__##x(void)
 
 #define _DP(l, s) \
-  djaddr2ptr2((*____djgpp_base_address()) + (l), s)
+  djaddr2ptr2((_____djgpp_base_address) + (l), s)
 #undef ASM_P
 #define ASM_P(t, x) \
 t *__##x(void) \
 { \
-  return (t *)_DP(*(unsigned *)djaddr2ptr(djthunk_get(_S(_##x))), sizeof(t)); \
+  return (t *)_DP(*(unsigned *)djaddr2ptr(djthunk_get(_SS(_##x))), sizeof(t)); \
 }
 
 #undef ASM_ARR
 #define ASM_ARR(t, x, l) \
 t *__##x(void) \
 { \
-  return (t *)djaddr2ptr2(djthunk_get(_S(_##x)), sizeof(t) * (l)); \
+  return (t *)djaddr2ptr2(djthunk_get(_SS(_##x)), sizeof(t) * (l)); \
 }
 
 #endif
@@ -138,6 +152,9 @@ t *__##x(void) \
 #define EXTERN
 
 #endif
+
+#define __S(x) #x
+#define _S(x) __S(x)
 
 #define __out
 #define _V_FW(n)
