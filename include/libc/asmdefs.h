@@ -28,7 +28,7 @@
 #define POPL_EDI
 #endif
 
-#define USE_FAR_CALL 1
+#define USE_FAR_CALL USE64
 #if USE_FAR_CALL
 #define OFF 4
 #define RET_I lretl
