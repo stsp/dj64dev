@@ -81,9 +81,13 @@ static struct dj64_api dj32 = {
     NULL,  // elfload
 };
 
+extern int _crt0_startup_flags;
+__attribute__((weak)) int _crt0_startup_flags;
+
 int dj32_init(void)
 {
     int ret = DJ64_INIT_ONCE_FN(&dj32, DJ64_API_VER);
+    _____crt0_startup_flags = _crt0_startup_flags;
     DJ64_INIT_FN(0, NULL, NULL, 0);
     return ret;
 }

@@ -417,6 +417,8 @@ dj64cdispatch_t **DJ64_INIT_FN(int handle, const struct elf_ops *ops,
     u->core_at.tab = dj64api->malloc(sizeof(asm_thunks.tab[0]) * asm_thunks.num);
     u->core_pt = pthunks;
     u->core_pt.tab = dj64api->malloc(sizeof(pthunks.tab[0]) * pthunks.num);
+#else
+    do_early_init(0);
 #endif
     return dops;
 }

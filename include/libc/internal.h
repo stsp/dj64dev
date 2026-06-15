@@ -41,6 +41,7 @@ extern FUNC djgpp_last_dtor;
 #endif
 void init_sys_siglist(void);
 void init_confstr(void);
+extern int _____crt0_startup_flags;
 
 #endif /* !_POSIX_SOURCE */
 #endif /* !__STRICT_ANSI__ */
