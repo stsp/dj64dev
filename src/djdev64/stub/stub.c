@@ -54,6 +54,7 @@
  * there is no indication of whether or not the user payload is also
  * present. */
 #define STFLG1_NO32PL  0x80  // no 32bit payload
+#define STFLG2_DJ32    0x20  // dj32 payload
 #define STFLG2_C32PL   0x40  // have core 32bit payload
 #define STFLG2_EMBOV   0x80  // embedded overlay layout
 
@@ -185,6 +186,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     int STFLAGS_OFF = 0x2c;
     int compact_va = 0;
     int emb_ov = 0;
+    int dj32 = 0;
     uint8_t stub_ver = 0;
 #define BARE_STUB() (stub_ver == 0)
 
@@ -289,6 +291,11 @@ int djstub_main(int argc, char *argv[], char *envp[],
             }
             if (buf[FLG1_OFF] & STFLG1_COMPACT)
                 compact_va = 1;
+            if (buf[FLG2_OFF] & STFLG2_DJ32) {
+                done = 1;
+                dj32 = 1;
+                ops = &elf_ops;
+            }
 
             memcpy(&nsize, &buf[0x20 - moff], sizeof(nsize));
             if (nsize)
@@ -407,7 +414,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     clnt_entry.offset32 = ops->get_entry(handle);
     stub_debug("va 0x%x va_size 0x%x entry 0x%x\n",
             va, va_size, clnt_entry.offset32);
-    if (va_size > MB)
+    if (!dj32 && va_size > MB)
         exit(EXIT_FAILURE);
     /* if we load 2 payloads, use larger estimate */
     if ((dyn && pl32) || BARE_STUB() || compact_va) {
