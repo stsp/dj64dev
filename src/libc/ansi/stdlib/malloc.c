@@ -1,4 +1,6 @@
+#if USE64
 #define sbrk(x) djsbrk(x)
+#endif
 #include "nmalloc.inc"
 
 void *malloc(size_t size)
