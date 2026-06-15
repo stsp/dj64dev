@@ -83,5 +83,7 @@ static struct dj64_api dj32 = {
 
 int dj32_init(void)
 {
-    return DJ64_INIT_ONCE_FN(&dj32, DJ64_API_VER);
+    int ret = DJ64_INIT_ONCE_FN(&dj32, DJ64_API_VER);
+    DJ64_INIT_FN(0, NULL, NULL, 0);
+    return ret;
 }

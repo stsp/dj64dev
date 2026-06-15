@@ -410,14 +410,14 @@ dj64cdispatch_t **DJ64_INIT_FN(int handle, const struct elf_ops *ops,
     u_handle_p = NULL;
     u_libid_p = NULL;
 
+    for (i = 0; i < num_chooks; i++)
+        chooks[i].init(handle);
+#if USE64
     u->core_at = asm_thunks;
     u->core_at.tab = dj64api->malloc(sizeof(asm_thunks.tab[0]) * asm_thunks.num);
     u->core_pt = pthunks;
     u->core_pt.tab = dj64api->malloc(sizeof(pthunks.tab[0]) * pthunks.num);
-
-    for (i = 0; i < num_chooks; i++)
-        chooks[i].init(handle);
-
+#endif
     return dops;
 }
 
