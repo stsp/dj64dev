@@ -24,11 +24,16 @@ struct fsext_state {
   int num_fds;
   __FSEXT_entry *fsext_list;
 };
-
+#if USE64
 static struct fsext_state *fst;
 DJ64_DEFINE_SWAPPABLE_CONTEXT(fsext_state, fst)
 #define num_fds fst->num_fds
 #define fsext_list fst->fsext_list
+#else
+static struct fsext_state fst;
+#define num_fds fst.num_fds
+#define fsext_list fst.fsext_list
+#endif
 
 extern void (*__FSEXT_exit_hook)(void);
 static void __FSEXT_close_all(void);

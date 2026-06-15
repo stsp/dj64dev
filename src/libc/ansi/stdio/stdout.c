@@ -4,13 +4,13 @@
 #include <libc/file.h>
 #include <libc/djctx.h>
 
-FILE __dj_stdout;
-
 static const FILE __dj_stdout_init = {
   0, 0, 0, 0,
   _IOWRT | _IOFBF,
   1
 };
+
+FILE __dj_stdout = __dj_stdout_init;
 
 struct ste_state {
   FILE __dj_stdout;

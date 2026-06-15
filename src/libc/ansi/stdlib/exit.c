@@ -33,7 +33,7 @@ struct exit_state {
   void (*atexit2_hook)(void *, int);
   void *atexit2_arg;
 };
-
+#if USE64
 static struct exit_state *est;
 static void est_pre(void)
 {
@@ -54,6 +54,11 @@ DJ64_DEFINE_SWAPPABLE_CONTEXT2(exit_state, est, ((struct exit_state){}),
 
 #define atexit2_hook est->atexit2_hook
 #define atexit2_arg est->atexit2_arg
+#else
+static struct exit_state est;
+#define atexit2_hook est.atexit2_hook
+#define atexit2_arg est.atexit2_arg
+#endif
 
 void
 exit(int status)
