@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define USE_EBX
 #include <libc/asmdefs.h>
 
 .macro farpoke sz,rg
