@@ -50,7 +50,7 @@
 #include "plt.h"
 #include "dosobj.h"
 
-int __crt0_startup_flags;
+int _____crt0_startup_flags;
 
 #define MAX_DISPS 5
 struct udisp {
@@ -250,7 +250,7 @@ static ASMh(int, _crt0_startup_flags)
 
 static void do_early_init(int handle)
 {
-    *____crt0_startup_flags(handle) = __crt0_startup_flags;
+    *____crt0_startup_flags(handle) = _____crt0_startup_flags;
 }
 
 static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)

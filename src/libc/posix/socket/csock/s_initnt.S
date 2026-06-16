@@ -1,8 +1,8 @@
-#include <libc/asmdefs.h>
 #define USE_EBX
 #define USE_EDI
 #define USE_ESI
 #define USE_EAX
+#include <libc/asmdefs.h>
 
 .text
 

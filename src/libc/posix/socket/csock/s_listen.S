@@ -1,7 +1,7 @@
-#include <libc/asmdefs.h>
 #define USE_EDI
 #define USE_EAX
 #define USE_ECX
+#include <libc/asmdefs.h>
 
 .text
 
