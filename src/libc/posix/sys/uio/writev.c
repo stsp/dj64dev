@@ -19,7 +19,7 @@ writev (int fd, const struct iovec *iov, int iovcnt)
     errno = EINVAL;
     return(-1);
   }
-	
+
   /* Calculate the total number of bytes needed to write data. */
   for (maxbytes = 0, i = 0; i < iovcnt; i++) {
     maxbytes += iov[i].iov_len;
@@ -33,7 +33,7 @@ writev (int fd, const struct iovec *iov, int iovcnt)
     errno = EINVAL;
     return(-1);
   }
-	
+
   /* Write out the data vector-by-vector. */
   for (i = 0; i < iovcnt; i++) {
     ret = write(fd, iov[i].iov_base, iov[i].iov_len);
@@ -55,6 +55,6 @@ writev (int fd, const struct iovec *iov, int iovcnt)
     if ((size_t) ret < iov[i].iov_len)
       break;
   }
-	
+
   return(nbytes);
 }

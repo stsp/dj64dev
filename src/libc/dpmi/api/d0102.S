@@ -18,7 +18,7 @@ L_error:
 	movzwl	%bx, %ebx
 	movl	%ebx, (%ecx)
 	movl	$-1, %eax
-	
+
 	LEAVE
 
 #include <libc/asmdefs.h>

@@ -60,7 +60,7 @@ write(int handle, const void* buffer, size_t count)
 
   /* Let's handle FSEXT_write ! */
   /* if handler is installed, call extension and exit if handled. */
-  if(func &&				
+  if(func &&
      __FSEXT_func_wrapper(func, __FSEXT_write, &i_rv, handle, buffer, count))
       return i_rv;
 

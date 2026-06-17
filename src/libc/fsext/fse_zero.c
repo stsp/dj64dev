@@ -231,7 +231,7 @@ dev_fsext (__FSEXT_Fnumber n, int *rv, va_list args)
     /* zero/full device _always_ exists, if installed. */
     if (open_mode & O_CREAT) {
       errno = EEXIST;
-      *rv   = -1;	
+      *rv   = -1;
       break;
     }
 

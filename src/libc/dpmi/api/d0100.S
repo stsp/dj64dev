@@ -22,7 +22,7 @@ L_error:
 	movl	%ebx, (%ecx)
 L_no_ptr:
 	movl	$-1, %eax
-	
+
 	LEAVE
 
 #include <libc/asmdefs.h>

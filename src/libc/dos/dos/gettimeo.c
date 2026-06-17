@@ -15,7 +15,7 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 
   r.h.ah = 0x2c;
   __dpmi_int(0x21, &r);
-		
+
   tv->tv_usec = r.h.dl * 10000;
   tmblk.tm_sec = r.h.dh;
   tmblk.tm_min = r.h.cl;

@@ -1,7 +1,7 @@
 /* Copyright (C) 1996 DJ Delorie, see COPYING.DJ for details */
 #include "sc.h"
 
-void	
+void
 ScreenGetChar(int *_ch, int *_attr, int _x, int _y)
 {
   int s;

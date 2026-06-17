@@ -15,13 +15,13 @@ __detect_80387:				/* returns 1 if 387 (or more), else 0 */
 	fnstsw	(%esi)
 	cmpb	$0,(%esi)
 	jne	Lno_387
-	
+
 	fnstcw	(%esi)
 	movl	(%esi),%eax		/* Only ax significant */
 	andl	$0x103f,%eax
 	cmpl	$0x3f,%eax
 	jne	Lno_387
-	
+
 	fld1
 	fldz
 /*	fdiv				   GAS encodes this as 0xdcf1 !! BUG */

@@ -8,7 +8,7 @@
 	DPMI(0x0101)
 
 	xorl	%eax,%eax
-	
+
 	LEAVE
 
 #include <libc/asmdefs.h>

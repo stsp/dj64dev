@@ -12,7 +12,7 @@
 	movl	ARG1, %eax
 	RET
 
-L_error:	
+L_error:
 	movzwl	%cx, %eax
 	negl	%eax
 

@@ -340,7 +340,7 @@ long
 random(void)
 {
   long i;
-	
+
   if (rand_type == TYPE_0)
   {
     i = state[0] = ( state[0]*1103515245 + 12345 )&0x7fffffff;

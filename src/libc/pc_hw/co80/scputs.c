@@ -1,7 +1,7 @@
 /* Copyright (C) 1995 DJ Delorie, see COPYING.DJ for details */
 #include "sc.h"
 
-void	
+void
 ScreenPutString(const char *_ch, int _attr, int _x, int _y)
 {
   int scptr;

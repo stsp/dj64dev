@@ -116,7 +116,7 @@ verysmall:				/* Exponent is 0 */
 	movl	4(%esp), %eax
 	testl	%eax, %eax
 	jz	special			/* x = 0 */
-	
+
 denormal:
 	fldl	4(%esp)
 	fmuls	two54			/* Multiply by 2^54 to normalize */

@@ -13,9 +13,9 @@ ___dj_movedata:
 	cmpl	$15,%ecx
 	jle	small_move
 	jmp	mod_4_check
-	
+
 	# Transfer bytes until either %esi or %edi is aligned % 4
-align_mod_4:	
+align_mod_4:
 	movsb
 	decl	%ecx
 mod_4_check:

@@ -14,14 +14,14 @@
 	pushl	%es
 	movw	___djgpp_ds_alias, %ax	/* from exceptn.S */
 	movw	%ax, %es
-	
+
 	pushl	%ds
 	pushl	%cs
 	popl	%ds
-	
+
 	movl	ARG1, %esi
 	movl	ARG2, %edi
-	
+
 	movw	$0x0303,%ax
 	int	$0x31
 	popl	%ds

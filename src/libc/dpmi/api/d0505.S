@@ -19,7 +19,7 @@
 	movl	ARG1, %edx
 	movl	%ebx, 8(%edx)
 	movl	%esi, (%edx)
-	
+
 	movzwl	%ax,%eax
 
 	LEAVE

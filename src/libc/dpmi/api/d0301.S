@@ -11,7 +11,7 @@
 	pushl	%es
 	movw	___djgpp_ds_alias, %ax
 	movw	%ax, %es
-	
+
 	movl	$0, %ebx
 	movl	$0, %ecx
 	movl	ARG1, %edi

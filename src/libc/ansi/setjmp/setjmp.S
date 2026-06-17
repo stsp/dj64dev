@@ -43,7 +43,7 @@ _setjmp:
 	movl	%esp,%eax
 	addl	$12,%eax
 	movl	%eax,28(%edi)
-	
+
 	movl	4(%ebp),%eax
 	movl	%eax,32(%edi)
 
@@ -56,7 +56,7 @@ _setjmp:
 	movw	%fs, 46(%edi)
 	movw	%gs, 48(%edi)
 	movw	%ss, 50(%edi)
-	
+
 	movl	___djgpp_exception_state_ptr, %eax
 	movl	%eax, 60(%edi)
 

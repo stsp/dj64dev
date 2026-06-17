@@ -20,7 +20,7 @@
 	movl	ARG1, %edx
 	movw	%cx, 8(%edx)
 	movw	%bx, 10(%edx)
-	
+
 	xorl	%eax,%eax
 
 	LEAVE

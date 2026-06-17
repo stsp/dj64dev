@@ -1,7 +1,7 @@
 /* Copyright (C) 1995 DJ Delorie, see COPYING.DJ for details */
 #include "sc.h"
 
-void	
+void
 ScreenSetCursor(int _row, int _col)
 {
   __dpmi_regs r = {0};

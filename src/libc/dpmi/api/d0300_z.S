@@ -22,10 +22,10 @@
 	movl	$0, %ecx
 	movl	ARG2, %edi
 	incb	dpmi_busy
-	
+
 	cmpb	$1, dpmi_busy
 	jne	L_is_busy
-	
+
 	movw	___dpmi_int_flags, %ax
 	movw	%ax, 0x20(%edi)	/* r.x.flags */
 	movw	___dpmi_int_sp, %ax
@@ -33,12 +33,12 @@
 	movw	___dpmi_int_ss, %ax
 	movw	%ax, 0x30(%edi)	/* r.x.ss */
 	jmp	L_not_busy
-	
+
 L_is_busy:
 	movw	$0, 0x20(%edi)	/* r.x.flags */
 	movw	$0, 0x2e(%edi)	/* r.x.sp */
 	movw	$0, 0x30(%edi)	/* r.x.ss */
-	
+
 L_not_busy:
 	DPMI(0x0300)
 	xorl	%eax,%eax

@@ -20,7 +20,7 @@
 	movw	%bx, 10(%edx)
 	movw	%di, (%edx)
 	movw	%si, 2(%edx)
-	
+
 	xorl	%eax, %eax
 
 	LEAVE

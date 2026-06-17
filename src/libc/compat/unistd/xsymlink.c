@@ -67,7 +67,7 @@ int __solve_symlinks(const char * __symlink_path, char * __real_path)
    	errno = old_errno;
    	return 1;
    }
-   errno = old_errno;   	
+   errno = old_errno;
 
    /* Begin by start pointing at the first character and end pointing
       at the first path separator.  In the cases like "/foo" end will

@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include "sc.h"
 
-void	
+void
 ScreenUpdate(const void *_virtual_screen)
 {
   fmemcpy1(DP(dossel, co80), _virtual_screen, ScreenRows() * ScreenCols() * 2);

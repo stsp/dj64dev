@@ -123,7 +123,7 @@ not_forced:
 
 	pushl	%ebp
 	movl	%esp, %ebp	/* load ebp with stack for easy access */
-	
+
 	movl	12(%ebp), %eax
 	movl	%eax, ERRCODE(%ebx)
 	movl	16(%ebp), %eax

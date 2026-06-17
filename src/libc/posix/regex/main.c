@@ -86,7 +86,7 @@ char *argv[];
 			eprint(err), len, sizeof(erbuf), erbuf);
 		exit(status);
 	}
-	regprint(&re, stdout);	
+	regprint(&re, stdout);
 
 	if (optind >= argc) {
 		regfree(&re);

@@ -21,8 +21,8 @@ _log1p:					/* ln(1.+x) */
 	cmpl	$0xBFF00000, %eax	/* x <= -1 ? */
 	jae	nonpos
 
-	andl	$0x7FF00000, %eax	
-	cmpl	$0x7FF00000, %eax	
+	andl	$0x7FF00000, %eax
+	cmpl	$0x7FF00000, %eax
 	je	abarg			/* x == +inf or +NaN */
 
 	movl	%edx, %eax
@@ -40,7 +40,7 @@ _log1p:					/* ln(1.+x) */
 	ret
 
 nonpos:
-	cmpl	$0xBFF00000, %eax	
+	cmpl	$0xBFF00000, %eax
 	ja	badarg			/* x == -1 ? */
 	movl	4(%esp), %eax
 	testl	%eax, %eax

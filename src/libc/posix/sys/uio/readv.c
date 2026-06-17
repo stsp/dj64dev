@@ -19,7 +19,7 @@ readv (int fd, const struct iovec *iov, int iovcnt)
     errno = EINVAL;
     return(-1);
   }
-	
+
   /* Calculate total number of bytes that can be read. */
   for (maxbytes = 0, i = 0; i < iovcnt; i++) {
     maxbytes += iov[i].iov_len;
@@ -55,6 +55,6 @@ readv (int fd, const struct iovec *iov, int iovcnt)
     if ((size_t) ret < iov[i].iov_len)
       break;
   }
-	
+
   return(nbytes);
 }
