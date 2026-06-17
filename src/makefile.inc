@@ -53,7 +53,6 @@ L = $(LIB)/libc.a
 
 OBJS := $(addsuffix .o, $(basename $(SRC)))
 AS_OBJS := $(addsuffix .o, $(basename $(AS_SRC)))
-EXES := $(addprefix $(BIN)/,$(addsuffix .exe, $(basename $(SRC))))
 
 NOP = @echo
 
