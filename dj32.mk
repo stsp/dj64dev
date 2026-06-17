@@ -47,8 +47,6 @@ endif
 DJ64_XLDFLAGS += -f 0x40
 XELF = tmp.elf
 
-.INTERMEDIATE: $(XELF)
-
 ifneq ($(PDHDR),)
 HASH := \#
 ifneq ($(shell grep "ASMCFUNC" $(PDHDR) | grep -cv "$(HASH)define"),0)
