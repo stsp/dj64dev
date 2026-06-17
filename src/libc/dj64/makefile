@@ -2,7 +2,7 @@ TOP = ..
 
 include $(TOP)/../../Makefile.conf
 include $(srcdir)/$(TOP)/../makefile.inc
-CPPFLAGS += -I $(srcdir)/../../djdev64/include
+CPPFLAGS += -I $(srcdir)/$(TOP)/../djdev64/include
 
 P = $(srcdir)/parsers
 MP = $(P)/mkproto.sh
@@ -19,11 +19,7 @@ endif
 LIBS = libdj64_s.a
 SOURCES = thunks.c thunks_a.c thunks_c.c thunks_p.c dosobj.c
 OBJECTS = $(SOURCES:.c=.o)
-ifeq ($(USE64),1)
 PLT_S = plt.S
-else
-SOURCES += dj32.c
-endif
 PLT_O = $(PLT_S:.S=.o)
 
 #.INTERMEDIATE: thunk_syms.s thunk_syms.ss
@@ -40,10 +36,11 @@ thunk_syms.o: thunk_syms.s
 	$(CROSS_STRIP) --remove-section=.note.gnu.property --strip-debug -o $@ $@_ 2>/dev/null
 	$(RM) $@_
 
-ALL_AS_OBJS = $(addprefix ../,$(file < $(TOP)/makefile.rfo))
-libc_tmp.a : $(TOP)/makefile.rfo thunk_syms.o $(ALL_AS_OBJS)
+ALL_AS_OBJS = $(addprefix $(TOP)/,$(file < $(TOP)/makefile.rfo))
+ALL_AS_OBJS64 = $(addprefix $(TOP)/,$(file < $(TOP)/makefile.a64))
+libc_tmp.a : $(TOP)/makefile.rfo thunk_syms.o $(ALL_AS_OBJS) $(ALL_AS_OBJS64)
 	@-$(RM) $@
-	$(CROSS_AR) q $@ $(ALL_AS_OBJS) thunk_syms.o
+	$(CROSS_AR) q $@ $(ALL_AS_OBJS) $(ALL_AS_OBJS64) thunk_syms.o
 	$(CROSS_AR) s $@
 
 asm_incs.h:
@@ -81,15 +78,15 @@ TFLAGS = -a 4 -p 4
 include $(TGMK)
 endif
 
-thunks.o: thunk_calls.h thunk_asms.h thunk_incs.h asym_incs.h
-thunks_a.o: asm_incs.h plt_asmc.h asym_incs.h
-thunks_c.o: thunk_c1.h thunk_c32.h thunk_incs.h thunk_calls.h
-thunks_p.o: thunk_p1.h thunk_p32.h thunk_incs.h thunk_asms.h
+thunks.C: thunks.c thunk_calls.h thunk_asms.h thunk_incs.h asym_incs.h
+thunks_a.C: thunks_a.c asm_incs.h plt_asmc.h asym_incs.h
+thunks_c.C: thunks_c.c thunk_incs.h thunk_calls.h
+thunks_p.C: thunks_p.c thunk_incs.h thunk_asms.h
 
 $(PLT_O): $(PLT_S) plt.inc $(srcdir)/plt_defs.inc
 uplt.o: uplt.S $(srcdir)/plt_defs.inc
 
-ALL_OBJS = $(addprefix ../,$(file < $(TOP)/makefile.rf))
+ALL_OBJS = $(addprefix $(TOP)/,$(file < $(TOP)/makefile.rf))
 
 OS = $(shell uname -s)
 ifeq ($(OS),Darwin)
@@ -127,14 +124,12 @@ $(LIB)/uplt.o: uplt.o
 $(LIB)/$(LIBNS) $(LIB)/$(LIBNV): $(LIB)/$(LIBN) | $(LIB)
 	ln -sf $(LIBN) $@
 
-ifeq ($(USE64),1)
-final: $(LIB)/libc_s.a $(LIB)/$(LIBNS) $(LIB)/$(LIBNV) $(LIB)/$(LIBS) $(LIB)/crt0.elf \
-  $(LIB)/uplt.o | $(LIB)
-else
-final: $(LIB)/libc_s.a $(LIB)/$(LIBS) | $(LIB)
-endif
+final: $(LIB)/libc_s.a $(LIB)/$(LIBNS) $(LIB)/$(LIBNV) \
+  $(LIB)/$(LIBS) $(LIB)/crt0.elf $(LIB)/uplt.o | $(LIB)
+	$(MAKE) -C 32 final
 
 clean::
 	$(RM) rm *.a *.tmp plt.inc asm_*.h thunk_*.h plt_*.h asym_incs.h
 	$(RM) thunk_syms.s thunk_syms.ss
 	$(RM) $(LIB)/libc_s.a $(LIB)/libdj64.so* $(LIB)/libdj64.*dylib
+	$(MAKE) -C 32 clean

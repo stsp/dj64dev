@@ -122,7 +122,7 @@ _start:
 	stosl
 #endif
 
-#ifdef USE64
+#if USE64
 	call plt_init
 #endif
 
@@ -327,7 +327,7 @@ use_stubinfo_stack_size:
 	pushl	$_CRT0_EH_FRAME_BEGIN_
 	call	___register_frame_info
 	addl	$8, %esp
-#ifdef USE64
+#if USE64
 	pushl	__plt_handle
 	call	_crt1_startup		/* run program */
 	addl	$4, %esp
@@ -349,7 +349,7 @@ no_memory:
 ___exit:
 	movb	4+OFF(%esp), %al
 exit:
-#ifdef USE64
+#if USE64
 	pushl	%eax
 	call	plt_done
 	popl	%eax

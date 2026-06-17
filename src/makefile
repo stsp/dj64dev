@@ -3,7 +3,7 @@ include ../Makefile.conf
 all: subs
 
 makemake.exe: makemake.c
-	$(CC_FOR_BUILD) -O2 -Wall -o $@ $^
+	$(CC_FOR_BUILD) -ggdb3 -O2 -Wall -o $@ $^
 
 subs: makemake.exe
 	$(MAKE) -C libc

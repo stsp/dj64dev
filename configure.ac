@@ -32,37 +32,46 @@ if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR(Install pkg-config and retry.)
 fi
 
+ARCH_DIR=i386-pc-dj64
+ARCH_DIR32=i386-pc-dj32
+USE64=1
+
 AC_ARG_ENABLE(64bit,
   AS_HELP_STRING([--disable-64bit], [do not build 64bit components (reduced build)]))
 if test "$enable_64bit" != "no"; then
-  USE64=1
-  ARCH_DIR=i386-pc-dj64
-  AC_DEFINE([USE64], 1, [ Define this to enable 64bit components ])
   PKG_CHECK_MODULES([LIBELF], [libelf],, [AC_MSG_ERROR([libelf not installed])])
 
   AC_CHECK_FUNCS([dlmopen])
   AC_CHECK_DECLS([RTLD_DEEPBIND],,, [[#include <dlfcn.h>]])
 
-  CFLAGS="$CFLAGS -fpic"
+  AC_ARG_WITH(sysroot, [AS_HELP_STRING([--with-sysroot=dir],
+    [sysroot directory. default: ${prefix}/${ARCH_DIR}])],
+    sysroot="$withval", [
+      if test "x$prefix" = xNONE; then
+        sysroot=${ac_default_prefix}/${ARCH_DIR}
+      else
+        sysroot=${prefix}/${ARCH_DIR}
+      fi
+    ]
+  )
+  AC_SUBST(sysroot)
 else
   USE64=0
-  ARCH_DIR=i386-pc-dj32
   AC_MSG_WARN([not building 64bit components])
-  CFLAGS="$CFLAGS -fno-pic -march=i386 -fcf-protection=none"
 fi
 AC_SUBST(USE64)
 
-AC_ARG_WITH(sysroot, [AS_HELP_STRING([--with-sysroot=dir],
-  [sysroot directory. default: ${prefix}/${ARCH_DIR}])],
-  sysroot="$withval", [
+AC_ARG_WITH(sysroot32, [AS_HELP_STRING([--with-sysroot32=dir],
+  [sysroot32 directory. default: ${prefix}/${ARCH_DIR32}])],
+  sysroot32="$withval", [
     if test "x$prefix" = xNONE; then
-      sysroot=${ac_default_prefix}/${ARCH_DIR}
+      sysroot32=${ac_default_prefix}/${ARCH_DIR32}
     else
-      sysroot=${prefix}/${ARCH_DIR}
+      sysroot32=${prefix}/${ARCH_DIR32}
     fi
   ]
 )
-AC_SUBST(sysroot)
+AC_SUBST(sysroot32)
 
 AC_ARG_ENABLE(ncurses,
   AS_HELP_STRING([--disable-ncurses], [do not build ncurses]))
@@ -79,7 +88,7 @@ PKG_CHECK_MODULES([TG], [thunk_gen >= 1.5],, [
   AC_MSG_ERROR([thunk-gen >= 1.5 not installed])
 ])
 
-DJ64_CFLAGS="$CFLAGS \
+CFLAGS_COMM="$CFLAGS \
 -fno-common \
 -nostdinc \
 -ggdb3 \
@@ -99,6 +108,9 @@ DJ64_CFLAGS="$CFLAGS \
 -Wno-array-bounds \
 -Wsign-compare \
 -Wold-style-definition"
+
+DJ64_CFLAGS="$CFLAGS_COMM -fpic"
+DJ32_CFLAGS="$CFLAGS_COMM -fno-pic -march=i386 -fcf-protection=none"
 
 DJ64_LDFLAGS="$LDFLAGS"
 
@@ -139,6 +151,8 @@ else
   CC_IS_CLANG=0
   DJ64_CFLAGS="$DJ64_CFLAGS \
     -Wno-error=maybe-uninitialized"
+  DJ32_CFLAGS="$DJ32_CFLAGS \
+    -Wno-error=maybe-uninitialized"
 
   AC_CHECK_TOOL([AR], [ar], [:])
   if test -z "$AR" -o "$AR" = ":"; then
@@ -147,6 +161,7 @@ else
 fi
 AC_SUBST(CC_IS_CLANG)
 AC_SUBST(DJ64_CFLAGS)
+AC_SUBST(DJ32_CFLAGS)
 AC_SUBST(DJ64_LDFLAGS)
 
 DJ64_EXTRA_CPPFLAGS=""
@@ -161,6 +176,36 @@ fi
 AC_SUBST(DJ64_EXTRA_CPPFLAGS)
 AC_SUBST(DJ64_EXTRA_LDFLAGS)
 AC_SUBST(DJ64_S_EXTRA_LDFLAGS)
+
+if test -n "$CROSS_PREFIX"; then
+  AC_PATH_PROG([CROSS_CC], [${CROSS_PREFIX}gcc])
+  if test -z "$CROSS_CC"; then
+    AC_MSG_ERROR([${CROSS_PREFIX}gcc not found, CROSS_PREFIX is wrong])
+  fi
+else
+  AC_PATH_PROGS([CROSS_CC], [i686-linux-gnu-gcc i686-unknown-linux-gnu-gcc i586-suse-linux-gcc i386-elf-gcc])
+fi
+if test -z "$CROSS_CC"; then
+  AC_PATH_PROG([CROSS_CC], [x86_64-linux-gnu-gcc])
+  if test -z "$CROSS_CC"; then
+    if test \( "$machine" = "i386" -o "$machine" = "x86_64" \) -a "$CONFIG_HOST" != "Darwin"; then
+      AC_MSG_NOTICE([Using host ${CC} for cross-compiling...])
+      CROSS_CC=${CC}
+      CROSS_CFLAGS="-m32"
+    else
+      AC_PATH_PROG([CROSS_CC], [clang])
+      if test -n "$CROSS_CC"; then
+        AC_MSG_NOTICE([Using clang as cross-cc...])
+        CROSS_CFLAGS="-target i686-unknown-linux-gnu"
+      else
+        AC_MSG_ERROR([386 cross-compiler not found, please install clang or gcc-i686-linux-gnu])
+      fi
+    fi
+  else
+    CROSS_CFLAGS="-m32"
+  fi
+fi
+AC_SUBST(CROSS_CFLAGS)
 
 if test -n "$CROSS_PREFIX"; then
   AC_PATH_PROG([CROSS_AS], [${CROSS_PREFIX}as])
