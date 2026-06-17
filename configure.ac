@@ -88,7 +88,7 @@ PKG_CHECK_MODULES([TG], [thunk_gen >= 1.5],, [
   AC_MSG_ERROR([thunk-gen >= 1.5 not installed])
 ])
 
-CFLAGS_COMM="$CFLAGS \
+CFLAGS_COMM=" \
 -fno-common \
 -nostdinc \
 -ggdb3 \
@@ -109,7 +109,7 @@ CFLAGS_COMM="$CFLAGS \
 -Wsign-compare \
 -Wold-style-definition"
 
-DJ64_CFLAGS="$CFLAGS_COMM -fpic"
+DJ64_CFLAGS="$CFLAGS $CFLAGS_COMM -fpic"
 DJ32_CFLAGS="$CFLAGS_COMM -fno-pic -march=i386 -fcf-protection=none"
 
 DJ64_LDFLAGS="$LDFLAGS"
