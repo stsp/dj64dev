@@ -4,13 +4,13 @@
 #include <libc/file.h>
 #include <libc/djctx.h>
 
-FILE __dj_stdin;
-
 static const FILE __dj_stdin_init = {
   0, 0, 0, 0,
   _IOREAD | _IOLBF,
   0
 };
+
+FILE __dj_stdin = __dj_stdin_init;
 
 struct ste_state {
   FILE __dj_stdin;

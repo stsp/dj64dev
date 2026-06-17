@@ -1,0 +1,5 @@
+usr/lib/*/i386-pc-dj32/include
+usr/lib/*/i386-pc-dj32/lib/libc32_s.a
+usr/lib/*/i386-pc-dj32/lib32/libdj32_s.a
+usr/lib/*/i386-pc-dj64/share/*
+usr/lib/*/pkgconfig/dj32.pc

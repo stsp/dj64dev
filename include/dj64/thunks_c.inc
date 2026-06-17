@@ -77,3 +77,15 @@ STATIC UDWORD DJ64_DISPATCH_FN(int fn, UBYTE *sp, int *r_len)
     *r_len = rsz;
     return ret;
 }
+
+#ifdef DJ32
+#undef ASMCFUNC
+#define ASMCFUNC extern __attribute__((cdecl))
+#define _FUNC(x) _##x
+#include "thunk_c1.h"
+#undef _FUNC
+#define _FUNC(x) x
+#define _CFUNC(x) _##x
+#include <dj64/tg_defs.h>
+#include "thunk_c32.h"
+#endif

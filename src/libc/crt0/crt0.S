@@ -122,7 +122,9 @@ _start:
 	stosl
 #endif
 
+#if USE64
 	call plt_init
+#endif
 
 /* Enable NULL pointer protection if DPMI supports it */
 	testb	$0x1, __crt0_startup_flags+1		/* include/crt0.h */
@@ -325,9 +327,13 @@ use_stubinfo_stack_size:
 	pushl	$_CRT0_EH_FRAME_BEGIN_
 	call	___register_frame_info
 	addl	$8, %esp
+#if USE64
 	pushl	__plt_handle
 	call	_crt1_startup		/* run program */
 	addl	$4, %esp
+#else
+	call    ____crt1_startup	/* run program */
+#endif
 	jmp	exit
 
 no_memory:
@@ -343,9 +349,11 @@ no_memory:
 ___exit:
 	movb	4+OFF(%esp), %al
 exit:
+#if USE64
 	pushl	%eax
 	call	plt_done
 	popl	%eax
+#endif
 	movb	%al, %cl
 	xorl	%eax,%eax
 	movw	%ax,%fs

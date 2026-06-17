@@ -5,13 +5,13 @@
 #include <libc/file.h>
 #include <libc/djctx.h>
 
-FILE __dj_stdprn;
-
 static const FILE __dj_stdprn_init = {
   0, 0, 0, 0,
   _IOWRT | _IONBF,
   4
 };
+
+FILE __dj_stdprn = __dj_stdprn_init;
 
 struct ste_state {
   FILE __dj_stdprn;

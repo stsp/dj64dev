@@ -123,10 +123,12 @@ endif
 
 .INTERMEDIATE: $(XELF) $(XELF).elf tmp.s
 
+ifeq ($(filter clean install,$(MAKECMDGOALS)),)
 ifneq ($(PDHDR),)
 HASH := \#
 ifneq ($(shell grep "ASMCFUNC" $(PDHDR) | grep -cv "$(HASH)define"),0)
 PLT_O = plt.o
+endif
 endif
 endif
 GLOB_ASM ?= $(wildcard glob_asm.h)
@@ -238,7 +240,7 @@ endif
 
 clean_dj64:
 	$(RM) $(OBJECTS) $(AS_OBJECTS) plt.o plt.inc *.tmp
-	$(RM) thunk_calls.h thunk_asms.h plt_asmc.h glob_asmdefs.h
+	$(RM) thunk_*.h plt_asmc.h glob_asmdefs.h
 	$(RM) $(DJ64_XLIB) $(DJHOSTLIB) $(XELF).elf tmp.s host.elf
 
 EXTRAS = $(shell pkg-config --variable=extras dj64)

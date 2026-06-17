@@ -410,14 +410,16 @@ dj64cdispatch_t **DJ64_INIT_FN(int handle, const struct elf_ops *ops,
     u_handle_p = NULL;
     u_libid_p = NULL;
 
+    for (i = 0; i < num_chooks; i++)
+        chooks[i].init(handle);
+#if USE64
     u->core_at = asm_thunks;
     u->core_at.tab = dj64api->malloc(sizeof(asm_thunks.tab[0]) * asm_thunks.num);
     u->core_pt = pthunks;
     u->core_pt.tab = dj64api->malloc(sizeof(pthunks.tab[0]) * pthunks.num);
-
-    for (i = 0; i < num_chooks; i++)
-        chooks[i].init(handle);
-
+#else
+    do_early_init(0);
+#endif
     return dops;
 }
 
@@ -722,6 +724,7 @@ void crt1_startup(int handle)
     __crt1_startup(u->main);
 }
 
+#if USE64
 static uint32_t do_thunk_get(const struct athunks *at, const char *name)
 {
     int i;
@@ -732,9 +735,11 @@ static uint32_t do_thunk_get(const struct athunks *at, const char *name)
     }
     return (uint32_t)-1;
 }
+#endif
 
 uint32_t djthunk_get_h(int handle, const char *name)
 {
+#if USE64
     int i;
     struct udisp *u;
     uint32_t ret = (uint32_t)-1;
@@ -750,11 +755,18 @@ uint32_t djthunk_get_h(int handle, const char *name)
     }
     assert(ret != (uint32_t)-1);
     return ret;
+#else
+    return PTR_DATA((const unsigned char *)name);
+#endif
 }
 
 uint32_t djthunk_get(const char *name)
 {
+#if USE64
     return djthunk_get_h(dj64api->get_handle(), name);
+#else
+    return PTR_DATA((const unsigned char *)name);
+#endif
 }
 
 void djregister_ctx_hooks(void (*init)(int), void (*deinit)(void),

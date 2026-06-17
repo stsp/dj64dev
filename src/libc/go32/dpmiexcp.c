@@ -396,7 +396,7 @@ struct exc_info {
   char cbrk_hooked;
   ULONG32 cbrk_regs;
 };
-
+#if USE64
 static struct exc_info *xinfo;
 DJ64_DEFINE_SWAPPABLE_CONTEXT(exc_info, xinfo)
 #define except_ori xinfo->except_ori
@@ -407,7 +407,17 @@ DJ64_DEFINE_SWAPPABLE_CONTEXT(exc_info, xinfo)
 #define cbrk_rmcb xinfo->cbrk_rmcb
 #define cbrk_hooked xinfo->cbrk_hooked
 #define cbrk_regs xinfo->cbrk_regs
-
+#else
+static struct exc_info xinfo;
+#define except_ori xinfo.except_ori
+#define kbd_ori xinfo.kbd_ori
+#define npx_ori xinfo.npx_ori
+#define timer_ori xinfo.timer_ori
+#define cbrk_ori xinfo.cbrk_ori
+#define cbrk_rmcb xinfo.cbrk_rmcb
+#define cbrk_hooked xinfo.cbrk_hooked
+#define cbrk_regs xinfo.cbrk_regs
+#endif
 /* Routine toggles ALL the exceptions.  Used around system calls, at exit. */
 
 void

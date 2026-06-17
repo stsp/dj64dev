@@ -5,6 +5,7 @@ Maintainer: Stas Sergeev <stsp@users.sourceforge.net>
 Standards-Version: 3.9.7
 Build-Depends:
     thunk-gen (>= 1.9~),
+    gcc-i686-linux-gnu,
     binutils-i686-linux-gnu,
     universal-ctags,
     autoconf,
@@ -40,6 +41,17 @@ Depends: dj64-dev (= ${binary:Version})
 Description: dj64 static libraries
  This package contains static libraries for dj64.
  May be needed on non-glibc systems.
+
+Package: dj32-dev
+Architecture: any
+Section: libdevel
+Depends: ${misc:Depends},
+    gcc-i686-linux-gnu,
+    binutils-i686-linux-gnu,
+    pkgconf
+Description: development tools and headers of dj32
+ This package contains tools and headers for building dj64-enabled programs
+ for 32bit targets.
 
 Package: libdjdev64-0
 Replaces: djdev64

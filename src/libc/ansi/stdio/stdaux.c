@@ -5,13 +5,13 @@
 #include <libc/file.h>
 #include <libc/djctx.h>
 
-FILE __dj_stdaux;
-
 static const FILE __dj_stdaux_init = {
   0, 0, 0, 0,
   _IORW | _IONBF,
   3
 };
+
+FILE __dj_stdaux = __dj_stdaux_init;
 
 struct ste_state {
   FILE __dj_stdaux;

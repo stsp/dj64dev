@@ -20,6 +20,7 @@
 
 .text
 
+#ifndef DJ32
 .macro asmcfunc_n nm,num
     .global _\nm
     _\nm:
@@ -35,6 +36,7 @@
 .endm
 
 #include "plt.inc"
+#endif
 
 .macro asmsym nm
     .long _\nm

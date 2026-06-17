@@ -1,6 +1,7 @@
 /* Copyright (C) 2013 DJ Delorie, see COPYING.DJ for details */
 /* Copyright (C) 2001 DJ Delorie, see COPYING.DJ for details */
 #include <malloc.h>
+#include <stdint.h>
 #include <libc/malloc.h>
 
 /* Make VAL a multiple of ALIGN.  */
@@ -16,7 +17,7 @@ static inline
 char *
 align_ptr(char *ptr, size_t align)
 {
-  return (char *)(((size_t)ptr + (align - 1)) & ~(align - 1));
+  return (char *)(((uintptr_t)ptr + (align - 1)) & ~(align - 1));
 }
 
 /* Take part of one chunk of memory and merge it with a preceding chunk.  */

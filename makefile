@@ -20,12 +20,14 @@ EXTRA_NC_CONFIGURE_FLAGS =
 endif
 
 DJLIBC = $(TOP)/lib/libc_s.a
+DJLIBC32 = $(TOP)/lib/libc32_s.a
 DJCRT0 = $(TOP)/lib/crt0.elf
 DJUCRT0 = $(TOP)/lib/uplt.o
 DJ64LIB = $(TOP)/lib/libdj64.*.*.*
 DJ64LIBV = $(TOP)/lib/libdj64.*.*
 DJ64DEVL = $(TOP)/lib/libdj64.$(SHLIB_EXT)
 DJ64LIBS = $(TOP)/lib/libdj64_s.a
+DJ32LIBS = $(TOP)/lib/libdj32_s.a
 DJDEV64LIB = $(TOP)/lib/libdjdev64.*.*.*
 DJDEV64LIBV = $(TOP)/lib/libdjdev64.*.*
 DJDEV64DEVL = $(TOP)/lib/libdjdev64.$(SHLIB_EXT)
@@ -37,7 +39,10 @@ NC_BUILD = contrib/ncurses/build
 
 .PHONY: subs dj64 djdev64 demos ncurses
 
-all: Makefile.conf dj64 djdev64 ncurses
+ifeq ($(USE64),1)
+DJDEV64 = djdev64
+endif
+all: Makefile.conf dj64 $(DJDEV64) ncurses
 	@echo
 	@echo "Done building. You may need to run \"sudo make install\" now."
 	@echo "You can first run \"sudo make uninstall\" to purge the prev install."
@@ -57,8 +62,13 @@ subs:
 djdev64: djdev64.pc djstub64.pc
 	$(MAKE) -C src/djdev64
 
-dj64: dj64.pc dj64_s.pc dj64static.pc subs
+ifeq ($(USE64),1)
+DJ64PC = dj64.pc dj64_s.pc dj64static.pc
+endif
+DJ64PC += dj32.pc
+dj64: $(DJ64PC) subs
 
+ifeq ($(USE64),1)
 install_dj64:
 	$(INSTALL) -d $(DESTDIR)$(sysroot)/lib
 	$(INSTALL) -m 0644 $(DJLIBC) $(DESTDIR)$(sysroot)/lib
@@ -98,12 +108,17 @@ install_djdev64:
 	$(INSTALL) -m 0755 $(DJSTUB64LIB) $(DESTDIR)$(libdir)
 	cp -fP $(DJSTUB64LIBV) $(DESTDIR)$(libdir)
 	cp -fP $(DJSTUB64DEVL) $(DESTDIR)$(libdir)
+else
+install_dj64:
+install_djdev64:
+endif
 
-install: install_dj64 install_djdev64 install_demos
+install: install_dj64 install_djdev64 install_demos install32
 	@echo
 	@echo "Done installing. You may need to run \"sudo ldconfig\" now."
 
-uninstall:
+ifeq ($(USE64),1)
+uninstall64:
 ifeq ($(NCURSES),1)
 ifneq ($(wildcard $(NC_BUILD)),)
 	$(MAKE) -C $(NC_BUILD) uninstall
@@ -124,6 +139,26 @@ endif
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJSTUB64LIB))
 	ldconfig
 	$(MAKE) -C demos src_uninstall
+else
+uninstall64:
+endif
+install32:
+	$(INSTALL) -d $(DESTDIR)$(sysroot32)/lib
+	$(INSTALL) -d $(DESTDIR)$(sysroot32)/lib32
+	$(INSTALL) -m 0644 $(DJLIBC32) $(DESTDIR)$(sysroot32)/lib
+	$(INSTALL) -m 0644 $(DJ32LIBS) $(DESTDIR)$(sysroot32)/lib32
+	$(INSTALL) -d $(DESTDIR)$(libdir)/pkgconfig
+	$(INSTALL) -m 0644 dj32.pc $(DESTDIR)$(libdir)/pkgconfig
+	$(INSTALL) -d $(DESTDIR)$(sysroot32)/include
+	cp -r $(abs_top_srcdir)/include $(DESTDIR)$(sysroot32)
+	$(INSTALL) -d $(DESTDIR)$(sysroot32)/share
+	$(INSTALL) -m 0644 $(abs_top_srcdir)/dj32.mk $(DESTDIR)$(sysroot32)/share
+
+uninstall32:
+	$(RM) -r $(DESTDIR)$(sysroot32)
+	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj32.pc
+
+uninstall: uninstall64 uninstall32
 
 clean: demos_clean
 	$(MAKE) -C src clean

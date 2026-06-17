@@ -55,13 +55,20 @@ struct nm_state {
   M_HOOKFN hookptr[HKCOUNT];
 
 };
-
+#if USE64
 static struct nm_state *nms;
 DJ64_DEFINE_SWAPPABLE_CONTEXT(nm_state, nms)
 #define freehdrs nms->freehdrs
 #define lastsbrkbgn nms->lastsbrkbgn
 #define sbrkbgn nms->sbrkbgn
 #define hookptr nms->hookptr
+#else
+static struct nm_state nms;
+#define freehdrs nms.freehdrs
+#define lastsbrkbgn nms.lastsbrkbgn
+#define sbrkbgn nms.sbrkbgn
+#define hookptr nms.hookptr
+#endif
 
 #if 0
 /* Forward declaration to allow sysquery init below */

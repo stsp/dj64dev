@@ -26,9 +26,11 @@ struct fh_state {
   char *__file_handle_modes;
 };
 
-static struct fh_state *fhs;
+static char init_file_handle_mo[20] = init_fh;
+char *__file_handle_modes = init_file_handle_mo;
 
-char *__file_handle_modes;
+#if USE64
+static struct fh_state *fhs;
 
 static const struct fh_state fhinit =
 {
@@ -57,6 +59,12 @@ DJ64_DEFINE_SWAPPABLE_CONTEXT3(fh_state, fhs, fhinit,
 #define init_file_handle_modes fhs->init_file_handle_modes
 #define dosio_bss_count fhs->dosio_bss_count
 #define count fhs->count
+#else
+static struct fh_state fhs;
+#define init_file_handle_modes fhs.init_file_handle_modes
+#define dosio_bss_count fhs.dosio_bss_count
+#define count fhs.count
+#endif
 
 void
 __file_handle_set(int fd, int mode)

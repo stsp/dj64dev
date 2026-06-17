@@ -5,6 +5,7 @@ datarootdir := @datarootdir@
 datadir := @datadir@
 includedir := @includedir@
 sysroot := @sysroot@
+sysroot32 := @sysroot32@
 
 abs_top_srcdir = @abs_top_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -16,6 +17,7 @@ vpath %.S $(srcdir)
 vpath %.s $(srcdir)
 
 CC := @CC@
+CC32 := @CROSS_CC@
 CC_FOR_BUILD := @CC_FOR_BUILD@
 CC_IS_CLANG := @CC_IS_CLANG@
 CPP := @CPP@
@@ -24,10 +26,12 @@ AR := @AR@
 PKG_CONFIG := @PKG_CONFIG@
 
 CFLAGS := @CFLAGS@
+CROSS_CFLAGS := @CROSS_CFLAGS@
 CPPFLAGS := @CPPFLAGS@
 LDFLAGS := @LDFLAGS@
 
 DJ64_CFLAGS := @DJ64_CFLAGS@
+DJ32_CFLAGS := @DJ32_CFLAGS@
 DJ64_LDFLAGS := @DJ64_LDFLAGS@
 
 LIBELF_CFLAGS := @LIBELF_CFLAGS@
@@ -47,3 +51,5 @@ UCTAGS := @UCTAGS@
 URTAGS := @URTAGS@
 
 NCURSES := @NCURSES@
+
+USE64 := @USE64@

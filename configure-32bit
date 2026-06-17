@@ -1,0 +1,5 @@
+# ./configure-32bit ./configure
+
+CONF=$1
+shift
+CC=i686-linux-gnu-gcc ${CONF} --disable-64bit --disable-lto --disable-ncurses $@

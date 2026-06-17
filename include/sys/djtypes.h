@@ -15,7 +15,7 @@
 #define __DJ_off64_t	__extension__ typedef long long off64_t;
 #define __DJ_offset_t	__extension__ typedef long long offset_t;
 #define __DJ_pid_t	typedef int pid_t;
-#ifdef __LP64__
+#if 0
 #define __DJ_size_t	typedef long unsigned int size_t;
 #define __DJ_ssize_t	typedef long signed int ssize_t;
 #else

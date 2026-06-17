@@ -22,6 +22,8 @@ extern "C" {
 
 typedef int (main_t)(int, char **, char **);
 void __crt1_startup(main_t *main);
+void ___crt1_startup(void);
+int dj32_init(void);
 void _npxsetup(char *argv0);
 void __emu387_exception_handler(void);
 void __djgpp_exception_processor(void);
@@ -39,6 +41,7 @@ extern FUNC djgpp_last_dtor;
 #endif
 void init_sys_siglist(void);
 void init_confstr(void);
+extern int _____crt0_startup_flags;
 
 #endif /* !_POSIX_SOURCE */
 #endif /* !__STRICT_ANSI__ */

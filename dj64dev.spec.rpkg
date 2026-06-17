@@ -18,9 +18,9 @@ BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: make
 BuildRequires: sed
-BuildRequires: bash
 BuildRequires: gcc
 BuildRequires: binutils
+BuildRequires: gcc-x86_64-linux-gnu
 BuildRequires: binutils-x86_64-linux-gnu
 BuildRequires: elfutils-libelf-devel
 BuildRequires: thunk-gen
@@ -69,7 +69,6 @@ Requires: gcc
 Requires: binutils
 Requires: binutils-x86_64-linux-gnu
 Requires: pkgconf-pkg-config
-Requires: bash
 Requires: sed
 
 %description dj64-devel
@@ -107,6 +106,27 @@ May be needed on non-glibc systems.
 %{_prefix}/i386-pc-dj64/lib64/libdj64_s.a
 %{_libdir}/pkgconfig/dj64_s.pc
 %{_libdir}/pkgconfig/dj64static.pc
+%end
+
+%package dj32-devel
+Summary: dj32 development tools and headers
+Requires: gcc-x86_64-linux-gnu
+Requires: binutils-x86_64-linux-gnu
+Requires: pkgconf-pkg-config
+Requires: sed
+
+%description dj32-devel
+This package contains tools and headers for building dj64-enabled programs
+for 32bit targets.
+%end
+
+%files dj32-devel
+%defattr(-,root,root)
+%{_prefix}/i386-pc-dj32/include
+%{_prefix}/i386-pc-dj32/lib/libc32_s.a
+%{_prefix}/i386-pc-dj32/lib32/libdj32_s.a
+%{_prefix}/i386-pc-dj32/share/*
+%{_libdir}/pkgconfig/dj32.pc
 %end
 
 %package djdev64

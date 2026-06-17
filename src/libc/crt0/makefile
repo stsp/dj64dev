@@ -15,9 +15,20 @@ SRC += crt1.c
 SRC += memhandl.c
 SRC += rfinfo.c
 SRC += dfinfo.c
-AS_SRC += crt0.S
+AS_SRC32 += crt0_32.S
+AS_SRC64 += crt0_64.S
 
 include $(TOP)/../../Makefile.conf
 include $(srcdir)/$(TOP)/../makefile.inc
 
 crt0.o : crt0.S exit16.ah sbrk16.ah
+crt0_64.o: crt0_64.S
+crt0_32.o: crt0_32.S
+
+crt0_32.S: crt0.S
+	$(XCPP32) -x assembler-with-cpp $< >$@
+crt0_64.S: crt0.S
+	$(XCPP) -x assembler-with-cpp $< >$@
+
+clean::
+	-$(RM) crt0_32.S crt0_64.S

@@ -1471,7 +1471,7 @@ rflag:
         return;
       if (arg_index == list_index)
       {
-        _ulonglong = (size_t) va_arg(argp, void *);  /* discard */
+        _ulonglong = (uintptr_t) va_arg(argp, void *);  /* discard */
         list_index++;
       }
       break;
