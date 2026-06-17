@@ -1,6 +1,6 @@
 # find the suitable cross-assembler
 DJ64AS = $(CROSS_PREFIX)as
-DJ64ASFLAGS = --32 --defsym _DJ64=1 $(ASFLAGS)
+DJ64ASFLAGS = --32 --defsym _DJ32=1 $(ASFLAGS)
 XSTRIP = $(CROSS_PREFIX)strip --strip-debug
 CC = $(CROSS_PREFIX)gcc
 XLD = $(CROSS_PREFIX)gcc
