@@ -11,13 +11,6 @@ all ::
 MAKEFILE_LIB = 1
 include $(srcdir)/$(TOP)/../makefile.inc
 
-ifneq ($(wildcard makefile.oi),)
-include makefile.oi
-endif
-ifneq ($(wildcard makefile.oio),)
-include makefile.oio
-endif
-
 clean ::
 	$(TOP)/../makemake.exe
 	$(MAKE) -f makefile.sub SUBARGS=clean

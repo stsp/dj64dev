@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-static FILE *mf, *oi, *rf, *rfo;
+static FILE *mf, *rf, *rfo;
 static char _starting_dir[2000];
 static char _top_dir[2000];
 static char path[2000];
@@ -33,17 +33,13 @@ process_makefile(char *path_end, const char *mk, FILE *rf)
   {
     if (ch == '\n' && last_was_nl)
       continue;
-    if (ch != '\n' && last_was_nl)
-      fprintf(oi, "OBJS += ");
     last_was_nl = (ch == '\n');
     if (ch == '&')
     {
-      fprintf(oi, "%s", path+2);
       fprintf(rf, "%s", path+2);
     }
     else
     {
-      fputc(ch, oi);
       fputc(ch, rf);
     }
   }
@@ -210,7 +206,6 @@ main(int argc, char **argv)
     mf = fopen("makefile.sub", "w");
   else
   {
-    oi = fopen("makefile.oi", "w");
     rf = fopen("makefile.rf2", "w");
     rfo = fopen("makefile.rf3", "w");
   }
@@ -229,7 +224,6 @@ main(int argc, char **argv)
     fclose(mf);
   else
   {
-    fclose(oi);
     fclose(rf);
     fclose(rfo);
     move_if_change("makefile.rf2", "makefile.rf");
