@@ -24,7 +24,7 @@ CPPFLAGS += -DDJ64 -D_IN_DJ64 -D__DJGPP__ -nostdinc
 # Moved setting of $(GCC{L}_OPT) to top of file
 #
 XGCC = $(CC) $(DJ64_CFLAGS)
-XGCC32 = $(CC32) $(CROSS_CFLAGS) $(DJ32_CFLAGS)
+XGCC32 = $(CC32) $(DJ32_CFLAGS) $(CROSS_CFLAGS)
 XCPP = $(CPP) -I . -I $(srcdir)/$(TOP)/../../include $(CPPFLAGS) -DUSE64=1 \
   -imacros $(TOP)/../../config.hh -iquote $(srcdir)
 XCPP32 = $(CPP) -I . -I $(srcdir)/$(TOP)/../../include $(CPPFLAGS) -DDJ32 -DUSE64=0 \
