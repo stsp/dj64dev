@@ -129,6 +129,8 @@ for 32bit targets.
 %{_libdir}/pkgconfig/dj32.pc
 %end
 
+%undefine _annotated_build
+
 %package djdev64
 Summary: djdev64 runtime libraries
 
