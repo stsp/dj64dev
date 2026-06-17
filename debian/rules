@@ -8,4 +8,5 @@ override_dh_autoreconf:
 
 override_dh_auto_configure:
 	dh_auto_configure -O--parallel -- \
-		--with-sysroot=/usr/lib/${DEB_HOST_MULTIARCH}/i386-pc-dj64
+		--with-sysroot=/usr/lib/${DEB_HOST_MULTIARCH}/i386-pc-dj64 \
+		--with-sysroot32=/usr/lib/${DEB_HOST_MULTIARCH}/i386-pc-dj32
