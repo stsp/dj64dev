@@ -123,10 +123,12 @@ endif
 
 .INTERMEDIATE: $(XELF) $(XELF).elf tmp.s
 
+ifeq ($(filter clean install,$(MAKECMDGOALS)),)
 ifneq ($(PDHDR),)
 HASH := \#
 ifneq ($(shell grep "ASMCFUNC" $(PDHDR) | grep -cv "$(HASH)define"),0)
 PLT_O = plt.o
+endif
 endif
 endif
 GLOB_ASM ?= $(wildcard glob_asm.h)

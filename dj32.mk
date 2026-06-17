@@ -47,10 +47,12 @@ endif
 DJ64_XLDFLAGS += -f 0x40
 XELF = tmp.elf
 
+ifeq ($(filter clean install,$(MAKECMDGOALS)),)
 ifneq ($(PDHDR),)
 HASH := \#
 ifneq ($(shell grep "ASMCFUNC" $(PDHDR) | grep -cv "$(HASH)define"),0)
 PLT_O = plt.o
+endif
 endif
 endif
 GLOB_ASM ?= $(wildcard glob_asm.h)
