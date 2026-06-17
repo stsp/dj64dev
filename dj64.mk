@@ -238,7 +238,7 @@ endif
 
 clean_dj64:
 	$(RM) $(OBJECTS) $(AS_OBJECTS) plt.o plt.inc *.tmp
-	$(RM) thunk_calls.h thunk_asms.h plt_asmc.h glob_asmdefs.h
+	$(RM) thunk_*.h plt_asmc.h glob_asmdefs.h
 	$(RM) $(DJ64_XLIB) $(DJHOSTLIB) $(XELF).elf tmp.s host.elf
 
 EXTRAS = $(shell pkg-config --variable=extras dj64)
