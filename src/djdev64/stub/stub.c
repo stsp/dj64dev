@@ -331,18 +331,23 @@ int djstub_main(int argc, char *argv[], char *envp[],
             ops = &coff_ops;
         } else if (buf[0] == 0x7f && buf[1] == 0x45 &&
                 buf[2] == 0x4c && buf[3] == 0x46) { /* it's an ELF */
+#define EI_CLASS 4
+#define ELFCLASS32 1
+#define ELFCLASS64 2
+            int is_64 = (buf[EI_CLASS] == ELFCLASS64);
             if (!coffset) {
-                assert(pfile == -1);
-                dyn++;
-                pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-                if (pfile == -1) {
-                    error("unable to open %s\n", CRT0);
-                    return -1;
-                }
-                stubinfo.cpl_fd = uput(pfile);
-                compact_va = 1;  // TODO - evaluate?
-                emb_ov = 1;
-                stubinfo.flags = ((STFLG2_EMBOV) << 8) | STFLG1_COMPACT;
+                if (is_64) {
+                    assert(pfile == -1);
+                    dyn++;
+                    pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
+                    if (pfile == -1) {
+                        error("unable to open %s\n", CRT0);
+                        return -1;
+                    }
+                    stubinfo.cpl_fd = uput(pfile);
+                    compact_va = 1;  // TODO - evaluate?
+                    emb_ov = 1;
+                    stubinfo.flags = ((STFLG2_EMBOV) << 8) | STFLG1_COMPACT;
 #define SHM_NOEXEC 1
 #define SHM_EXCL   2
 #define SHM_NEW_NS 4
@@ -351,8 +356,16 @@ int djstub_main(int argc, char *argv[], char *envp[],
 #define SHM_FLAGS0 (SHM_NOEXEC | SHM_EXCL | SHM_NEW_NS)
 #define SHM_FLAGS1 (SHM_NOEXEC | SHM_EXCL | SHM_NS)
 #define SHM_FLAGS (SHM_FLAGS0 | (SHM_FLAGS1 << 8))
-                stubinfo.flags |= SHM_FLAGS;
-                nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
+                    stubinfo.flags |= SHM_FLAGS;
+                    nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
+                } else {
+                    stubinfo.flags = ((STFLG2_DJ32) << 8);
+                    dj32 = 1;
+                    pfile = ifile;
+                }
+            } else if (is_64) {
+                error("djstub: 64bit ELF at position %lx\n", coffset);
+                return -1;
             }
             done = 1;
             ops = &elf_ops;
@@ -364,7 +377,10 @@ int djstub_main(int argc, char *argv[], char *envp[],
     }
     assert(ops);
 
-    strncpy(stubinfo.magic, "dj64 (C) stsp", sizeof(stubinfo.magic));
+    if (dj32)
+        strncpy(stubinfo.magic, "dj32 (C) stsp", sizeof(stubinfo.magic));
+    else
+        strncpy(stubinfo.magic, "dj64 (C) stsp", sizeof(stubinfo.magic));
     stubinfo.size = sizeof(stubinfo);
     i = 3;
     while(envp && *envp) {
