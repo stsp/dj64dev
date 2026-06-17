@@ -26,7 +26,7 @@
 //#ifdef __cplusplus
 //#define offsetof(s_type, mbr) ((std::size_t) &((s_type *)0)->mbr)
 //#else
-#define offsetof(s_type, mbr) ((size_t) &((s_type *)0)->mbr)
+#define offsetof(s_type, mbr) ((uintptr_t) &((s_type *)0)->mbr)
 //#endif
 
 #ifndef _PTRDIFF_T
