@@ -2,7 +2,8 @@
 
 ## what is that?
 dj64dev is a development suite that allows to cross-build 64-bit programs
-for DOS. It consists of 2 parts: dj64 tool-chain and djdev64 suite.
+for DOS. It consists of 3 parts: dj64 tool-chain, djdev64 suite and
+dj32 compatibility module.
 
 Also the [host addon](https://github.com/stsp/dj64dev-host-addon)
 is available that allows to build the DOS programs for host, using
@@ -21,7 +22,8 @@ sources for DOS. There are the following differences with djgpp:
 The resulting programs run on the emulated DOS environment, with eg
 [dosemu2](https://github.com/dosemu2/dosemu2) emulator. In theory the 64-bit
 DOS extender can be written to run such programs under the bare-metal
-DOS, but the future of DOS is probably in the emulated environments anyway.
+DOS, or you can use dj32 to build 32bit ELFs for compatibility with
+non-emulated DOS.
 
 ### djdev64 suite
 djdev64 suite is a set of libraries and headers that are needed to
@@ -339,23 +341,44 @@ You need to attach gdb to the running instance of dosemu2, or just
 run `dosemu -gdb`. Once the dj64-built program is loaded, gdb will
 be able to access its symbols.
 
+## using dj32 compatibility module
+If you want to build the program for 32bit targets (like non-emulated DOS),
+you need to enable dj32. If you did all the above steps and set up the
+64bit build, then now you only need to replace the string
+```
+DJMK = $(shell pkg-config --variable=makeinc dj64)
+```
+with:
+```
+DJMK = $(shell pkg-config --variable=makeinc dj32)
+```
+in your `makefile`.
+
+The results should look like:
+```
+$ djstubify -i comcom32.exe
+dj64 file format (dj32)
+Overlay 0 (i386/ELF host payload) at 23648, size 594760
+Overlay 1 (i386/ELF debug info) at 618408, size 2182280
+Stub version: 6
+Stub flags: 0x6b47
+```
+Use `djstrip` on that, as there is no 32bit debugger support yet,
+and not in the plans.
+
 ## so x86-only?
 Of course not! This tool-chain is cross-platform. But the resulting
 binaries are unfortunately not. If you want to run your program on
 x86_64 and aarch64, you need to produce 2 separate executables.
 aarch64-built executable will work on aarch64-built dosemu2.
 
+When using dj32 mode, the result is fully cross-platform if you use
+any emulator. Without an emulator you are limited to x86 by DOS itself.
+
 ## why would I need that?
-Well, maybe you don't. :) If you don't have any djgpp-built project of
-yours or you don't want to move it to 64-bits, then you don't need to care
-about dj64dev project. It was written for dosemu2, and while I'd be happy
-if someone uses it on its own, this wasn't an initial intention.<br/>
-Also if your djgpp-buildable project is well-written and uses some
-portable libraries like allegro, then most likely you already have the
-native 64-bit ports for modern platforms, rather than for DOS. In that
-case you also don't need dj64dev.<br/>
-Summing it up, dj64dev is a niche project that may not be useful outside
-of dosemu2. But I'd like to be wrong on that. :)
+Well, maybe you don't. :) This is just a cross-compiler that targets
+64bit DOS (as in dosemu2) or legacy DOS (via dj32, but so does
+[djgpp](https://delorie.com/djgpp/) as well).
 
 ## license
 dj64dev project is covered by GPLv3+, see [LICENSE](LICENSE).
