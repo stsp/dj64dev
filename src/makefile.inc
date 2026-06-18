@@ -29,9 +29,9 @@ XCPP = $(CPP) -I . -I $(srcdir)/$(TOP)/../../include $(CPPFLAGS) -DUSE64=1 \
   -imacros $(TOP)/../../config.hh -iquote $(srcdir)
 XCPP32 = $(CPP) -I . -I $(srcdir)/$(TOP)/../../include $(CPPFLAGS) -DDJ32 -DUSE64=0 \
   -imacros $(TOP)/../../config.hh -iquote $(srcdir)
-CROSS_ASCPP = $(CPP) -x assembler-with-cpp $(1) | \
+CROSS_ASCPP = $(CPP) -x assembler-with-cpp -DUSE64=$(2) $(1) | \
   $(CROSS_AS) $(CROSS_ASFLAGS) -I $(srcdir) -
-XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1))
+XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1),$(2))
 
 # Have to process with intermediate file, because with a single pipe
 # the partially preprocessed (before cpp hit an error) input is fed
@@ -49,7 +49,9 @@ XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1))
 %.O : %.C32
 	$(XGCC32) -xc $< -c $(EXTRA_CFLAGS) -o $@
 %.o : %.S
-	$(call XASCPP,$<) -o $@
+	$(call XASCPP,$<,1) -o $@
+%.O : %.S
+	$(call XASCPP,$<,0) -o $@
 
 LIB=$(TOP)/../../lib
 BIN=$(TOP)/../../bin
@@ -59,28 +61,25 @@ L = $(LIB)/libc.a
 
 OBJS := $(addsuffix .o, $(basename $(SRC) $(SRC64)))
 OBJS32 := $(addsuffix .O, $(basename $(SRC) $(SRC32)))
-AS_OBJS := $(addsuffix .o, $(basename $(AS_SRC)))
-AS_OBJS64 := $(addsuffix .o, $(basename $(AS_SRC64)))
-AS_OBJS32 := $(addsuffix .o, $(basename $(AS_SRC32)))
+AS_OBJS64 := $(addsuffix .o, $(basename $(AS_SRC) $(AS_SRC64)))
+AS_OBJS32 := $(addsuffix .O, $(basename $(AS_SRC) $(AS_SRC32)))
 
 NOP = @echo
 
 .PRECIOUS: %.exe %.out %.err
 
-all :: $(OBJS) $(EXTRA_OBJS) $(EXTRA_FILES) $(AS_OBJS) $(OBJS32) $(AS_OBJS32) $(AS_OBJS64)
+all :: $(OBJS) $(EXTRA_OBJS) $(EXTRA_FILES) $(OBJS32) $(AS_OBJS32) $(AS_OBJS64)
 	$(NOP)
 
 $(LIB) :
 	mkdir $@
 
 ifneq ($(MAKEFILE_LIB),1)
-all :: makefile.oh makefile.oho makefile.h32 makefile.o64 makefile.o32
+all :: makefile.oh makefile.h32 makefile.o64 makefile.o32
 makefile.oh: makefile
 	echo $(addprefix \&/,$(OBJS)) >$@
 makefile.h32: makefile
 	echo $(addprefix \&/,$(OBJS32)) >$@
-makefile.oho: makefile
-	echo $(addprefix \&/,$(AS_OBJS)) >$@
 makefile.o64: makefile
 	echo $(addprefix \&/,$(AS_OBJS64)) >$@
 makefile.o32: makefile
