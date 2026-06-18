@@ -116,7 +116,7 @@ int	unsetenv(const char *_var);
 
 #ifndef _POSIX_SOURCE
 
-void *		alloca(size_t _size);
+#define		alloca(_size) __builtin_alloca(_size)
 long double	_atold(const char *_s);
 void		cfree(void *_ptr);
 double          drand48(void);
