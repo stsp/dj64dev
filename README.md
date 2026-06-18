@@ -58,6 +58,10 @@ which is used to unmap shared memory regions without actually destroying
 them. DPMI host is not required to implement such a specific 0x801
 functionality, but the shared memory support is mandatory.
 
+### dj32 compatibility module
+Separate 32bit target for compatibility with non-emulated DOS.
+It still uses ELF format, but those are simple static 32bit ELFs.
+
 ## building and installing
 First, you need to install [thunk_gen](https://github.com/stsp/thunk_gen/).
 Pre-built packages are available [for ubuntu](https://code.launchpad.net/~stsp-0/+archive/ubuntu/thunk-gen), [for fedora](https://copr.fedorainfracloud.org/coprs/stsp/dosemu2/), and for debian, since forky you can install thunk-gen via `apt install thunk-gen`.<br/>
