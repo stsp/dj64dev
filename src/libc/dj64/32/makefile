@@ -29,11 +29,10 @@ thunk_syms.o: thunk_syms.s
 	$(CROSS_STRIP) --remove-section=.note.gnu.property --strip-debug -o $@ $@_ 2>/dev/null
 	$(RM) $@_
 
-ALL_AS_OBJS = $(addprefix $(TOP)/,$(file < $(TOP)/makefile.rfo))
 ALL_AS_OBJS32 = $(addprefix $(TOP)/,$(file < $(TOP)/makefile.a32))
-libc_tmp.a : $(TOP)/makefile.rfo thunk_syms.o $(ALL_AS_OBJS) $(ALL_AS_OBJS32)
+libc_tmp.a : $(TOP)/makefile.a32 thunk_syms.o $(ALL_AS_OBJS32)
 	@-$(RM) $@
-	$(CROSS_AR) q $@ $(ALL_AS_OBJS) $(ALL_AS_OBJS32) thunk_syms.o
+	$(CROSS_AR) q $@ $(ALL_AS_OBJS32) thunk_syms.o
 	$(CROSS_AR) s $@
 
 asm_incs.h:
