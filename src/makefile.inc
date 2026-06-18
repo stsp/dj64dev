@@ -50,8 +50,6 @@ XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1))
 	$(XGCC32) -xc $< -c $(EXTRA_CFLAGS) -o $@
 %.o : %.S
 	$(call XASCPP,$<) -o $@
-%.o : %.s
-	$(call XASCPP,$<) -o $@
 
 LIB=$(TOP)/../../lib
 BIN=$(TOP)/../../bin
