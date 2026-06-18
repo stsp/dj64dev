@@ -7,4 +7,4 @@ makeinc=${dj32prefix}/share/dj32.mk
 cppflags=-I${dj32prefix}/include -DDJ64 -DDJ32 -nostdinc
 xcppflags=${cppflags} -imacros ${dj32prefix}/include/dj64/a_mac.h
 Cflags: -fno-pic -fno-pie -ffreestanding -fno-stack-protector -march=i386 -fcf-protection=none
-Libs: ${dj32prefix}/lib/libc32_s.a ${dj32prefix}/lib32/libdj32_s.a
+Libs: -L${dj32prefix}/lib -L${dj32prefix}/lib32 -ldj32_s -lc32_s

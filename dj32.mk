@@ -60,7 +60,7 @@ GLOB_ASM ?= $(wildcard glob_asm.h)
 XLDFLAGS = -Wl,-melf_i386 -static -nostdlib
 DJ64_XLDFLAGS += -f 0x6000
 S := $(shell pkg-config --static --libs dj32)
-XLDFLAGS += -Wl,-whole-archive $(S) -Wl,-no-whole-archive -lgcc
+XLDFLAGS += $(S) -lgcc
 $(XELF): $(AS_OBJECTS) $(PLT_O) $(OBJECTS)
 	$(XLD) $^ $(XLDFLAGS) -o $@
 DJ64_XLIB = $(XELF)
