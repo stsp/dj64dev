@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-static FILE *mf, *rf, *rfo, *r32, *a64, *a32;
+static FILE *mf, *rf, *r32, *a64, *a32;
 static char _starting_dir[2000];
 static char _top_dir[2000];
 static char path[2000];
@@ -120,7 +120,6 @@ find(void)
       else
       {
         process_makefile(path_end, "/makefile.oh", rf);
-        process_makefile(path_end, "/makefile.oho", rfo);
         process_makefile(path_end, "/makefile.h32", r32);
         process_makefile(path_end, "/makefile.o64", a64);
         process_makefile(path_end, "/makefile.o32", a32);
@@ -210,7 +209,6 @@ main(int argc, char **argv)
   else
   {
     rf = fopen("makefile.rf2", "w");
-    rfo = fopen("makefile.rf3", "w");
     r32 = fopen("makefile.rf4", "w");
     a64 = fopen("makefile.rf5", "w");
     a32 = fopen("makefile.rf6", "w");
@@ -231,12 +229,10 @@ main(int argc, char **argv)
   else
   {
     fclose(rf);
-    fclose(rfo);
     fclose(r32);
     fclose(a64);
     fclose(a32);
     move_if_change("makefile.rf2", "makefile.rf");
-    move_if_change("makefile.rf3", "makefile.rfo");
     move_if_change("makefile.rf4", "makefile.r32");
     move_if_change("makefile.rf5", "makefile.a64");
     move_if_change("makefile.rf6", "makefile.a32");
