@@ -5,7 +5,6 @@ TOP = $(abs_top_builddir)
 ATOP = $(abspath $(TOP))
 -include Makefile.conf
 export prefix
-export PKG_CONFIG_PATH := $(PKG_CONFIG_PATH):$(libdir)/pkgconfig
 
 OS = $(shell uname -s)
 ifeq ($(OS),Darwin)
