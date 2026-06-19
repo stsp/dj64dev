@@ -70,7 +70,7 @@ static int           tbuf_selector;
 static int script_exec(const char *, char **, char **);
 
 /* Allocate AMT bytes off the transfer buffer.  */
-static unsigned long talloc(size_t amt)
+static unsigned long talloc(ssize_t amt)
 {
   unsigned long rv = tbuf_ptr;
   tbuf_ptr += amt;
