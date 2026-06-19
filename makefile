@@ -156,7 +156,7 @@ install32:
 
 uninstall32:
 	$(RM) -r $(DESTDIR)$(sysroot32)
-	$(RM) $(DESTDIR)$(datadir)/pkgconfig/dj32.pc
+	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj32.pc
 
 uninstall: uninstall64 uninstall32
 
