@@ -21,17 +21,17 @@ export prefix
 
 CPPFLAGS += -DDJ64 -D_IN_DJ64 -D__DJGPP__ -nostdinc
 
-# Moved setting of $(GCC{L}_OPT) to top of file
-#
+CPP = $(CC) -E
+CPP32 = $(CC32) -E
 XGCC = $(CC) $(DJ64_CFLAGS)
 XGCC32 = $(CC32) $(DJ32_CFLAGS) $(CROSS_CFLAGS)
 XCPP = $(CPP) -I . -I $(srcdir)/$(TOP)/../../include $(CPPFLAGS) -DUSE64=1 \
   -imacros $(TOP)/../../config.hh -iquote $(srcdir)
-XCPP32 = $(CPP) -I . -I $(srcdir)/$(TOP)/../../include $(CPPFLAGS) -DDJ32 -DUSE64=0 \
+XCPP32 = $(CPP32) -I . -I $(srcdir)/$(TOP)/../../include $(CPPFLAGS) -DDJ32 -DUSE64=0 \
   -imacros $(TOP)/../../config.hh -iquote $(srcdir)
-CROSS_ASCPP = $(CPP) -x assembler-with-cpp -DUSE64=$(2) $(1) | \
+CROSS_ASCPP = $(3) -x assembler-with-cpp -DUSE64=$(2) $(1) | \
   $(CROSS_AS) $(CROSS_ASFLAGS) -I $(srcdir) -
-XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1),$(2))
+XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1),$(2),$(3))
 
 # Have to process with intermediate file, because with a single pipe
 # the partially preprocessed (before cpp hit an error) input is fed
@@ -49,9 +49,9 @@ XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1),$(2))
 %.O : %.C32
 	$(XGCC32) -xc $< -c $(EXTRA_CFLAGS) -o $@
 %.o : %.S
-	$(call XASCPP,$<,1) -o $@
+	$(call XASCPP,$<,1,$(CPP)) -o $@
 %.O : %.S
-	$(call XASCPP,$<,0) -o $@
+	$(call XASCPP,$<,0,$(CPP32)) -o $@
 
 LIB=$(TOP)/../../lib
 BIN=$(TOP)/../../bin
