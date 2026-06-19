@@ -86,7 +86,11 @@ $(LIB)/$(LIBS32): $(TOP)/makefile.rf $(ALL_OBJS) \
 $(LIB)/libc32_s.a: libc_tmp.a | $(LIB)
 	cp -f $< $@
 
+ifeq ($(USE32),1)
 final: $(LIB)/libc32_s.a $(LIB)/$(LIBS32) | $(LIB)
+else
+final:
+endif
 
 clean::
 	$(RM) rm *.a *.tmp plt.inc asm_*.h thunk_*.h plt_*.h asym_incs.h

@@ -123,8 +123,12 @@ $(LIB)/uplt.o: uplt.o
 $(LIB)/$(LIBNS) $(LIB)/$(LIBNV): $(LIB)/$(LIBN) | $(LIB)
 	ln -sf $(LIBN) $@
 
+ifeq ($(USE64),1)
 final: $(LIB)/libc_s.a $(LIB)/$(LIBNS) $(LIB)/$(LIBNV) \
   $(LIB)/$(LIBS) $(LIB)/crt0.elf $(LIB)/uplt.o | $(LIB)
+else
+final:
+endif
 	$(MAKE) -C 32 final
 
 clean::
