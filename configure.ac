@@ -151,8 +151,6 @@ else
   CC_IS_CLANG=0
   DJ64_CFLAGS="$DJ64_CFLAGS \
     -Wno-error=maybe-uninitialized"
-  DJ32_CFLAGS="$DJ32_CFLAGS \
-    -Wno-error=maybe-uninitialized"
 
   AC_CHECK_TOOL([AR], [ar], [:])
   if test -z "$AR" -o "$AR" = ":"; then
@@ -177,6 +175,7 @@ AC_SUBST(DJ64_EXTRA_CPPFLAGS)
 AC_SUBST(DJ64_EXTRA_LDFLAGS)
 AC_SUBST(DJ64_S_EXTRA_LDFLAGS)
 
+CROSS_GCC_CFLAGS="-Wno-error=maybe-uninitialized"
 if test -n "$CROSS_PREFIX"; then
   AC_PATH_PROG([CROSS_CC], [${CROSS_PREFIX}gcc])
   if test -z "$CROSS_CC"; then
@@ -197,6 +196,7 @@ if test -z "$CROSS_CC"; then
       if test -n "$CROSS_CC"; then
         AC_MSG_NOTICE([Using clang as cross-cc...])
         CROSS_CFLAGS="-target i686-unknown-linux-gnu"
+        CROSS_GCC_CFLAGS=""
       else
         AC_MSG_ERROR([386 cross-compiler not found, please install clang or gcc-i686-linux-gnu])
       fi
@@ -205,6 +205,7 @@ if test -z "$CROSS_CC"; then
     CROSS_CFLAGS="-m32"
   fi
 fi
+CROSS_CFLAGS="$CROSS_CFLAGS $CROSS_GCC_CFLAGS"
 AC_SUBST(CROSS_CFLAGS)
 
 if test -n "$CROSS_PREFIX"; then
