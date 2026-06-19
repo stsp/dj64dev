@@ -71,7 +71,9 @@ NOP = @echo
 ifeq ($(USE64),1)
 TARG64 = $(OBJS) $(AS_OBJS64)
 endif
+ifeq ($(USE32),1)
 TARG32 = $(OBJS32) $(AS_OBJS32)
+endif
 all :: $(TARG64) $(TARG32)
 	$(NOP)
 
@@ -81,7 +83,9 @@ $(LIB) :
 ifeq ($(USE64),1)
 MK64 = makefile.oh makefile.o64
 endif
+ifeq ($(USE32),1)
 MK32 = makefile.h32 makefile.o32
+endif
 all :: $(MK64) $(MK32)
 makefile.oh: makefile
 	echo $(addprefix \&/,$(OBJS)) >$@

@@ -34,6 +34,7 @@ fi
 ARCH_DIR=i386-pc-dj64
 ARCH_DIR32=i386-pc-dj32
 USE64=1
+USE32=1
 
 AC_ARG_ENABLE(64bit,
   AS_HELP_STRING([--disable-64bit], [do not build 64bit components (reduced build)]))
@@ -60,17 +61,25 @@ else
 fi
 AC_SUBST(USE64)
 
-AC_ARG_WITH(sysroot32, [AS_HELP_STRING([--with-sysroot32=dir],
-  [sysroot32 directory. default: ${prefix}/${ARCH_DIR32}])],
-  sysroot32="$withval", [
-    if test "x$prefix" = xNONE; then
-      sysroot32=${ac_default_prefix}/${ARCH_DIR32}
-    else
-      sysroot32=${prefix}/${ARCH_DIR32}
-    fi
-  ]
-)
-AC_SUBST(sysroot32)
+AC_ARG_ENABLE(32bit,
+  AS_HELP_STRING([--disable-32bit], [do not build 32bit components]))
+if test "$enable_32bit" != "no"; then
+  AC_ARG_WITH(sysroot32, [AS_HELP_STRING([--with-sysroot32=dir],
+    [sysroot32 directory. default: ${prefix}/${ARCH_DIR32}])],
+    sysroot32="$withval", [
+      if test "x$prefix" = xNONE; then
+        sysroot32=${ac_default_prefix}/${ARCH_DIR32}
+      else
+        sysroot32=${prefix}/${ARCH_DIR32}
+      fi
+    ]
+  )
+  AC_SUBST(sysroot32)
+else
+  USE32=0
+  AC_MSG_WARN([not building 32bit components])
+fi
+AC_SUBST(USE32)
 
 AC_ARG_ENABLE(ncurses,
   AS_HELP_STRING([--disable-ncurses], [do not build ncurses]))
@@ -174,38 +183,40 @@ AC_SUBST(DJ64_EXTRA_CPPFLAGS)
 AC_SUBST(DJ64_EXTRA_LDFLAGS)
 AC_SUBST(DJ64_S_EXTRA_LDFLAGS)
 
-CROSS_GCC_CFLAGS="-Wno-error=maybe-uninitialized"
-if test -n "$CROSS_PREFIX"; then
-  AC_PATH_PROG([CROSS_CC], [${CROSS_PREFIX}gcc])
-  if test -z "$CROSS_CC"; then
-    AC_MSG_ERROR([${CROSS_PREFIX}gcc not found, CROSS_PREFIX is wrong])
-  fi
-else
-  AC_PATH_PROGS([CROSS_CC], [i686-linux-gnu-gcc i686-unknown-linux-gnu-gcc i586-suse-linux-gcc i386-elf-gcc])
-fi
-if test -z "$CROSS_CC"; then
-  AC_PATH_PROG([CROSS_CC], [x86_64-linux-gnu-gcc])
-  if test -z "$CROSS_CC"; then
-    if test \( "$machine" = "i386" -o "$machine" = "x86_64" \) -a "$CONFIG_HOST" != "Darwin"; then
-      AC_MSG_NOTICE([Using host ${CC} for cross-compiling...])
-      CROSS_CC=${CC}
-      CROSS_CFLAGS="-m32"
-    else
-      AC_PATH_PROG([CROSS_CC], [clang])
-      if test -n "$CROSS_CC"; then
-        AC_MSG_NOTICE([Using clang as cross-cc...])
-        CROSS_CFLAGS="-target i686-unknown-linux-gnu"
-        CROSS_GCC_CFLAGS=""
-      else
-        AC_MSG_ERROR([386 cross-compiler not found, please install clang or gcc-i686-linux-gnu])
-      fi
+if test "$enable_32bit" != "no"; then
+  CROSS_GCC_CFLAGS="-Wno-error=maybe-uninitialized"
+  if test -n "$CROSS_PREFIX"; then
+    AC_PATH_PROG([CROSS_CC], [${CROSS_PREFIX}gcc])
+    if test -z "$CROSS_CC"; then
+      AC_MSG_ERROR([${CROSS_PREFIX}gcc not found, CROSS_PREFIX is wrong])
     fi
   else
-    CROSS_CFLAGS="-m32"
+    AC_PATH_PROGS([CROSS_CC], [i686-linux-gnu-gcc i686-unknown-linux-gnu-gcc i586-suse-linux-gcc i386-elf-gcc])
   fi
+  if test -z "$CROSS_CC"; then
+    AC_PATH_PROG([CROSS_CC], [x86_64-linux-gnu-gcc])
+    if test -z "$CROSS_CC"; then
+      if test \( "$machine" = "i386" -o "$machine" = "x86_64" \) -a "$CONFIG_HOST" != "Darwin"; then
+        AC_MSG_NOTICE([Using host ${CC} for cross-compiling...])
+        CROSS_CC=${CC}
+        CROSS_CFLAGS="-m32"
+      else
+        AC_PATH_PROG([CROSS_CC], [clang])
+        if test -n "$CROSS_CC"; then
+          AC_MSG_NOTICE([Using clang as cross-cc...])
+          CROSS_CFLAGS="-target i686-unknown-linux-gnu"
+          CROSS_GCC_CFLAGS=""
+        else
+          AC_MSG_ERROR([386 cross-compiler not found, please install clang or gcc-i686-linux-gnu])
+        fi
+      fi
+    else
+      CROSS_CFLAGS="-m32"
+    fi
+  fi
+  CROSS_CFLAGS="$CROSS_CFLAGS $CROSS_GCC_CFLAGS"
+  AC_SUBST(CROSS_CFLAGS)
 fi
-CROSS_CFLAGS="$CROSS_CFLAGS $CROSS_GCC_CFLAGS"
-AC_SUBST(CROSS_CFLAGS)
 
 if test -n "$CROSS_PREFIX"; then
   AC_PATH_PROG([CROSS_AS], [${CROSS_PREFIX}as])
