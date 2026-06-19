@@ -116,8 +116,8 @@ install: install_dj64 install_djdev64 install_demos install32
 	@echo
 	@echo "Done installing. You may need to run \"sudo ldconfig\" now."
 
-ifeq ($(USE64),1)
 uninstall64:
+ifeq ($(USE64),1)
 ifeq ($(NCURSES),1)
 ifneq ($(wildcard $(NC_BUILD)),)
 	$(MAKE) -C $(NC_BUILD) uninstall
@@ -138,10 +138,10 @@ endif
 	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJSTUB64LIB))
 	ldconfig
 	$(MAKE) -C demos src_uninstall
-else
-uninstall64:
 endif
+
 install32:
+ifeq ($(USE32),1)
 	$(INSTALL) -d $(DESTDIR)$(sysroot32)/lib
 	$(INSTALL) -d $(DESTDIR)$(sysroot32)/lib32
 	$(INSTALL) -m 0644 $(DJLIBC32) $(DESTDIR)$(sysroot32)/lib
@@ -152,10 +152,13 @@ install32:
 	cp -r $(abs_top_srcdir)/include $(DESTDIR)$(sysroot32)
 	$(INSTALL) -d $(DESTDIR)$(sysroot32)/share
 	$(INSTALL) -m 0644 $(abs_top_srcdir)/dj32.mk $(DESTDIR)$(sysroot32)/share
+endif
 
 uninstall32:
+ifeq ($(USE32),1)
 	$(RM) -r $(DESTDIR)$(sysroot32)
 	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj32.pc
+endif
 
 uninstall: uninstall64 uninstall32
 
@@ -188,7 +191,9 @@ demos_clean:
 	$(MAKE) -C demos clean
 
 install_demos:
+ifeq ($(USE64),1)
 	$(MAKE) -C demos src_install
+endif
 
 $(DJ64DEVL): subs
 
