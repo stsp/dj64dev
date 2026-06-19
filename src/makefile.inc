@@ -68,14 +68,21 @@ NOP = @echo
 
 .PRECIOUS: %.exe %.out %.err
 
-all :: $(OBJS) $(EXTRA_OBJS) $(EXTRA_FILES) $(OBJS32) $(AS_OBJS32) $(AS_OBJS64)
+ifeq ($(USE64),1)
+TARG64 = $(OBJS) $(AS_OBJS64)
+endif
+TARG32 = $(OBJS32) $(AS_OBJS32)
+all :: $(TARG64) $(TARG32)
 	$(NOP)
 
 $(LIB) :
 	mkdir $@
 
-ifneq ($(MAKEFILE_LIB),1)
-all :: makefile.oh makefile.h32 makefile.o64 makefile.o32
+ifeq ($(USE64),1)
+MK64 = makefile.oh makefile.o64
+endif
+MK32 = makefile.h32 makefile.o32
+all :: $(MK64) $(MK32)
 makefile.oh: makefile
 	echo $(addprefix \&/,$(OBJS)) >$@
 makefile.h32: makefile
@@ -84,7 +91,6 @@ makefile.o64: makefile
 	echo $(addprefix \&/,$(AS_OBJS64)) >$@
 makefile.o32: makefile
 	echo $(addprefix \&/,$(AS_OBJS32)) >$@
-endif
 
 clean ::
 	-$(RM) *.o *.O *.d *.C *.C32 *.i makefile.oh makefile.oho

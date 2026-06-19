@@ -2,4 +2,4 @@
 
 CONF=$1
 shift
-CC=i686-linux-gnu-gcc ${CONF} --disable-64bit --disable-lto --disable-ncurses $@
+${CONF} --disable-64bit --disable-lto --disable-ncurses $@

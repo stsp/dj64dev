@@ -8,7 +8,6 @@ all ::
 	../makemake.exe -2
 	$(MAKE) -C dj64 final
 
-MAKEFILE_LIB = 1
 include $(srcdir)/$(TOP)/../makefile.inc
 
 clean ::
