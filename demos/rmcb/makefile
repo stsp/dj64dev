@@ -10,6 +10,7 @@ CFLAGS = -Wall -ggdb3
 OBJECTS = $(SOURCES:.c=.o)
 AS_OBJECTS = $(AS_SOURCES:.S=.o)
 PDHDR = asm.h
+GLOB_ASM = glob_asm.h
 
 all: $(TGT)
 
