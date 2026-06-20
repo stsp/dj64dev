@@ -1,6 +1,6 @@
 # find the suitable cross-assembler
 DJ64AS = $(CROSS_PREFIX)as
-DJ64ASFLAGS = --32 --defsym _DJ32=1 $(ASFLAGS)
+DJ64ASFLAGS = --32 --defsym _DJ32=1 $(DJASFLAGS)
 XSTRIP = $(CROSS_PREFIX)strip --strip-debug
 CC = $(CROSS_PREFIX)gcc
 XLD = $(CROSS_PREFIX)gcc
@@ -24,17 +24,18 @@ else ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 # CROSS_PREFIX already set
 $(error invalid CROSS_PREFIX)
 endif
+XCFLAGS = -m32
 
 # Override external AS as termux sets it to aarch64-linux-android-clang
 # omitting -c. Note that plain as also doesn't work for termux.
 AS = $(CC) -x assembler-with-cpp -c
 
-DJ64CFLAGS := $(shell pkg-config --cflags dj32)
+DJ64CFLAGS := $(DJCFLAGS) $(shell pkg-config --cflags dj32) $(XCFLAGS)
 ifneq ($(.SHELLSTATUS),0)
 $(error dj32-dev not installed)
 endif
-XCPPFLAGS = $(CPPFLAGS) $(shell pkg-config --variable=xcppflags dj32)
-DJ64ASCPPFLAGS = $(ASCPPFLAGS) $(shell pkg-config --variable=cppflags dj32)
+XCPPFLAGS = $(DJCPPFLAGS) $(shell pkg-config --variable=xcppflags dj32)
+DJ64ASCPPFLAGS = $(DJASCPPFLAGS) $(shell pkg-config --variable=cppflags dj32)
 
 LOADADDR = 0x08148000
 # static

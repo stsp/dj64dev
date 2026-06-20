@@ -54,7 +54,7 @@ ifeq ($(shell clang --version 2>/dev/null),)
 $(error cross-binutils not installed)
 endif
 DJ64AS = clang -x assembler -target i686-unknown-linux-gnu
-DJ64ASFLAGS = -Wa,-defsym,_DJ64=1 -c $(ASFLAGS)
+DJ64ASFLAGS = -Wa,-defsym,_DJ64=1 -c $(ASFLAGS) $(DJASFLAGS)
 ifeq ($(OS), Darwin)
 ifeq ($(shell command -v brew &>/dev/null),)
 export PATH += :$(shell brew --prefix llvm)/bin
@@ -76,12 +76,12 @@ endif # filter clean install
 # omitting -c. Note that plain as also doesn't work for termux.
 AS = $(CC) -x assembler-with-cpp -c
 
-DJ64CFLAGS := $(CFLAGS) $(shell pkg-config --cflags dj64)
+DJ64CFLAGS := $(CFLAGS) $(DJCFLAGS) $(shell pkg-config --cflags dj64)
 ifneq ($(.SHELLSTATUS),0)
 $(error dj64-dev not installed)
 endif
-XCPPFLAGS = $(CPPFLAGS) $(shell pkg-config --variable=xcppflags dj64)
-DJ64ASCPPFLAGS = $(ASCPPFLAGS) $(shell pkg-config --variable=cppflags dj64)
+XCPPFLAGS = $(CPPFLAGS) $(DJCPPFLAGS) $(shell pkg-config --variable=xcppflags dj64)
+DJ64ASCPPFLAGS = $(ASCPPFLAGS) $(DJASCPPFLAGS) $(shell pkg-config --variable=cppflags dj64)
 
 LD = $(CC)
 
