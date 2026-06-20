@@ -22,10 +22,13 @@
 #include <dj64/tg_defs.h>
 
 #ifdef DJ32
+#pragma push_macro("ASMFUNC")
+#undef ASMFUNC
 #define ASMFUNC extern __attribute__((cdecl))
 #define _FUNC(x) _##x
 #define _CFUNC(x) x
 #include "thunk_p1.h"
+#pragma pop_macro("ASMFUNC")
 #endif
 #ifdef _IN_DJ64
 #define __CALL(n, s, l, f) dj64_asm_call(n, s, l, f)

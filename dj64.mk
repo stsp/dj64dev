@@ -199,12 +199,13 @@ $(DJ64_XLIB): $(OBJECTS) $(XELF)
 
 %.o: %.c
 	$(CC) $(DJ64CFLAGS) $(XCPPFLAGS) -I. -o $@ -c $<
+SHELL := /usr/bin/env bash
 %.o: %.S
-	$(CPP) -x assembler-with-cpp $(DJ64ASCPPFLAGS) $< | \
+	set -o pipefail; $(CPP) -x assembler-with-cpp $(DJ64ASCPPFLAGS) $< | \
 	    $(DJ64AS) $(DJ64ASFLAGS) -o $@ -
 plt.o: plt.inc $(GLOB_ASM)
-	echo "#include <dj64/plt.S.inc>" | \
-	    $(CPP) -x assembler-with-cpp $(DJ64ASCPPFLAGS) -I. - | \
+	set -o pipefail; echo "#include <dj64/plt.S.inc>" | \
+	    $(CPP) -x assembler-with-cpp -I. $(DJ64ASCPPFLAGS) - | \
 	    $(DJ64AS) $(DJ64ASFLAGS) -o $@ -
 thunks_c.o: thunk_calls.h
 thunks_p.o: thunk_asms.h plt_asmc.h
