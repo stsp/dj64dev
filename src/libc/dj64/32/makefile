@@ -2,7 +2,8 @@ TOP = ../..
 
 include $(TOP)/../../Makefile.conf
 include $(srcdir)/$(TOP)/../makefile.inc
-CPPFLAGS += -I $(srcdir)/$(TOP)/../djdev64/include -I $(srcdir)/..
+# cur dir must be searched before ..
+CPPFLAGS += -I $(srcdir)/$(TOP)/../djdev64/include -I. -I $(srcdir)/..
 
 P = $(srcdir)/../parsers
 MP = $(P)/mkproto.sh
