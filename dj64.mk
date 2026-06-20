@@ -13,7 +13,7 @@ endif
 
 # find the suitable cross-assembler
 DJ64AS = $(CROSS_PREFIX)as
-DJ64ASFLAGS = --32 --defsym _DJ64=1 $(ASFLAGS)
+DJ64ASFLAGS = --32 --defsym _DJ64=1 $(ASFLAGS) $(DJASFLAGS)
 XSTRIP = $(CROSS_PREFIX)strip --strip-debug
 XLD = $(CROSS_PREFIX)ld
 XLD_IMB = -Ttext-segment
@@ -44,7 +44,7 @@ ifeq ($(NATIVE), 1)
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 # found nothing, try built-in assembler
 DJ64AS = $(CC) -x assembler
-DJ64ASFLAGS = -m32 -Wa,-defsym,_DJ64=1 -c $(ASFLAGS)
+DJ64ASFLAGS = -m32 -Wa,-defsym,_DJ64=1 -c $(ASFLAGS) $(DJASFLAGS)
 endif
 
 else
