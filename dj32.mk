@@ -25,6 +25,7 @@ else ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 $(error invalid CROSS_PREFIX)
 endif
 XCFLAGS = -m32
+XLDFLAGS = -m32
 
 # Override external AS as termux sets it to aarch64-linux-android-clang
 # omitting -c. Note that plain as also doesn't work for termux.
@@ -56,7 +57,7 @@ endif
 endif
 GLOB_ASM ?= $(wildcard glob_asm.h)
 
-XLDFLAGS = -Wl,-melf_i386 -static -nostdlib
+XLDFLAGS += -Wl,-melf_i386 -static -nostdlib
 DJ64_XLDFLAGS += -f 0x6000
 S := $(shell pkg-config --static --libs dj32)
 XLDFLAGS += $(S) -lgcc
