@@ -27,6 +27,7 @@ jobs:
       run: |
         make deb
         sudo dpkg -i ../dj64*.deb
+        sudo dpkg -i ../dj32*.deb
 
     - name: Set up test environment
       run: |
