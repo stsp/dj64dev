@@ -79,6 +79,7 @@ STATIC UDWORD DJ64_DISPATCH_FN(int fn, UBYTE *sp, int *r_len)
 }
 
 #ifdef DJ32
+#pragma push_macro("ASMCFUNC")
 #undef ASMCFUNC
 #define ASMCFUNC extern __attribute__((cdecl))
 #define _FUNC(x) _##x
@@ -88,4 +89,5 @@ STATIC UDWORD DJ64_DISPATCH_FN(int fn, UBYTE *sp, int *r_len)
 #define _CFUNC(x) _##x
 #include <dj64/tg_defs.h>
 #include "thunk_c32.h"
+#pragma pop_macro("ASMCFUNC")
 #endif
