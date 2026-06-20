@@ -36,8 +36,6 @@ endif
 XCPPFLAGS = $(CPPFLAGS) $(shell pkg-config --variable=xcppflags dj32)
 DJ64ASCPPFLAGS = $(ASCPPFLAGS) $(shell pkg-config --variable=cppflags dj32)
 
-LD = $(CC)
-
 LOADADDR = 0x08148000
 # static
 DJLDFLAGS := $(shell pkg-config --libs dj32)
