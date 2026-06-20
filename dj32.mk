@@ -29,12 +29,12 @@ endif
 # omitting -c. Note that plain as also doesn't work for termux.
 AS = $(CC) -x assembler-with-cpp -c
 
-DJ64CFLAGS := $(shell pkg-config --cflags dj32) $(CFLAGS)
+DJ64CFLAGS := $(CFLAGS) $(shell pkg-config --cflags dj32)
 ifneq ($(.SHELLSTATUS),0)
 $(error dj32-dev not installed)
 endif
-XCPPFLAGS = $(shell pkg-config --variable=xcppflags dj32) $(CPPFLAGS)
-DJ64ASCPPFLAGS = $(shell pkg-config --variable=cppflags dj32) $(ASCPPFLAGS)
+XCPPFLAGS = $(CPPFLAGS) $(shell pkg-config --variable=xcppflags dj32)
+DJ64ASCPPFLAGS = $(ASCPPFLAGS) $(shell pkg-config --variable=cppflags dj32)
 
 LD = $(CC)
 

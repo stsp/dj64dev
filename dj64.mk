@@ -76,12 +76,12 @@ endif # filter clean install
 # omitting -c. Note that plain as also doesn't work for termux.
 AS = $(CC) -x assembler-with-cpp -c
 
-DJ64CFLAGS := $(shell pkg-config --cflags dj64) $(CFLAGS)
+DJ64CFLAGS := $(CFLAGS) $(shell pkg-config --cflags dj64)
 ifneq ($(.SHELLSTATUS),0)
 $(error dj64-dev not installed)
 endif
-XCPPFLAGS = $(shell pkg-config --variable=xcppflags dj64) $(CPPFLAGS)
-DJ64ASCPPFLAGS = $(shell pkg-config --variable=cppflags dj64) $(ASCPPFLAGS)
+XCPPFLAGS = $(CPPFLAGS) $(shell pkg-config --variable=xcppflags dj64)
+DJ64ASCPPFLAGS = $(ASCPPFLAGS) $(shell pkg-config --variable=cppflags dj64)
 
 LD = $(CC)
 
