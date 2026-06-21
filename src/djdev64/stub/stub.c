@@ -34,7 +34,7 @@
 #include "djdev64/dj64init.h"
 #include "djdev64/stub.h"
 
-#define DJSTUB_VERSION 7
+#define DJSTUB_VERSION 8
 #define DJSTUB_API_VERSION 5
 
 #define STUB_DEBUG 1
@@ -156,7 +156,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     struct stub_ret_regs *regs, char *(*lin2ptr)(unsigned lin),
     struct dos_ops *dosops, struct dpmi_ops *dpmiops,
     void (*do_printf)(int prio, const char *fmt, va_list ap),
-    int (*uput)(int))
+    int (*uput)(int), int (*elf32_open)(int), int api_ver)
 {
     int pfile = -1;
     off_t coffset = 0;
@@ -187,6 +187,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     int compact_va = 0;
     int emb_ov = 0;
     int dj32 = 0;
+    struct dos_ops *ioops = dosops;
     uint8_t stub_ver = 0;
 #define BARE_STUB() (stub_ver == 0)
 
@@ -211,15 +212,24 @@ int djstub_main(int argc, char *argv[], char *envp[],
         const char *s = "ELFLOAD=";
         int l = strlen(s);
         if (strncmp(envp[i], s, l) == 0) {
-            pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-            if (pfile == -1) {
-                error("unable to open %s\n", CRT0);
-                return -1;
+            if (api_ver >= 23)
+                pfile = elf32_open(atoi(envp[i] + l));
+            if (pfile < 0) {
+                /* 64bit elf */
+                pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
+                if (pfile == -1) {
+                    error("unable to open %s\n", CRT0);
+                    return -1;
+                }
+                stubinfo.cpl_fd = uput(pfile);
+                stubinfo.elfload_arg = atoi(envp[i] + l);
+                dyn = 1;
+            } else {
+                /* 32bit elf */
+                dj32 = 1;
             }
-            stubinfo.cpl_fd = uput(pfile);
-            stubinfo.elfload_arg = atoi(envp[i] + l);
             ops = &elf_ops;
-            dyn = 1;
+            ioops = &hops;
             done = 1;
         }
     }
@@ -260,6 +270,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
 
             if (!(buf[FLG2_OFF] & STFLG2_C32PL)) {
                 dyn++;
+                ioops = &hops;
                 pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
                 if (pfile == -1) {
                     error("unable to open %s\n", CRT0);
@@ -339,6 +350,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 if (is_64) {
                     assert(pfile == -1);
                     dyn++;
+                    ioops = &hops;
                     pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
                     if (pfile == -1) {
                         error("unable to open %s\n", CRT0);
@@ -421,7 +433,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     clnt_entry.selector = __dpmi_allocate_ldt_descriptors(1);
     clnt_ds = __dpmi_allocate_ldt_descriptors(1);
 
-    register_dosops(dyn ? &hops : dosops);
+    register_dosops(ioops);
     handle = ops->read_headers(pfile);
     if (!handle)
         exit(EXIT_FAILURE);
@@ -452,6 +464,9 @@ int djstub_main(int argc, char *argv[], char *envp[],
     stub_debug("mem_lin 0x%x mem_base 0x%x\n", mem_lin, mem_base);
     ops->read_sections(handle, lin2ptr(mem_lin), va, pfile, dyn ? 0 : coffset);
     ops->close(handle);
+    /* host fd can clash with DOS fd, so check also ioops */
+    if (dj32 && (pfile != ifile || ioops == &hops))
+        __dos_close(pfile);
     unregister_dosops();
 #define PASS_EMBOV_TO_SECOND_LDR 1
     if (dyn && pl32
