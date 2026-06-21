@@ -1,5 +1,5 @@
-STRIP = @true
-# or use `STRIP = djstrip` for non-debug build
+DJSTRIP = @true
+# or use `DJSTRIP = djstrip` for non-debug build
 
 SOURCES = hello.c thunks_a.c thunks_c.c thunks_p.c
 AS_SOURCES = h.S
@@ -41,7 +41,7 @@ endif
 # dj64 sets `DJ64_XOBJS`, `DJ64_XLIB`, `DJ64_XLDFLAGS`
 $(TGT): $(DJ64_XLIB)
 	$(LINK) -d $@.dbg $^ -o $@ $(DJ64_XLDFLAGS)
-	$(STRIP) $@
+	$(DJSTRIP) $@
 
 djgpp/%:
 	$(MAKE) -C djgpp $*
