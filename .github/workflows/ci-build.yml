@@ -32,4 +32,4 @@ jobs:
     - name: Set up test environment
       run: |
         ./ci_test_prereq.sh
-        make demos -j 9
+        ./ci_test.sh
