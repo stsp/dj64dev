@@ -2,8 +2,8 @@ srcdir = ..
 vpath %.c $(srcdir)
 vpath %.S $(srcdir)
 
-STRIP = @true
-# or use `STRIP = djstrip` for non-debug build
+DJSTRIP = @true
+# or use `DJSTRIP = djstrip` for non-debug build
 
 SOURCES := main.c mouse.c thunks_a.c thunks_c.c
 SOURCES := $(addprefix $(srcdir)/,$(SOURCES))
@@ -44,7 +44,14 @@ else
 include $(DJMK)
 endif
 
+ifneq ($(CROSS_PREFIX),)
+# for djlink on arm
+export READELF = $(CROSS_PREFIX)readelf
+export OBJCOPY = $(CROSS_PREFIX)objcopy
+export STRIP = $(CROSS_PREFIX)strip
+endif
+
 # dj64 sets `DJ64_XOBJS`, `DJ64_XLIB`, `DJ64_XLDFLAGS`
 $(TGT): $(DJ64_XLIB)
 	$(LINK) -d $@.dbg $^ -o $@ $(DJ64_XLDFLAGS)
-	$(STRIP) $@
+	$(DJSTRIP) $@
