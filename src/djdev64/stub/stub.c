@@ -228,6 +228,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 /* 32bit elf */
                 dj32 = 1;
             }
+            dosops->_dos_close(ifile);
+            ifile = -1;  // load dynamically via API
             ops = &elf_ops;
             ioops = &hops;
             done = 1;
