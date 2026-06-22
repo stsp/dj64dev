@@ -149,6 +149,23 @@ static void J_printf(void (*do_printf)(int prio, const char *fmt, va_list ap),
     va_end(val);
 }
 
+#define IS_ELF(buf) (buf[0] == 0x7f && buf[1] == 0x45 && \
+                buf[2] == 0x4c && buf[3] == 0x46)
+
+#define EI_CLASS 4
+#define ELFCLASS32 1
+#define ELFCLASS64 2
+#define ELF_IS64(buf) (buf[EI_CLASS] == ELFCLASS64)
+
+#define SHM_NOEXEC 1
+#define SHM_EXCL   2
+#define SHM_NEW_NS 4
+#define SHM_NS     8
+
+#define SHM_FLAGS0 (SHM_NOEXEC | SHM_EXCL | SHM_NEW_NS)
+#define SHM_FLAGS1 (SHM_NOEXEC | SHM_EXCL | SHM_NS)
+#define SHM_FLAGS (SHM_FLAGS0 | (SHM_FLAGS1 << 8))
+
 #define exit(x) return -(x)
 #define error(...) J_printf(do_printf, DJ64_PRINT_TERMINAL, __VA_ARGS__)
 int djstub_main(int argc, char *argv[], char *envp[],
@@ -211,7 +228,17 @@ int djstub_main(int argc, char *argv[], char *envp[],
     for (i = 0; envp && envp[i]; i++) {
         const char *s = "ELFLOAD=";
         int l = strlen(s);
+        int el = 0, ee = 0;
+
         if (strncmp(envp[i], s, l) == 0) {
+            el++;
+        } else {
+            s = "ELFEXEC=";
+            l = strlen(s);
+            if (strncmp(envp[i], s, l) == 0)
+                ee++;
+        }
+        if (el) {
             if (api_ver >= 23)
                 pfile = elf32_open(atoi(envp[i] + l));
             if (pfile < 0) {
@@ -228,11 +255,61 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 /* 32bit elf */
                 dj32 = 1;
             }
+            ioops = &hops;
             dosops->_dos_close(ifile);
             ifile = -1;  // load dynamically via API
+        }
+        if (ee) {
+            unsigned rd;
+
+            dosops->_dos_close(ifile);
+            ifile = -1;
+            rc = dosops->_dos_open(envp[i] + l, O_RDONLY, &pfile);
+            if (rc || pfile < 0) {
+                error("cannot open %s\n", envp[i] + l);
+                exit(EXIT_FAILURE);
+            }
+            rc = dosops->_dos_read(pfile, buf, BUF_SIZE, &rd);
+            if (rc) {
+                dosops->_dos_close(pfile);
+                error("stub: read() failure\n");
+                exit(EXIT_FAILURE);
+            }
+            if (rd != BUF_SIZE) {
+                dosops->_dos_close(pfile);
+                error("stub: read(%i)=%i, wrong exe file\n", BUF_SIZE, rd);
+                exit(EXIT_FAILURE);
+            }
+            if (!IS_ELF(buf)) {
+                dosops->_dos_close(pfile);
+                error("stub: not an ELF: %s\n", envp[i] + l);
+                exit(EXIT_FAILURE);
+            }
+            dosops->_dos_seek(pfile, 0, SEEK_SET);
+            if (ELF_IS64(buf)) {
+                ifile = pfile;
+                pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
+                if (pfile == -1) {
+                    error("unable to open %s\n", CRT0);
+                    return -1;
+                }
+                stubinfo.cpl_fd = uput(pfile);
+                stubinfo.elfload_arg = atoi(envp[i] + l);
+                dyn = 1;
+
+                ioops = &hops;
+                emb_ov = 1;
+                stubinfo.flags = ((STFLG2_EMBOV) << 8);
+                stubinfo.flags |= SHM_FLAGS;
+                nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
+            } else {
+                dj32 = 1;
+            }
+        }
+        if (el || ee) {
             ops = &elf_ops;
-            ioops = &hops;
             done = 1;
+            break;
         }
     }
     while (!done) {
@@ -342,12 +419,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
         } else if (buf[0] == 0x4c && buf[1] == 0x01) { /* it's a COFF */
             done = 1;
             ops = &coff_ops;
-        } else if (buf[0] == 0x7f && buf[1] == 0x45 &&
-                buf[2] == 0x4c && buf[3] == 0x46) { /* it's an ELF */
-#define EI_CLASS 4
-#define ELFCLASS32 1
-#define ELFCLASS64 2
-            int is_64 = (buf[EI_CLASS] == ELFCLASS64);
+        } else if (IS_ELF(buf)) { /* it's an ELF */
+            int is_64 = ELF_IS64(buf);
             if (!coffset) {
                 if (is_64) {
                     assert(pfile == -1);
@@ -362,14 +435,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
                     compact_va = 1;  // TODO - evaluate?
                     emb_ov = 1;
                     stubinfo.flags = ((STFLG2_EMBOV) << 8) | STFLG1_COMPACT;
-#define SHM_NOEXEC 1
-#define SHM_EXCL   2
-#define SHM_NEW_NS 4
-#define SHM_NS     8
-
-#define SHM_FLAGS0 (SHM_NOEXEC | SHM_EXCL | SHM_NEW_NS)
-#define SHM_FLAGS1 (SHM_NOEXEC | SHM_EXCL | SHM_NS)
-#define SHM_FLAGS (SHM_FLAGS0 | (SHM_FLAGS1 << 8))
                     stubinfo.flags |= SHM_FLAGS;
                     nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
                 } else {
