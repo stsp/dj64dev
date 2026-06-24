@@ -141,7 +141,7 @@ static void read_elf_sections(void *handle, char *ptr, uint32_t va, int ifile,
         if (phdr->p_memsz > phdr->p_filesz) {
             uint32_t len = phdr->p_memsz - phdr->p_filesz;
             len += len & 1;  // word-align
-            memset(ptr + phdr->p_vaddr + phdr->p_filesz, 0, len);
+            memset(ptr + phdr->p_vaddr - va + phdr->p_filesz, 0, len);
         }
     }
 fr:;
