@@ -6,7 +6,8 @@
 
 	.comm	___dpmi_int_ss, 2
 	.comm	___dpmi_int_sp, 2
-	.comm	___dpmi_int_flags, 2
+	.global ___dpmi_int_flags
+	___dpmi_int_flags: .word 2
 	.lcomm	dpmi_busy, 1
 
 	.text
@@ -26,7 +27,8 @@
 	cmpb	$1, dpmi_busy
 	jne	L_is_busy
 
-	movw	___dpmi_int_flags, %ax
+	movw	0x20(%edi), %ax	/* r.x.flags */
+	orw	___dpmi_int_flags, %ax
 	movw	%ax, 0x20(%edi)	/* r.x.flags */
 	movw	___dpmi_int_sp, %ax
 	movw	%ax, 0x2e(%edi)	/* r.x.sp */
@@ -35,7 +37,6 @@
 	jmp	L_not_busy
 
 L_is_busy:
-	movw	$0, 0x20(%edi)	/* r.x.flags */
 	movw	$0, 0x2e(%edi)	/* r.x.sp */
 	movw	$0, 0x30(%edi)	/* r.x.ss */
 
