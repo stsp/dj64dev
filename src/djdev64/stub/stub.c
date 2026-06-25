@@ -166,6 +166,24 @@ static void J_printf(void (*do_printf)(int prio, const char *fmt, va_list ap),
 #define SHM_FLAGS1 (SHM_NOEXEC | SHM_EXCL | SHM_NS)
 #define SHM_FLAGS (SHM_FLAGS0 | (SHM_FLAGS1 << 8))
 
+static int open_dyn(int32_t *cpl_fd, struct dos_ops **ioops, int (*uput)(int))
+{
+    int pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
+    if (pfile == -1)
+        return -1;
+    *cpl_fd = uput(pfile);
+    *ioops = &hops;
+    return pfile;
+}
+
+#define OPEN_DYN() { \
+    pfile = open_dyn(&stubinfo.cpl_fd, &ioops, uput); \
+    if (pfile == -1) { \
+        error("unable to open %s\n", CRT0); \
+        return -1; \
+    } \
+}
+
 #define exit(x) return -(x)
 #define error(...) J_printf(do_printf, DJ64_PRINT_TERMINAL, __VA_ARGS__)
 int djstub_main(int argc, char *argv[], char *envp[],
@@ -243,19 +261,14 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 pfile = elf32_open(atoi(envp[i] + l));
             if (pfile < 0) {
                 /* 64bit elf */
-                pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-                if (pfile == -1) {
-                    error("unable to open %s\n", CRT0);
-                    return -1;
-                }
-                stubinfo.cpl_fd = uput(pfile);
+                OPEN_DYN();
                 stubinfo.elfload_arg = atoi(envp[i] + l);
                 dyn = 1;
             } else {
                 /* 32bit elf */
                 dj32 = 1;
+                ioops = &hops;
             }
-            ioops = &hops;
             dosops->_dos_close(ifile);
             ifile = -1;  // load dynamically via API
         }
@@ -288,16 +301,10 @@ int djstub_main(int argc, char *argv[], char *envp[],
             dosops->_dos_seek(pfile, 0, SEEK_SET);
             if (ELF_IS64(buf)) {
                 ifile = pfile;
-                pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-                if (pfile == -1) {
-                    error("unable to open %s\n", CRT0);
-                    return -1;
-                }
-                stubinfo.cpl_fd = uput(pfile);
+                OPEN_DYN();
                 stubinfo.elfload_arg = atoi(envp[i] + l);
                 dyn = 1;
 
-                ioops = &hops;
                 emb_ov = 1;
                 stubinfo.flags = ((STFLG2_EMBOV) << 8);
                 stubinfo.flags |= SHM_FLAGS;
@@ -349,13 +356,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
 
             if (!(buf[FLG2_OFF] & STFLG2_C32PL)) {
                 dyn++;
-                ioops = &hops;
-                pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-                if (pfile == -1) {
-                    error("unable to open %s\n", CRT0);
-                    return -1;
-                }
-                stubinfo.cpl_fd = uput(pfile);
+                OPEN_DYN();
                 ops = &elf_ops;
             } else {
                 pfile = ifile;
@@ -425,13 +426,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 if (is_64) {
                     assert(pfile == -1);
                     dyn++;
-                    ioops = &hops;
-                    pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-                    if (pfile == -1) {
-                        error("unable to open %s\n", CRT0);
-                        return -1;
-                    }
-                    stubinfo.cpl_fd = uput(pfile);
+                    OPEN_DYN();
                     compact_va = 1;  // TODO - evaluate?
                     emb_ov = 1;
                     stubinfo.flags = ((STFLG2_EMBOV) << 8) | STFLG1_COMPACT;
