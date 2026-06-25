@@ -69,7 +69,9 @@ typedef struct {
   uint32_t elfload_arg;
 } _GO32_StubInfo;
 
+#ifdef __GNUC__
 _Static_assert(sizeof(_GO32_StubInfo) == STUBINFO_END, "size mismatch");
+#endif
 #endif
 
 #endif /* __dj_include_stub_h__ */
