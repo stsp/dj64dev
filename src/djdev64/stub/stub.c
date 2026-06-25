@@ -166,6 +166,27 @@ static void J_printf(void (*do_printf)(int prio, const char *fmt, va_list ap),
 #define SHM_FLAGS1 (SHM_NOEXEC | SHM_EXCL | SHM_NS)
 #define SHM_FLAGS (SHM_FLAGS0 | (SHM_FLAGS1 << 8))
 
+static int open_dyn(int32_t *cpl_fd, struct dos_ops **ioops,
+    struct ldops **ops, int (*uput)(int))
+{
+    int pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
+    if (pfile == -1)
+        return -1;
+    *cpl_fd = uput(pfile);
+    *ioops = &hops;
+    *ops = &elf_ops;
+    return pfile;
+}
+
+#define OPEN_DYN() { \
+    assert(pfile < 0); \
+    pfile = open_dyn(&stubinfo.cpl_fd, &ioops, &ops, uput); \
+    if (pfile == -1) { \
+        error("unable to open %s\n", CRT0); \
+        return -1; \
+    } \
+}
+
 #define exit(x) return -(x)
 #define error(...) J_printf(do_printf, DJ64_PRINT_TERMINAL, __VA_ARGS__)
 int djstub_main(int argc, char *argv[], char *envp[],
@@ -243,19 +264,15 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 pfile = elf32_open(atoi(envp[i] + l));
             if (pfile < 0) {
                 /* 64bit elf */
-                pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-                if (pfile == -1) {
-                    error("unable to open %s\n", CRT0);
-                    return -1;
-                }
-                stubinfo.cpl_fd = uput(pfile);
+                OPEN_DYN();
                 stubinfo.elfload_arg = atoi(envp[i] + l);
                 dyn = 1;
             } else {
                 /* 32bit elf */
                 dj32 = 1;
+                ioops = &hops;
+                ops = &elf_ops;
             }
-            ioops = &hops;
             dosops->_dos_close(ifile);
             ifile = -1;  // load dynamically via API
         }
@@ -288,26 +305,21 @@ int djstub_main(int argc, char *argv[], char *envp[],
             dosops->_dos_seek(pfile, 0, SEEK_SET);
             if (ELF_IS64(buf)) {
                 ifile = pfile;
-                pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-                if (pfile == -1) {
-                    error("unable to open %s\n", CRT0);
-                    return -1;
-                }
-                stubinfo.cpl_fd = uput(pfile);
+                pfile = -1;
+                OPEN_DYN();
                 stubinfo.elfload_arg = atoi(envp[i] + l);
                 dyn = 1;
 
-                ioops = &hops;
                 emb_ov = 1;
                 stubinfo.flags = ((STFLG2_EMBOV) << 8);
                 stubinfo.flags |= SHM_FLAGS;
                 nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
             } else {
                 dj32 = 1;
+                ops = &elf_ops;
             }
         }
         if (el || ee) {
-            ops = &elf_ops;
             done = 1;
             break;
         }
@@ -347,19 +359,10 @@ int djstub_main(int argc, char *argv[], char *envp[],
             if (stub_ver > 0 && stub_ver < 5 && !(buf[FLG1_OFF] & STFLG1_NO32PL))
                 buf[FLG2_OFF] |= STFLG2_C32PL;
 
-            if (!(buf[FLG2_OFF] & STFLG2_C32PL)) {
+            if (!(buf[FLG2_OFF] & STFLG2_C32PL))
                 dyn++;
-                ioops = &hops;
-                pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-                if (pfile == -1) {
-                    error("unable to open %s\n", CRT0);
-                    return -1;
-                }
-                stubinfo.cpl_fd = uput(pfile);
-                ops = &elf_ops;
-            } else {
+            else
                 pfile = ifile;
-            }
             if (buf[FLG1_OFF] & STFLG1_NO32PL) {
                 noffset = offs;
                 moff = 4;
@@ -417,21 +420,21 @@ int djstub_main(int argc, char *argv[], char *envp[],
             stub_debug("suppl name %s\n", stubinfo.payload2_name[0] ?
                     stubinfo.payload2_name : "<not set>");
         } else if (buf[0] == 0x4c && buf[1] == 0x01) { /* it's a COFF */
+            if (dyn) {
+                /* undo mistake: no dyn with COFF */
+                dyn = 0;
+                pl32 = 1;
+                pfile = ifile;
+            }
             done = 1;
             ops = &coff_ops;
         } else if (IS_ELF(buf)) { /* it's an ELF */
             int is_64 = ELF_IS64(buf);
             if (!coffset) {
+                assert(!dyn);
                 if (is_64) {
-                    assert(pfile == -1);
                     dyn++;
-                    ioops = &hops;
-                    pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
-                    if (pfile == -1) {
-                        error("unable to open %s\n", CRT0);
-                        return -1;
-                    }
-                    stubinfo.cpl_fd = uput(pfile);
+                    OPEN_DYN();
                     compact_va = 1;  // TODO - evaluate?
                     emb_ov = 1;
                     stubinfo.flags = ((STFLG2_EMBOV) << 8) | STFLG1_COMPACT;
@@ -441,20 +444,27 @@ int djstub_main(int argc, char *argv[], char *envp[],
                     stubinfo.flags = ((STFLG2_DJ32) << 8);
                     dj32 = 1;
                     pfile = ifile;
+                    ops = &elf_ops;
                 }
             } else if (is_64) {
                 error("djstub: 64bit ELF at position %lx\n", coffset);
                 return -1;
+            } else if (dyn) {
+                OPEN_DYN();
+            } else {
+                ops = &elf_ops;
             }
             done = 1;
-            ops = &elf_ops;
         } else {
             error("not an exe %s at %lx\n", argv[0], coffset);
             exit(EXIT_FAILURE);
         }
         dosops->_dos_seek(ifile, coffset, SEEK_SET);
     }
+    if (dyn && !pl32)
+        OPEN_DYN();
     assert(ops);
+    assert(pfile != -1);
 
     if (dj32)
         strncpy(stubinfo.magic, "dj32 (C) stsp", sizeof(stubinfo.magic));
