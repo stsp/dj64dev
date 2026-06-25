@@ -179,6 +179,7 @@ static int open_dyn(int32_t *cpl_fd, struct dos_ops **ioops,
 }
 
 #define OPEN_DYN() { \
+    assert(pfile < 0); \
     pfile = open_dyn(&stubinfo.cpl_fd, &ioops, &ops, uput); \
     if (pfile == -1) { \
         error("unable to open %s\n", CRT0); \
@@ -304,6 +305,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
             dosops->_dos_seek(pfile, 0, SEEK_SET);
             if (ELF_IS64(buf)) {
                 ifile = pfile;
+                pfile = -1;
                 OPEN_DYN();
                 stubinfo.elfload_arg = atoi(envp[i] + l);
                 dyn = 1;
@@ -357,12 +359,10 @@ int djstub_main(int argc, char *argv[], char *envp[],
             if (stub_ver > 0 && stub_ver < 5 && !(buf[FLG1_OFF] & STFLG1_NO32PL))
                 buf[FLG2_OFF] |= STFLG2_C32PL;
 
-            if (!(buf[FLG2_OFF] & STFLG2_C32PL)) {
+            if (!(buf[FLG2_OFF] & STFLG2_C32PL))
                 dyn++;
-                OPEN_DYN();
-            } else {
+            else
                 pfile = ifile;
-            }
             if (buf[FLG1_OFF] & STFLG1_NO32PL) {
                 noffset = offs;
                 moff = 4;
@@ -420,13 +420,19 @@ int djstub_main(int argc, char *argv[], char *envp[],
             stub_debug("suppl name %s\n", stubinfo.payload2_name[0] ?
                     stubinfo.payload2_name : "<not set>");
         } else if (buf[0] == 0x4c && buf[1] == 0x01) { /* it's a COFF */
+            if (dyn) {
+                /* undo mistake: no dyn with COFF */
+                dyn = 0;
+                pl32 = 1;
+                pfile = ifile;
+            }
             done = 1;
             ops = &coff_ops;
         } else if (IS_ELF(buf)) { /* it's an ELF */
             int is_64 = ELF_IS64(buf);
             if (!coffset) {
+                assert(!dyn);
                 if (is_64) {
-                    assert(pfile == -1);
                     dyn++;
                     OPEN_DYN();
                     compact_va = 1;  // TODO - evaluate?
@@ -443,6 +449,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
             } else if (is_64) {
                 error("djstub: 64bit ELF at position %lx\n", coffset);
                 return -1;
+            } else if (dyn) {
+                OPEN_DYN();
             } else {
                 ops = &elf_ops;
             }
@@ -453,7 +461,10 @@ int djstub_main(int argc, char *argv[], char *envp[],
         }
         dosops->_dos_seek(ifile, coffset, SEEK_SET);
     }
+    if (dyn && !pl32)
+        OPEN_DYN();
     assert(ops);
+    assert(pfile != -1);
 
     if (dj32)
         strncpy(stubinfo.magic, "dj32 (C) stsp", sizeof(stubinfo.magic));
