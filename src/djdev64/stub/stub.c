@@ -166,18 +166,20 @@ static void J_printf(void (*do_printf)(int prio, const char *fmt, va_list ap),
 #define SHM_FLAGS1 (SHM_NOEXEC | SHM_EXCL | SHM_NS)
 #define SHM_FLAGS (SHM_FLAGS0 | (SHM_FLAGS1 << 8))
 
-static int open_dyn(int32_t *cpl_fd, struct dos_ops **ioops, int (*uput)(int))
+static int open_dyn(int32_t *cpl_fd, struct dos_ops **ioops,
+    struct ldops **ops, int (*uput)(int))
 {
     int pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
     if (pfile == -1)
         return -1;
     *cpl_fd = uput(pfile);
     *ioops = &hops;
+    *ops = &elf_ops;
     return pfile;
 }
 
 #define OPEN_DYN() { \
-    pfile = open_dyn(&stubinfo.cpl_fd, &ioops, uput); \
+    pfile = open_dyn(&stubinfo.cpl_fd, &ioops, &ops, uput); \
     if (pfile == -1) { \
         error("unable to open %s\n", CRT0); \
         return -1; \
@@ -268,6 +270,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 /* 32bit elf */
                 dj32 = 1;
                 ioops = &hops;
+                ops = &elf_ops;
             }
             dosops->_dos_close(ifile);
             ifile = -1;  // load dynamically via API
@@ -311,10 +314,10 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
             } else {
                 dj32 = 1;
+                ops = &elf_ops;
             }
         }
         if (el || ee) {
-            ops = &elf_ops;
             done = 1;
             break;
         }
@@ -357,7 +360,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
             if (!(buf[FLG2_OFF] & STFLG2_C32PL)) {
                 dyn++;
                 OPEN_DYN();
-                ops = &elf_ops;
             } else {
                 pfile = ifile;
             }
@@ -436,13 +438,15 @@ int djstub_main(int argc, char *argv[], char *envp[],
                     stubinfo.flags = ((STFLG2_DJ32) << 8);
                     dj32 = 1;
                     pfile = ifile;
+                    ops = &elf_ops;
                 }
             } else if (is_64) {
                 error("djstub: 64bit ELF at position %lx\n", coffset);
                 return -1;
+            } else {
+                ops = &elf_ops;
             }
             done = 1;
-            ops = &elf_ops;
         } else {
             error("not an exe %s at %lx\n", argv[0], coffset);
             exit(EXIT_FAILURE);
