@@ -168,7 +168,7 @@ int djelf_reloc(void *arg, uint8_t *addr, uint32_t size, uint32_t va,
         return -1;
     gelf_getehdr(state->elf, &ehdr);
     if (ehdr.e_ident[EI_CLASS] != ELFCLASS32) {
-        fprintf(stderr, "bad ELF class %i\n", ehdr.e_ident[EI_CLASS]);
+        fprintf(stderr, "unsupported ELF class %i\n", ehdr.e_ident[EI_CLASS]);
         return -1;
     }
     for (i = 0; i < ehdr.e_phnum; i++) {

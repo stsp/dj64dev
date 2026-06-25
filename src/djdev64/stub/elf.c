@@ -56,14 +56,17 @@ static void *read_elf_headers(int ifile)
         fprintf(stderr, "cant read ELF header\n");
         return NULL;
     }
-    if (memcmp(&ehdr.e_ident, ELFMAG, SELFMAG) ||
-            ehdr.e_ehsize != sizeof(ehdr) ||
-            ehdr.e_phentsize != sizeof(Elf32_Phdr)) {
-        fprintf(stderr, "bad ELF header\n");
+    if (memcmp(&ehdr.e_ident, ELFMAG, SELFMAG)) {
+        fprintf(stderr, "not an ELF\n");
         return NULL;
     }
     if (ehdr.e_ident[EI_CLASS] != ELFCLASS32) {
-        fprintf(stderr, "bad ELF class %i\n", ehdr.e_ident[EI_CLASS]);
+        fprintf(stderr, "unsupported ELF class %i\n", ehdr.e_ident[EI_CLASS]);
+        return NULL;
+    }
+    if (ehdr.e_ehsize != sizeof(ehdr) ||
+            ehdr.e_phentsize != sizeof(Elf32_Phdr)) {
+        fprintf(stderr, "bad ELF header\n");
         return NULL;
     }
     if (ehdr.e_phoff > sizeof(ehdr))
