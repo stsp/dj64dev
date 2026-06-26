@@ -39,14 +39,14 @@ int __csock_connect (LSCK_SOCKET *lsd,
 	LSCK_SOCKET_CSOCK *csock = (LSCK_SOCKET_CSOCK *) lsd->idata;
 	struct sockaddr_in *sai = (struct sockaddr_in *) serv_addr;
 	int ret;
-
+#if 0
 	/* Non-blocking connects aren't supported by SOCK.VXD. Fail, so the
 	 * callee doesn't loop infinitely. */
 	if (!lsd->blocking) {
 		errno = EOPNOTSUPP;
 		return(-1);
 	}
-
+#endif
 	/* TODO: Modify this so that Ctrl+C interrupts it. If SOCK.VXD
 	 * supported non-blocking connects, it could be done. In the meantime,
 	 * this always blocks. */
