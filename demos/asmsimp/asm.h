@@ -5,7 +5,7 @@
 
 #define ASMFUNC
 
-void ASMFUNC hello_asm(void);
+int ASMFUNC hello_asm(void);
 
 #endif
 

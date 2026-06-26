@@ -12,7 +12,7 @@
 #define ASMFUNC
 
 void ASMCFUNC copy_msg(void);
-void ASMFUNC hello_asm(void);
+int ASMFUNC hello_asm(void);
 
 #endif
 

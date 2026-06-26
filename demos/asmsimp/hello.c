@@ -4,7 +4,11 @@
 
 int main()
 {
+    int rc;
+
     printf("Hello from C\n");
-    hello_asm();
+    rc = hello_asm();
+    if (rc == -1)
+        printf("unsupported DPMI server, sorry.\n");
     return 0;
 }
