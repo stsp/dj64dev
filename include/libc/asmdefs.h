@@ -28,6 +28,14 @@
 #define POPL_EDI
 #endif
 
+#ifndef _IN_DJ64
+#if defined(DJ64) && !defined(DJ32)
+#define USE64 1
+#else
+#define USE64 0
+#endif
+#endif
+
 #define USE_FAR_CALL USE64
 #if USE_FAR_CALL
 #define OFF 4

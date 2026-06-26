@@ -29,7 +29,7 @@ XCPP = $(CPP) -I . -I $(srcdir)/$(TOP)/../../include $(CPPFLAGS) -DUSE64=1 \
   -imacros $(TOP)/../../config.hh -iquote $(srcdir)
 XCPP32 = $(CPP32) -I . -I $(srcdir)/$(TOP)/../../include $(CPPFLAGS) -DDJ32 -DUSE64=0 \
   -imacros $(TOP)/../../config.hh -iquote $(srcdir)
-CROSS_ASCPP = $(3) -x assembler-with-cpp -DUSE64=$(2) $(1) | \
+CROSS_ASCPP = $(3) -x assembler-with-cpp $(CPPFLAGS) -DUSE64=$(2) $(1) | \
   $(CROSS_AS) $(CROSS_ASFLAGS) -I $(srcdir) -
 XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1),$(2),$(3))
 
