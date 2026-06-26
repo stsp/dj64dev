@@ -100,11 +100,15 @@ plt_init:
     /* check for extender, used for file I/O and printing */
     movl $0x168a, %eax
     movl $dos_nm, %esi
+    clc
     int $0x2f
     jc 223f  /* can't even print an error! :( */
+    orb %al, %al
+    jnz 223f
     /* check for DJ64 */
     movl $0xa00, %eax
     movl $ext_nm, %esi
+    clc
     int $0x31
     jc 2f
     orb %al, %al
