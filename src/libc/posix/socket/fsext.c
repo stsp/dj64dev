@@ -55,7 +55,7 @@ int __lsck_socket_fsext (__FSEXT_Fnumber func_number, int *rv, va_list args)
 	int s;
 	void *data;
 	int count;
-	int t = 0, r = 0, selectsocket_err = 0;
+	int t = 0, r = 0;
 	int req;
 	int *ioctl_comm;
 	int fcntl_comm;
@@ -111,23 +111,29 @@ int __lsck_socket_fsext (__FSEXT_Fnumber func_number, int *rv, va_list args)
 		t = selectsocket (s, FD_READ);	/* Ready for reading? */
 		if (t > 0)
 			r |= __FSEXT_ready_read;
-		else if (t == -1)
-			selectsocket_err = 1;
+		else if (t == -1) {
+			*rv = -1;
+			return 1;
+		}
 
 		t = selectsocket (s, FD_WRITE);	/* Ready for writing? */
 		if (t > 0)
 			r |= __FSEXT_ready_write;
-		else if (t == -1)
-			selectsocket_err = 1;
+		else if (t == -1) {
+			*rv = -1;
+			return 1;
+		}
 
 		/* RD: Error condition on socket? */
 		t = selectsocket (s, ~(FD_READ | FD_WRITE));	/* Dodgy? */
 		if (t > 0)
 			r |= __FSEXT_ready_error;
-		else if (t == -1)
-			selectsocket_err = 1;
+		else if (t == -1) {
+			*rv = -1;
+			return 1;
+		}
 
-		*rv = selectsocket_err ? -1 : r;
+		*rv = r;
 		/*return r?r:8; *//* IM: Must I here return the value? */
 		/* RD: No, just non-zero, so the FS extensions know we handled
 		 * it. */

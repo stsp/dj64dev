@@ -174,10 +174,12 @@ select(int nfds,
     {
       int ioctl_result;
       __FSEXT_Function *func = __FSEXT_get_function(i);
-      int fsext_ready = -1;
+      int fsext_ready = -1, rc = 0;
 
       if (func)
-	__FSEXT_func_wrapper(func, __FSEXT_ready, &fsext_ready, i);
+	rc = __FSEXT_func_wrapper(func, __FSEXT_ready, &fsext_ready, i);
+      if (rc && fsext_ready == -1)
+        return -1;
 
       if (readfds && FD_ISSET (i, readfds))
       {
@@ -209,7 +211,8 @@ select(int nfds,
 	{
 	  if (fsext_ready & __FSEXT_ready_error)
 	    ready++, FD_SET(i, &oexcept);
-	}
+	} else
+	  return -1;
       }
     }
 
