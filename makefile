@@ -89,7 +89,6 @@ ifeq ($(USE64),1)
 	$(INSTALL) -m 0644 dj64static.pc $(DESTDIR)$(libdir)/pkgconfig
 ifeq ($(NCURSES),1)
 	$(MAKE) -C $(NC_BUILD) install
-	$(MAKE) -C $(NC_BUILD32) install
 endif
 endif
 
@@ -117,7 +116,6 @@ ifeq ($(USE64),1)
 ifeq ($(NCURSES),1)
 ifneq ($(wildcard $(NC_BUILD)),)
 	$(MAKE) -C $(NC_BUILD) uninstall
-	$(MAKE) -C $(NC_BUILD32) uninstall
 endif
 endif
 	$(RM) -r $(DESTDIR)$(sysroot)
@@ -151,10 +149,18 @@ ifeq ($(USE32),1)
 	cp -r $(abs_top_srcdir)/include $(DESTDIR)$(sysroot32)
 	$(INSTALL) -d $(DESTDIR)$(sysroot32)/share
 	$(INSTALL) -m 0644 $(abs_top_srcdir)/dj32.mk $(DESTDIR)$(sysroot32)/share
+ifeq ($(NCURSES),1)
+	$(MAKE) -C $(NC_BUILD32) install
+endif
 endif
 
 uninstall32:
 ifeq ($(USE32),1)
+ifeq ($(NCURSES),1)
+ifneq ($(wildcard $(NC_BUILD32)),)
+	$(MAKE) -C $(NC_BUILD32) uninstall
+endif
+endif
 	$(RM) -r $(DESTDIR)$(sysroot32)
 	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj32.pc
 endif
@@ -198,6 +204,7 @@ endif
 $(DJ64DEVL): subs
 
 ifeq ($(NCURSES),1)
+ifeq ($(USE64),1)
 L_CPPFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=xcppflags --define-variable=dj64prefix=$(abs_top_srcdir) dj64)
 L_CFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --cflags dj64)
 L_LIBS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-L --libs-only-l --define-variable=libdir=$(ATOP)/lib dj64)
@@ -232,7 +239,11 @@ $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD) $(DJ64DEVL)
 
 ncurses: $(NC_BUILD)/Makefile
 	$(MAKE) -C $(NC_BUILD)
+else
+ncurses:
+endif
 
+ifeq ($(USE32),1)
 L_CPPFLAGS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=xcppflags --define-variable=dj32prefix=$(abs_top_srcdir) dj32)
 L_CFLAGS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --cflags dj32)
 L_LIBS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-L --libs-only-l --define-variable=libdir=$(ATOP)/lib --define-variable=libdir32=$(ATOP)/lib dj32)
@@ -260,6 +271,9 @@ $(NC_BUILD32)/Makefile: dj32.pc | $(NC_BUILD32) $(DJ32LIBS)
 
 ncurses32: $(NC_BUILD32)/Makefile
 	$(MAKE) -C $(NC_BUILD32)
+else
+ncurses32:
+endif
 else
 ncurses:
 ncurses32:
