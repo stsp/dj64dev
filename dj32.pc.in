@@ -3,8 +3,10 @@ Description: dj32 libs
 Version: @VERSION@
 prefix=@prefix@
 dj32prefix=@sysroot32@
+libdir=${dj32prefix}/lib
+libdir32=${dj32prefix}/lib32
 makeinc=${dj32prefix}/share/dj32.mk
 cppflags=-I${dj32prefix}/include -DDJ64 -DDJ32 -nostdinc
 xcppflags=${cppflags} -imacros ${dj32prefix}/include/dj64/a_mac.h
 Cflags: -fno-pic -fno-pie -ffreestanding -fno-stack-protector -march=i386 -fcf-protection=none
-Libs: -L${dj32prefix}/lib -L${dj32prefix}/lib32 -ldj32_s -lc32_s
+Libs: -L${libdir} -L${libdir32} -ldj32_s -lc32_s
