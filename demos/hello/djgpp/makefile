@@ -1,4 +1,5 @@
-VPATH = ..
+vpath %.c ..
+vpath %.S ..
 CC = i586-pc-msdosdjgpp-gcc
 LD = i586-pc-msdosdjgpp-gcc
 CFLAGS = -Wall
