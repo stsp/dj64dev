@@ -25,7 +25,6 @@
 #include <libc/file.h> /* for fileno() */
 
 extern char **_environ;
-#define alloca __builtin_alloca
 
 typedef enum {
   REDIR_INPUT,
