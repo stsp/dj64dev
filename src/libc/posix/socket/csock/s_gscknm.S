@@ -16,7 +16,7 @@ FUNC(____csock_getsockname)
     movl ARG2, %edi
     movl %ecx, (%edi)
     movl ARG3, %edi
-    movl %ebx, (%edi)
+    movw %bx, (%edi)
     xorl %eax, %eax           // Clear EAX (set it to 0) on success
 2:
     LEAVE
