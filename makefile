@@ -35,10 +35,11 @@ DJSTUB64LIBV = $(TOP)/lib/libdjstub64.*.*
 DJSTUB64DEVL = $(TOP)/lib/libdjstub64.$(SHLIB_EXT)
 DJELFLOAD = $(TOP)/lib/elfload.com
 NC_BUILD = contrib/ncurses/build
+NC_BUILD32 = contrib/ncurses/build32
 
-.PHONY: subs dj64 djdev64 demos ncurses
+.PHONY: subs dj64 djdev64 demos ncurses ncurses32
 
-all: Makefile.conf dj64 djdev64 ncurses
+all: Makefile.conf dj64 djdev64 ncurses ncurses32
 	@echo
 	@echo "Done building. You may need to run \"sudo make install\" now."
 	@echo "You can first run \"sudo make uninstall\" to purge the prev install."
@@ -49,7 +50,7 @@ Makefile.conf config.status: $(abs_top_srcdir)/Makefile.conf.in $(abs_top_srcdir
 $(abs_top_srcdir)/configure: $(abs_top_srcdir)/configure.ac
 	cd $(@D) && autoreconf -v -i -I m4
 
-subs:
+subs $(DJ64DEVL) $(DJ32LIBS) $(DJLIBC) $(DJLIBC32) &:
 	$(MAKE) -C src
 
 %.pc: %.pc.in config.status
@@ -88,6 +89,7 @@ ifeq ($(USE64),1)
 	$(INSTALL) -m 0644 dj64static.pc $(DESTDIR)$(libdir)/pkgconfig
 ifeq ($(NCURSES),1)
 	$(MAKE) -C $(NC_BUILD) install
+	$(MAKE) -C $(NC_BUILD32) install
 endif
 endif
 
@@ -115,6 +117,7 @@ ifeq ($(USE64),1)
 ifeq ($(NCURSES),1)
 ifneq ($(wildcard $(NC_BUILD)),)
 	$(MAKE) -C $(NC_BUILD) uninstall
+	$(MAKE) -C $(NC_BUILD32) uninstall
 endif
 endif
 	$(RM) -r $(DESTDIR)$(sysroot)
@@ -165,6 +168,7 @@ clean: demos_clean
 	$(RM) -r lib
 ifeq ($(NCURSES),1)
 	$(RM) -r $(NC_BUILD)
+	$(RM) -r $(NC_BUILD32)
 endif
 
 deb:
@@ -201,8 +205,10 @@ R_PREFIX = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=dj64prefix dj64
 R_LIBDIR = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=libdir dj64)
 L_LDFLAGS = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-other dj64) \
   -Wl,-rpath=$(R_LIBDIR) -nostdlib
-$(NC_BUILD):
+
+$(NC_BUILD) $(NC_BUILD32):
 	mkdir -p $@
+
 $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD) $(DJ64DEVL)
 	cd $(NC_BUILD) && \
 	  CC="$(CC)" \
@@ -226,6 +232,35 @@ $(NC_BUILD)/Makefile: dj64.pc | $(NC_BUILD) $(DJ64DEVL)
 
 ncurses: $(NC_BUILD)/Makefile
 	$(MAKE) -C $(NC_BUILD)
+
+L_CPPFLAGS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=xcppflags --define-variable=dj32prefix=$(abs_top_srcdir) dj32)
+L_CFLAGS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --cflags dj32)
+L_LIBS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-L --libs-only-l --define-variable=libdir=$(ATOP)/lib --define-variable=libdir32=$(ATOP)/lib dj32)
+R_PREFIX32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=dj32prefix dj32)
+R_LIBDIR32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=libdir32 dj32)
+L_LDFLAGS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-other dj32)
+$(NC_BUILD32)/Makefile: dj32.pc | $(NC_BUILD32) $(DJ32LIBS)
+	cd $(NC_BUILD32) && \
+	  CPPFLAGS="$(L_CPPFLAGS32)" \
+	  CFLAGS="$(L_CFLAGS32)" \
+	  LIBS="$(L_LIBS32)" \
+	  LDFLAGS="$(L_LDFLAGS32)" \
+  $(abs_top_srcdir)/contrib/ncurses/configure --host=i686-linux-gnu \
+    --prefix=$(R_PREFIX32) \
+    --libdir=$(R_LIBDIR32) \
+    --without-manpages \
+    --without-cxx \
+    --without-ada \
+    --without-debug \
+    --with-fallbacks=vt100,ansi,cygwin,linux,djgpp,djgpp203,djgpp204 \
+    --disable-database \
+    --without-tests \
+    --without-progs \
+    $(EXTRA_NC_CONFIGURE_FLAGS)
+
+ncurses32: $(NC_BUILD32)/Makefile
+	$(MAKE) -C $(NC_BUILD32)
 else
 ncurses:
+ncurses32:
 endif
