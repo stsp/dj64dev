@@ -625,11 +625,7 @@ res_send( const u_char *buf, int buflen, u_char *ans, int anssiz )
 			/*
 			 * Wait for reply
 			 */
-			timeout.tv_sec = (_res.retrans << try);
-			if (try > 0)
-				timeout.tv_sec /= _res.nscount;
-			if ((long) timeout.tv_sec <= 0)
-				timeout.tv_sec = 1;
+			timeout.tv_sec = 1;
 			timeout.tv_usec = 0;
     wait:
 			FD_ZERO(&dsmask);
