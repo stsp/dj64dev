@@ -40,10 +40,6 @@ DJ64ASCPPFLAGS = $(DJASCPPFLAGS) $(shell pkg-config --variable=cppflags dj32)
 
 LOADADDR = 0x08148000
 # static
-DJLDFLAGS := $(shell pkg-config --libs dj32)
-ifneq ($(.SHELLSTATUS),0)
-$(error dj32-dev-static not installed)
-endif
 DJ64_XLDFLAGS += -f 0x40
 XELF = tmp.elf
 
@@ -59,8 +55,11 @@ GLOB_ASM ?= $(wildcard glob_asm.h)
 
 DJ64_XLDFLAGS += -f 0x6000
 XLDFLAGS := $(shell pkg-config --static --libs dj32)
+ifneq ($(.SHELLSTATUS),0)
+$(error dj32-dev not installed)
+endif
 $(XELF): $(AS_OBJECTS) $(PLT_O) $(OBJECTS)
-	$(XLD) $^ $(XLDFLAGS) -o $@
+	$(XLD) $^ $(DJLDFLAGS) $(XLDFLAGS) -o $@
 DJ64_XLIB = $(XELF)
 
 %.o: %.c

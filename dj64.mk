@@ -103,15 +103,16 @@ ifeq ($(DJ64STATIC),0)
 $(error DJ64STATIC must be empty, not 0)
 endif
 ifeq ($(DJ64STATIC),1)
-DJLDFLAGS := $(shell pkg-config --libs dj64_s)
+S := $(shell pkg-config --libs dj64_s)
 ifneq ($(.SHELLSTATUS),0)
 $(error dj64-dev-static not installed)
 endif
+DJLDFLAGS += $(S)
 DJ64_XLDFLAGS += -f 0x40
 else
 RP := -Wl,-rpath,$(shell pkg-config --variable=libdir dj64)
 # sort removes duplicates
-DJLDFLAGS := $(shell pkg-config --libs dj64) $(sort $(RP)) $(LDFLAGS)
+DJLDFLAGS += $(shell pkg-config --libs dj64) $(sort $(RP)) $(LDFLAGS)
 ifneq ($(.SHELLSTATUS),0)
 $(error dj64-dev not installed)
 endif
