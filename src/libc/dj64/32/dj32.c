@@ -20,6 +20,9 @@
 #include <libc/internal.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <dpmi.h>
+#include <sys/segments.h>
 
 static uint8_t *addr2ptr(uint32_t addr)
 {
@@ -38,6 +41,11 @@ static uint32_t ptr2addr(const uint8_t *ptr)
 
 static void print(int prio, const char *format, va_list ap)
 {
+#define DOS_HELPER_PRINT_STRING     0x13 /* ES:DX point to a NULL terminated string */
+    char buf[256];
+    vsnprintf(buf, sizeof(buf), format, ap);
+    asm volatile("int $0xe6\n"::"a"(DOS_HELPER_PRINT_STRING),
+            "d"(PTR_DATA((void *)buf)));
 }
 
 static int asm_call(dpmi_regs *regs, dpmi_paddr pma, uint8_t *sp, uint8_t len)
