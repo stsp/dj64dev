@@ -51,7 +51,14 @@ $(abs_top_srcdir)/configure: $(abs_top_srcdir)/configure.ac
 	cd $(@D) && autoreconf -v -i -I m4
 
 subs:
+# New makes have a way to avoid parallel invocation with the use of &:
+need = 4.3
+ifneq ($(filter $(need),$(firstword $(sort $(MAKE_VERSION) $(need)))),)
 $(DJ64DEVL) $(DJ32LIBS) $(DJLIBC) $(DJLIBC32) &: subs
+else
+.NOTPARALLEL:
+$(DJ64DEVL) $(DJ32LIBS) $(DJLIBC) $(DJLIBC32) : subs
+endif
 	$(MAKE) -C src
 
 %.pc: %.pc.in config.status
