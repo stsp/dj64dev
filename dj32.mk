@@ -54,10 +54,11 @@ endif
 GLOB_ASM ?= $(wildcard glob_asm.h)
 
 DJ64_XLDFLAGS += -f 0x6000
-XLDFLAGS := $(shell pkg-config --static --libs dj32)
+S := $(shell pkg-config --static --libs dj32)
 ifneq ($(.SHELLSTATUS),0)
 $(error dj32-dev not installed)
 endif
+XLDFLAGS += $(S)
 $(XELF): $(AS_OBJECTS) $(PLT_O) $(OBJECTS)
 	$(XLD) $^ $(DJLDFLAGS) $(XLDFLAGS) -o $@
 DJ64_XLIB = $(XELF)
