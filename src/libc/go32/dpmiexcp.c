@@ -85,7 +85,6 @@ except_to_sig(int excep)
   }
 }
 
-#if 0
 static void
 show_call_frame(void)
 {
@@ -111,7 +110,7 @@ show_call_frame(void)
   err("Call frame traceback EIPs:\r\n  0x");
   itox(__djgpp_exception_state->__eip, 8);
   max--;
-  while (((uintptr_t)vbp >= __djgpp_exception_state->__esp) && (vbp >= &end) && (vbp < tos))
+  while (((uintptr_t)vbp >= __djgpp_exception_state->__esp)/* && (vbp >= &end)*/ && (vbp < tos))
   {
     vbp_new = (unsigned *)(uintptr_t)*vbp;
     if (vbp_new == 0)
@@ -125,7 +124,6 @@ show_call_frame(void)
   }
   err("\r\n");
 }
-#endif
 
 static const char *exception_names[] = {
   "Division by Zero",
@@ -267,8 +265,8 @@ do_faulting_finish_message(int fake_exception)
   err("]  Exceptn stack: ["); itox(excpt_stack_addr+8000, 8);
   err(".."); itox(excpt_stack_addr, 8); err("]\r\n");
   err("\r\n");
-//  if (__djgpp_exception_state->__cs == _my_cs())
-//    show_call_frame();
+  if (__djgpp_exception_state->__cs == _my_cs())
+    show_call_frame();
   _exit(-1);
 }
 
@@ -336,9 +334,9 @@ void __djgpp_traceback_exit(int sig)
   }
 #endif
   print_signal_name(sig);
-//  if(__djgpp_exception_state_ptr)
+  if(__djgpp_exception_state_ptr)
     /* This exits, does not return.  */
-//    do_faulting_finish_message(__djgpp_exception_state_ptr == &fake_exception);
+    do_faulting_finish_message(1/*__djgpp_exception_state_ptr == &fake_exception*/);
   _exit(-1);
 }
 
