@@ -24,10 +24,18 @@ jobs:
       run: ./ci_prereq.sh
 
     - name: Build
+      id: build
       run: |
         make deb
         sudo dpkg -i ../dj64*.deb
         sudo dpkg -i ../dj32*.deb
+
+    - name: Upload failure logs
+      if: ${{ always() && (steps.build.outcome == 'failure') }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: failure-logs
+        path: build/contrib/ncurses/build32/config.log
 
     - name: Set up test environment
       run: |
