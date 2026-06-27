@@ -123,7 +123,6 @@ not_forced:
 
 	pushl	%ebp
 	movl	%esp, %ebp	/* load ebp with stack for easy access */
-
 	movl	12(%ebp), %eax
 	movl	%eax, ERRCODE(%ebx)
 	movl	16(%ebp), %eax
@@ -140,6 +139,20 @@ not_forced:
 	movl	32(%ebp), %eax
 	movw	%ax, SS(%ebx)
 
+	/* dj32 - skip endbr32 instructions */
+	cmpl	$6, EXCEPNO(%ebx)
+	jne	1f
+	movl	EIP(%ebx), %esi
+	movl	%cs:(%esi), %esi
+	cmpl	$0xfb1e0ff3, %esi		/* endbr32 */
+	jne	1f
+	addl	$4, 16(%ebp)
+	movl	ESI(%ebx), %esi
+	movl	EBX(%ebx), %ebx
+	popl	%ebp
+	lret
+
+1:
 	movl	$dpmi_exception_proc1, 16(%ebp)		/* where to return */
 	movw	%cs, 20(%ebp)
 
