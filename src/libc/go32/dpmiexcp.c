@@ -105,15 +105,15 @@ show_call_frame(void)
        limit by the maximum that the stack could hold (2 int's per frame).  */
     max = _stklen / (2*sizeof(unsigned));
 
-  tos = (unsigned *)(uintptr_t)__djgpp_selector_limit;
-  vbp = (unsigned *)(uintptr_t)__djgpp_exception_state->__ebp;
+  tos = (unsigned *)DATA_PTR(__djgpp_selector_limit);
+  vbp = (unsigned *)DATA_PTR(__djgpp_exception_state->__ebp);
   err("Call frame traceback EIPs:\r\n  0x");
   itox(__djgpp_exception_state->__eip, 8);
   max--;
-  while (((uintptr_t)vbp >= __djgpp_exception_state->__esp)/* && (vbp >= &end)*/ && (vbp < tos))
+  while (((char *)vbp >= DATA_PTR(__djgpp_exception_state->__esp))/* && (vbp >= &end)*/ && (vbp < tos))
   {
-    vbp_new = (unsigned *)(uintptr_t)*vbp;
-    if (vbp_new == 0)
+    vbp_new = (unsigned *)DATA_PTR(*vbp);
+    if (vbp_new == NULL)
       break;
     veip = *(vbp + 1);
     err("\r\n  0x");
