@@ -253,7 +253,7 @@ L_LDFLAGS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --define-variable=libdi
 $(NC_BUILD32)/Makefile: dj32.pc | $(NC_BUILD32) $(DJ32LIBS)
 	cd $(NC_BUILD32) && \
 	  CPPFLAGS="$(L_CPPFLAGS32)" \
-	  CFLAGS="$(L_CFLAGS32)" \
+	  CFLAGS="$(L_CFLAGS32) $(CROSS_CFLAGS)" \
 	  LIBS="$(L_LIBS32)" \
 	  LDFLAGS="$(L_LDFLAGS32)" \
   $(abs_top_srcdir)/contrib/ncurses/configure --host=i686-linux-gnu \
