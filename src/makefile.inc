@@ -53,6 +53,8 @@ XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1),$(2),$(3))
 %.O : %.S
 	$(call XASCPP,$<,0,$(CPP32)) -o $@
 
+.PRECIOUS: %.C %.C32
+
 LIB=$(TOP)/../../lib
 BIN=$(TOP)/../../bin
 INC=$(TOP)/../../include
