@@ -246,10 +246,10 @@ endif
 ifeq ($(USE32),1)
 L_CPPFLAGS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=xcppflags --define-variable=dj32prefix=$(abs_top_srcdir) dj32)
 L_CFLAGS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --cflags dj32)
-L_LIBS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-L --libs-only-l --define-variable=libdir=$(ATOP)/lib --define-variable=libdir32=$(ATOP)/lib dj32)
+L_LIBS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-L --libs-only-l --define-variable=libdir32=$(ATOP)/lib dj32)
 R_PREFIX32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=dj32prefix dj32)
 R_LIBDIR32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=libdir32 dj32)
-L_LDFLAGS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --libs-only-other dj32)
+L_LDFLAGS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --define-variable=libdir=$(ATOP)/lib --libs-only-other dj32)
 $(NC_BUILD32)/Makefile: dj32.pc | $(NC_BUILD32) $(DJ32LIBS)
 	cd $(NC_BUILD32) && \
 	  CPPFLAGS="$(L_CPPFLAGS32)" \
