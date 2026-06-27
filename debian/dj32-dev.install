@@ -1,5 +1,10 @@
+usr/lib/*/i386-pc-dj32/bin/ncursesw6-config
 usr/lib/*/i386-pc-dj32/include
 usr/lib/*/i386-pc-dj32/lib/libc32_s.a
 usr/lib/*/i386-pc-dj32/lib32/libdj32_s.a
+usr/lib/*/i386-pc-dj32/lib32/libformw.a
+usr/lib/*/i386-pc-dj32/lib32/libmenuw.a
+usr/lib/*/i386-pc-dj32/lib32/libncursesw.a
+usr/lib/*/i386-pc-dj32/lib32/libpanelw.a
 usr/lib/*/i386-pc-dj32/share/*
 usr/lib/*/pkgconfig/dj32.pc
