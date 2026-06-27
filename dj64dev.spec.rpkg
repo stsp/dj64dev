@@ -122,9 +122,14 @@ for 32bit targets.
 
 %files dj32-devel
 %defattr(-,root,root)
+%{_prefix}/i386-pc-dj32/bin/ncursesw6-config
 %{_prefix}/i386-pc-dj32/include
 %{_prefix}/i386-pc-dj32/lib/libc32_s.a
 %{_prefix}/i386-pc-dj32/lib32/libdj32_s.a
+%{_prefix}/i386-pc-dj32/lib32/libformw.a
+%{_prefix}/i386-pc-dj32/lib32/libmenuw.a
+%{_prefix}/i386-pc-dj32/lib32/libncursesw.a
+%{_prefix}/i386-pc-dj32/lib32/libpanelw.a
 %{_prefix}/i386-pc-dj32/share/*
 %{_libdir}/pkgconfig/dj32.pc
 %end
