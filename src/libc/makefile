@@ -9,26 +9,19 @@ TOP=.
 LIBNAME=c
 
 include $(TOP)/../../Makefile.conf
-include $(srcdir)/$(TOP)/../makefile.lib
+
+LIB = $(TOP)/../../lib
+
+all:
+	../makemake.exe
+	$(MAKE) -f makefile.sub
+	../makemake.exe -2
+	$(MAKE) -C dj64 final
 
 .PHONY: all info tex texinfo doc libc2.tex
 
-#all :: info
-
-libc2.tex :
-	$(MKDOC) . libc2.tex
-
-info doc : libc.tex libc2.tex
-	makeinfo --no-split libc.tex
-
-dvi : libc.tex libc2.tex
-	texi2dvi libc.tex
-
-ps : libc.tex libc2.tex
-	texi2ps -v libc.tex
-
-clean ::
-	@$(RM) libc2.tex
-	@$(MAKE) -C stubs $@
-	@$(MAKE) -C crt0 $@
-	@$(RM) makefile.sub
+clean:
+	$(TOP)/../makemake.exe
+	$(MAKE) -f makefile.sub SUBARGS=clean
+	$(RM) makefile.oi makefile.rf makefile.rfo
+	$(RM) makefile.sub
