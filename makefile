@@ -37,7 +37,7 @@ DJELFLOAD = $(TOP)/lib/elfload.com
 NC_BUILD = contrib/ncurses/build
 NC_BUILD32 = contrib/ncurses/build32
 
-.PHONY: subs dj64 djdev64 demos ncurses ncurses32
+.PHONY: dj64 djdev64 demos ncurses ncurses32
 
 all: Makefile.conf dj64 djdev64 ncurses ncurses32
 	@echo
@@ -50,7 +50,8 @@ Makefile.conf config.status: $(abs_top_srcdir)/Makefile.conf.in $(abs_top_srcdir
 $(abs_top_srcdir)/configure: $(abs_top_srcdir)/configure.ac
 	cd $(@D) && autoreconf -v -i -I m4
 
-subs $(DJ64DEVL) $(DJ32LIBS) $(DJLIBC) $(DJLIBC32) &:
+subs:
+$(DJ64DEVL) $(DJ32LIBS) $(DJLIBC) $(DJLIBC32) &: subs
 	$(MAKE) -C src
 
 %.pc: %.pc.in config.status
@@ -63,7 +64,7 @@ ifeq ($(USE64),1)
 DJ64PC = dj64.pc dj64_s.pc dj64static.pc
 endif
 DJ64PC += dj32.pc
-dj64: $(DJ64PC) subs
+dj64: $(DJ64PC) $(DJ64DEVL)
 
 install_dj64:
 ifeq ($(USE64),1)
@@ -200,8 +201,6 @@ install_demos:
 ifeq ($(USE64),1)
 	$(MAKE) -C demos src_install
 endif
-
-$(DJ64DEVL): subs
 
 ifeq ($(NCURSES),1)
 ifeq ($(USE64),1)
