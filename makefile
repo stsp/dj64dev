@@ -252,6 +252,7 @@ R_LIBDIR32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --variable=libdir32 dj32
 L_LDFLAGS32 = $(shell PKG_CONFIG_PATH=$(ATOP) pkg-config --define-variable=libdir=$(ATOP)/lib --libs-only-other dj32)
 $(NC_BUILD32)/Makefile: dj32.pc | $(NC_BUILD32) $(DJ32LIBS)
 	cd $(NC_BUILD32) && \
+	  CC="$(CC32)" \
 	  CPPFLAGS="$(L_CPPFLAGS32)" \
 	  CFLAGS="$(L_CFLAGS32) $(CROSS_CFLAGS)" \
 	  LIBS="$(L_LIBS32)" \
