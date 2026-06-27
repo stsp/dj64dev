@@ -39,7 +39,7 @@ int __csock_getpeername (LSCK_SOCKET * lsd,
 	LSCK_SOCKET_CSOCK *csock = (LSCK_SOCKET_CSOCK *) lsd->idata;
 	struct sockaddr_in *peer_sa = (struct sockaddr_in *) name;
 	unsigned int peer_addr;
-	unsigned short peer_port;
+	unsigned int peer_port;
 	int ret = 0;
 
 	if (*namelen < sizeof (struct sockaddr_in)) {

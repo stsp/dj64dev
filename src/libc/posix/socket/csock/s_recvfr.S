@@ -22,7 +22,7 @@ FUNC(____csock_recvfrom)
     movl ARG5, %edi
     movl %ebx, (%edi)
     movl ARG6, %edi
-    movw %dx, (%edi)
+    movl %edx, (%edi)
     xorl %eax, %eax           // Clear EAX (set it to 0) on success
 2:
     LEAVE

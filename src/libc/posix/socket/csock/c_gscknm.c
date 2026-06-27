@@ -44,7 +44,7 @@ int __csock_getsockname (LSCK_SOCKET *lsd,
 	LSCK_SOCKET_CSOCK *csock = (LSCK_SOCKET_CSOCK *) lsd->idata;
 	struct sockaddr_in *sock_sa = (struct sockaddr_in *) name;
 	ULONG32 sock_addr = 0;
-	unsigned short sock_port = 0;
+	unsigned int sock_port = 0;
 	int ret;
 
 	if (*namelen < sizeof (struct sockaddr_in)) {

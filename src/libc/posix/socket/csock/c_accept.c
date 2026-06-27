@@ -45,7 +45,7 @@ __csock_accept (LSCK_SOCKET *lsd, LSCK_SOCKET *nsd,
   LSCK_SOCKET_CSOCK *csock    = (LSCK_SOCKET_CSOCK *) lsd->idata;
   LSCK_SOCKET_CSOCK *ncsock   = NULL;
   int ret                     = -1;
-  unsigned short dest_port    =  0;
+  unsigned int dest_port      =  0;
   unsigned int dest_addr      =  0;
   struct sockaddr_in *addr_sa = (struct sockaddr_in *) addr;
   int blocking                = lsd->blocking;

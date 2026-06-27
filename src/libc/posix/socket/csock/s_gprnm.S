@@ -16,7 +16,7 @@ FUNC(____csock_getpeername)
     movl ARG2, %edi
     movl %ecx, (%edi)
     movl ARG3, %edi
-    movw %bx, (%edi)
+    movl %ebx, (%edi)
     xorl %eax, %eax           // Clear EAX (set it to 0) on success
 2:
     LEAVE

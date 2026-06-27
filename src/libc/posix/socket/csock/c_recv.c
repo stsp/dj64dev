@@ -70,7 +70,7 @@ ssize_t __csock_recvfrom (LSCK_SOCKET *lsd,
 {
 	LSCK_SOCKET_CSOCK *csock = (LSCK_SOCKET_CSOCK *) lsd->idata;
 	ssize_t ret;
-	ULONG32 recvlen;
+	ULONG32 recvlen, port;
 	struct sockaddr_in from_sin;
 	int flag;
 	int rv;
@@ -101,9 +101,10 @@ ssize_t __csock_recvfrom (LSCK_SOCKET *lsd,
 
 	ret = ___csock_recvfrom(csock->fd, buf, len,
 			&recvlen, (ULONG32 *)&from_sin.sin_addr.s_addr,
-			&from_sin.sin_port);
+			&port);
 
 	from_sin.sin_family = AF_INET;
+	from_sin.sin_port = port;
 
 	if (__csock_version < 1) {
 		flag = !flag;

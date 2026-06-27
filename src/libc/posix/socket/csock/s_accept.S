@@ -20,7 +20,7 @@ FUNC(____csock_accept)
     movl ARG3, %edi
     movl %ecx, (%edi)
     movl ARG4, %edi
-    movw %bx, (%edi)
+    movl %ebx, (%edi)
     xorl %eax, %eax           // Clear EAX (set it to 0) on success
 2:
     LEAVE
