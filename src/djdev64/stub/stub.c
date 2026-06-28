@@ -321,6 +321,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
         }
         if (el || ee) {
             done = 1;
+            stubinfo.flags |= SIFLG_ELFEXEC;
             break;
         }
     }
