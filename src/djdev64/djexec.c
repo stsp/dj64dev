@@ -47,6 +47,7 @@ int djdev64_exec(const char *path, int handle, int libid, unsigned flags)
     struct exec_handle *eh = &ehands[0];
     int rtld_flags = RTLD_LOCAL | RTLD_NOW;
     dj64init2_t *i2;
+    int err;
 
     eh->dlobj = NULL;
 #if HAVE_DECL_RTLD_DEEPBIND
@@ -75,7 +76,11 @@ int djdev64_exec(const char *path, int handle, int libid, unsigned flags)
         goto out;
     }
 
-    i2(handle, libid);
+    err = i2(handle, libid);
+    if (err) {
+        printf("error: statically linked ELF unsupported by this loader\n");
+        goto out;
+    }
     return 0;
 out:
     dlclose(eh->dlobj);

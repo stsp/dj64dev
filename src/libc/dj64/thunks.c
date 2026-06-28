@@ -423,13 +423,15 @@ dj64cdispatch_t **DJ64_INIT_FN(int handle, const struct elf_ops *ops,
     return dops;
 }
 
-void DJ64_INIT2_FN(int handle, int disp_id)
+int DJ64_INIT2_FN(int handle, int disp_id)
 {
     struct udisp *u;
 
     assert(handle < MAX_HANDLES);
     assert(disp_id > 1 && disp_id < MAX_DISPS);
     u = &udisps[handle];
+    if (!u->disp[0])  // statically linked
+        return -1;
     u->disp[disp_id] = disp_fn;
     u->at[disp_id] = u_athunks;
     u->pt[disp_id] = u_pthunks;
@@ -442,6 +444,7 @@ void DJ64_INIT2_FN(int handle, int disp_id)
     u_pthunks = NULL;
     u_handle_p = NULL;
     u_libid_p = NULL;
+    return 0;
 }
 
 void DJ64_DONE_FN(int handle)

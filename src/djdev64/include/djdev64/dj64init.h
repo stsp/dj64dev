@@ -91,7 +91,7 @@ typedef dj64cdispatch_t **(dj64init_t)(int handle, const struct elf_ops *ops,
 #define DJ64_INIT_FN dj64init
 dj64init_t DJ64_INIT_FN;
 
-typedef void (dj64init2_t)(int handle, int disp_id);
+typedef int (dj64init2_t)(int handle, int disp_id);
 #define DJ64_INIT2_FN dj64init2
 dj64init2_t DJ64_INIT2_FN;
 
