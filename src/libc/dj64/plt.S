@@ -312,12 +312,6 @@ plt_init:
     /* resolve upl */
     movl %fs:STUBINFO_ELFLOAD_ARG, %eax
     call resolve_upl
-    // failure is not fatal, just no upl
-    jc 555f
-    // eax has uentry
-    movl $AUX_USER, %ebx
-    call uplt_init
-555:
     movl $1, elfload
     jmp 11b
 222:
