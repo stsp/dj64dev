@@ -24,9 +24,11 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <errno.h>
+#include <assert.h>
 #include "djdev64/dj64init.h"
 #include "djdev64/djdev64.h"
 #include "elf_priv.h"
+#include "djdev_priv.h"
 
 static int handles;
 #define HNDL_MAX 5
@@ -39,6 +41,7 @@ struct dj64handle {
     dj64done_t *done;
     char *path;
     const struct djdev64_api *api;
+    int api_ver;
 };
 static struct dj64handle dlhs[HNDL_MAX];
 
@@ -353,6 +356,7 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
     h->done = done;
     h->path = path2;
     h->api = devapi;
+    h->api_ver = api_ver;
     return handles++;
 
 err_close:
@@ -415,4 +419,32 @@ void djdev64_close(int handle)
     }
     while (handles > 0 && !dlhs[handles - 1].dlobj)
         handles--;
+}
+
+void djdevprintf(int handle, int prio, const char *format, ...)
+{
+    struct dj64handle *h;
+    va_list vl, cpy;
+
+    assert(handle < HNDL_MAX);
+    h = &dlhs[handle];
+    if (h->api_ver < 24)
+        return;
+    va_start(vl, format);
+    if (prio & DJDEV64_PRINT_LOG) {
+        va_copy(cpy, vl);
+        h->api->print(DJ64_PRINT_LOG, format, cpy);
+        va_end(cpy);
+    }
+    if (prio & DJDEV64_PRINT_TERMINAL) {
+        va_copy(cpy, vl);
+        h->api->print(DJ64_PRINT_TERMINAL, format, cpy);
+        va_end(cpy);
+    }
+    if (prio & DJDEV64_PRINT_SCREEN) {
+        va_copy(cpy, vl);
+        h->api->print(DJ64_PRINT_SCREEN, format, cpy);
+        va_end(cpy);
+    }
+    va_end(vl);
 }

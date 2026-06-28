@@ -21,6 +21,7 @@
 #include <dlfcn.h>
 #include "djdev64/djdev64.h"
 #include "elf_priv.h"
+#include "djdev_priv.h"
 
 #define DJ64_ELFEXEC_VERSION 2
 
@@ -78,7 +79,8 @@ int djdev64_exec(const char *path, int handle, int libid, unsigned flags)
 
     err = i2(handle, libid);
     if (err) {
-        printf("error: statically linked ELF unsupported by this loader\n");
+        djdevprintf(handle, DJDEV64_PRINT_TERMINAL | DJDEV64_PRINT_SCREEN,
+                "error: statically linked ELF unsupported by this loader\n");
         goto out;
     }
     return 0;
