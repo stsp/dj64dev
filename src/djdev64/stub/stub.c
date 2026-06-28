@@ -461,7 +461,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
         }
         dosops->_dos_seek(ifile, coffset, SEEK_SET);
     }
-    if (dyn && !pl32)
+    if (dyn && !pl32 && coffset)
         OPEN_DYN();
     assert(ops);
     assert(pfile != -1);
