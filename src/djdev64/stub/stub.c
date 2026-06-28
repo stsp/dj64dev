@@ -227,7 +227,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
     int dj32 = 0;
     struct dos_ops *ioops = dosops;
     uint8_t stub_ver = 0;
-#define BARE_STUB() (stub_ver == 0)
 
     if (ver == 0) {
         /* backward-compat code */
@@ -267,6 +266,9 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 OPEN_DYN();
                 stubinfo.elfload_arg = atoi(envp[i] + l);
                 dyn = 1;
+                /* Not setting emb_ov flags: pfile closed, no payload,
+                 * second loader will re-check everything anyway.
+                 * But we set pl32 below to reserve space for upl. */
             } else {
                 /* 32bit elf */
                 dj32 = 1;
@@ -311,6 +313,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 dyn = 1;
 
                 emb_ov = 1;
+                /* calling second ldr */
                 stubinfo.flags = ((STFLG2_EMBOV) << 8);
                 stubinfo.flags |= SHM_FLAGS;
                 nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
@@ -320,7 +323,9 @@ int djstub_main(int argc, char *argv[], char *envp[],
             }
         }
         if (el || ee) {
+            pl32 = 1;  // even for ELFLOAD we reserve space for pl32
             done = 1;
+            stubinfo.flags |= SIFLG_ELFEXEC;
             break;
         }
     }
@@ -408,11 +413,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 strncpy(stubinfo.payload2_name, &buf[0x2e], 12);
                 stubinfo.payload2_name[12] = '\0';
                 strcat(stubinfo.payload2_name, ".dbg");
-            } else if (BARE_STUB()) {
-                done = 1;
-                ops = &elf_ops;
-                assert(dyn && pl32);
-                pl32 = 0;
             } else {
                 error("unsupported stub version %i\n", stub_ver);
                 return -1;
@@ -446,6 +446,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
                     pfile = ifile;
                     ops = &elf_ops;
                 }
+                pl32 = 1;
             } else if (is_64) {
                 error("djstub: 64bit ELF at position %lx\n", coffset);
                 return -1;
@@ -522,7 +523,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     if (!dj32 && va_size > MB)
         exit(EXIT_FAILURE);
     /* if we load 2 payloads, use larger estimate */
-    if ((dyn && pl32) || BARE_STUB() || compact_va) {
+    if ((dyn && pl32) || compact_va) {
         stubinfo.initial_size = VA_SZ;
         stubinfo.upl_base = va;
         stubinfo.upl_size = VA_SZ;
