@@ -48,7 +48,7 @@
 #define FLG2_OFF (STFLAGS_OFF + 1)
 
 #define STFLG1_COMPACT 0x20  // compact 32bit VA layout
-#define STFLG1_STATIC  0x40  // static linking
+#define STFLG1_STATIC  SIFLG_STATIC  // 0x40 - static linking
 /* 2 flags below are chosen for compatibility between v4 and v5 stubs.
  * They can't be set together, and as such, when we have a core payload,
  * there is no indication of whether or not the user payload is also

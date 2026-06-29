@@ -74,6 +74,7 @@ _Static_assert(sizeof(_GO32_StubInfo) == STUBINFO_END, "size mismatch");
 #endif
 #endif
 
+#define SIFLG_STATIC   0x40
 #define SIFLG_ELFEXEC  (1 << 16)
 
 #endif /* __dj_include_stub_h__ */
