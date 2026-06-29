@@ -200,6 +200,9 @@ plt_init:
     movl %eax, __plt_ctrl + 4
     movl %esi, __plt_ctrl
 
+    movl %fs:STUBINFO_FLAGS, %eax
+    test $0x4000, %eax  /* have cpl */
+    jz 3f
     movl %fs:STUBINFO_SELF_SIZE, %ecx
     orl %ecx, %ecx
     jz 3f
