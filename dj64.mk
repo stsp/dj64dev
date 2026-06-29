@@ -136,16 +136,9 @@ GLOB_ASM ?= $(wildcard glob_asm.h)
 
 ifneq ($(AS_OBJECTS),)
 XLDFLAGS = -melf_i386 -static
-ifeq ($(DJ64STATIC),1)
-S3 := $(shell pkg-config --static --libs dj64static)
-ifneq ($(.SHELLSTATUS),0)
-$(error dj64-dev-static not installed)
-endif
-XLDFLAGS += $(S3)
-DJ64_XLDFLAGS += -f 0x4000
-else
 XLDFLAGS += $(shell pkg-config --variable=crt0 dj64) $(XLD_IMB)=$(LOADADDR)
-endif
+DJ64_XLDFLAGS += -f 0x8000
+
 $(XELF).elf: $(AS_OBJECTS) $(PLT_O)
 	$(XLD) $^ $(XLDFLAGS) -o $@
 	$(XSTRIP) $@
@@ -183,7 +176,8 @@ export script = $(_script)
 
 tmp.s:
 	@eval "$$script"
-else
+endif
+
 ifeq ($(DJ64STATIC),1)
 S2 := $(shell pkg-config --variable=crt0 dj64_s)
 ifneq ($(.SHELLSTATUS),0)
@@ -191,6 +185,7 @@ $(error dj64-dev-static not installed)
 endif
 DJ64_XLDFLAGS += -l $(S2) -f 0x4000
 else
+ifeq ($(AS_OBJECTS),)
 DJ64_XLDFLAGS += -f 0x80
 endif
 endif
