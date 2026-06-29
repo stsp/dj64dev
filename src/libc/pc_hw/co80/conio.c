@@ -1093,3 +1093,5 @@ gppconio_init(void)
   ScreenAttrib = txinfo.normattr = txinfo.attribute = oldattrib;
 #endif
 }
+
+__asm__(".section .ctor; .long _gppconio_init; .section .text");

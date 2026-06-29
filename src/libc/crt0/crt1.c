@@ -19,7 +19,6 @@
 #include <dpmi.h>
 #include <libc/farptrgs.h>
 #include <pc.h>
-#include <conio.h>
 #include <libc/bss.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -234,7 +233,6 @@ __crt1_startup(main_t *main)
   __crt0_setup_arguments();
   _npxsetup(__crt0_argv ? __crt0_argv[0] : __dos_argv0);
   _crt0_init_mcount();
-  gppconio_init();
   errno = 0;	/* ANSI says errno should be zero at program startup */
   exit(main(__crt0_argc, __crt0_argv, _environ));
 }
