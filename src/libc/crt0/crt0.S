@@ -325,7 +325,9 @@ use_stubinfo_stack_size:
 	xorl	%ebp, %ebp
 	pushl	$_frame_struct
 	pushl	$_CRT0_EH_FRAME_BEGIN_
+#ifndef DJ64
 	call	___register_frame_info
+#endif
 	addl	$8, %esp
 #if USE64
 	pushl	__plt_handle
