@@ -200,13 +200,6 @@ plt_init:
     movl %eax, __plt_ctrl + 4
     movl %esi, __plt_ctrl
 
-    movl %fs:STUBINFO_FLAGS, %ecx
-    testw $0xc080, %cx
-    jnz 111f
-    movl %fs:STUBINFO_UENTRY, %eax
-    movl $AUX_USER, %ebx
-    call uplt_init
-111:
     movl %fs:STUBINFO_SELF_SIZE, %ecx
     orl %ecx, %ecx
     jz 3f
