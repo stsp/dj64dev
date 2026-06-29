@@ -96,6 +96,14 @@ struct ctx_hooks {
 static struct ctx_hooks chooks[MAX_CTX_HOOKS];
 static int num_chooks;
 
+struct init_hooks {
+    void (*init)(void);
+};
+
+#define MAX_INIT_HOOKS 10
+static struct init_hooks ihooks[MAX_INIT_HOOKS];
+static int num_ihooks;
+
 static void do_rm_dosobj(struct udisp *u, uint32_t fa);
 
 void djloudvprintf(const char *format, va_list vl)
@@ -805,4 +813,21 @@ int djelf_exec(void)
         return -1;
     u = &udisps[dj64api->get_handle()];
     return u->eops->exec();
+}
+
+void djregister_init_hook(void (*hook)(void))
+{
+    struct init_hooks *c;
+
+    assert(num_ihooks < MAX_INIT_HOOKS);
+    c = &ihooks[num_ihooks++];
+    c->init = hook;
+}
+
+void djprocess_init_hooks(void)
+{
+    int i;
+
+    for (i = 0; i < num_ihooks; i++)
+        ihooks[i].init();
 }

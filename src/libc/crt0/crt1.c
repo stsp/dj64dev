@@ -192,7 +192,6 @@ setup_pname(void)
   strcpy(prog_name, fc);
 }
 
-extern void __main(void);
 extern void __setup_file_rec_list(void);
 
 char __PROXY[] = " !proxy";

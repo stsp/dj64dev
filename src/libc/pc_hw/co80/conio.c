@@ -1094,4 +1094,8 @@ gppconio_init(void)
 #endif
 }
 
-__asm__(".section .ctor; .long _gppconio_init; .section .text");
+__attribute__((constructor))
+static void _gppconio_init(void)
+{
+  djregister_init_hook(gppconio_init);
+}
