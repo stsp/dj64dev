@@ -106,14 +106,8 @@ $(LIB)/$(LIBS): $(TOP)/makefile.rf $(ALL_OBJS) \
 	$(AR) cr $@ $(ALL_OBJS) $(OBJECTS)
 	$(AR) s $@
 
-$(LIB)/libc_s.a: libc_tmp.a $(PLT_O) | $(LIB)
-	cp -f $< libctmp.a
-	$(CROSS_AR) q libctmp.a $(PLT_O)
-	$(CROSS_AR) s libctmp.a
-	mv -f libctmp.a $@
-
-$(LIB)/crt0.elf: $(LIB)/libc_s.a
-	$(CROSS_LD) --whole-archive $< -melf_i386 -static $(XLD_IMB_OPT)=0x08048000 -o $@
+$(LIB)/crt0.elf: libc_tmp.a $(PLT_O) | $(LIB)
+	$(CROSS_LD) --whole-archive $^ -melf_i386 -static $(XLD_IMB_OPT)=0x08048000 -o $@
 	$(CROSS_STRIP) --strip-debug $@
 	chmod -x $@
 
@@ -124,7 +118,7 @@ $(LIB)/$(LIBNS) $(LIB)/$(LIBNV): $(LIB)/$(LIBN) | $(LIB)
 	ln -sf $(LIBN) $@
 
 ifeq ($(USE64),1)
-final: $(LIB)/libc_s.a $(LIB)/$(LIBNS) $(LIB)/$(LIBNV) \
+final: $(LIB)/$(LIBNS) $(LIB)/$(LIBNV) \
   $(LIB)/$(LIBS) $(LIB)/crt0.elf $(LIB)/uplt.o | $(LIB)
 else
 final:

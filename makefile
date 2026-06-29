@@ -18,7 +18,6 @@ SHLIB_EXT = so
 EXTRA_NC_CONFIGURE_FLAGS =
 endif
 
-DJLIBC = $(TOP)/lib/libc_s.a
 DJLIBC32 = $(TOP)/lib/libc32_s.a
 DJCRT0 = $(TOP)/lib/crt0.elf
 DJUCRT0 = $(TOP)/lib/uplt.o
@@ -54,10 +53,10 @@ subs:
 # New makes have a way to avoid parallel invocation with the use of &:
 need = 4.3
 ifneq ($(filter $(need),$(firstword $(sort $(MAKE_VERSION) $(need)))),)
-$(DJ64DEVL) $(DJ32LIBS) $(DJLIBC) $(DJLIBC32) &: subs
+$(DJ64DEVL) $(DJ32LIBS) $(DJLIBC32) &: subs
 else
 .NOTPARALLEL:
-$(DJ64DEVL) $(DJ32LIBS) $(DJLIBC) $(DJLIBC32) : subs
+$(DJ64DEVL) $(DJ32LIBS) $(DJLIBC32) : subs
 endif
 	$(MAKE) -C src
 
@@ -76,7 +75,6 @@ dj64: $(DJ64PC) $(DJ64DEVL)
 install_dj64:
 ifeq ($(USE64),1)
 	$(INSTALL) -d $(DESTDIR)$(sysroot)/lib
-	$(INSTALL) -m 0644 $(DJLIBC) $(DESTDIR)$(sysroot)/lib
 	$(INSTALL) -m 0644 $(DJCRT0) $(DESTDIR)$(sysroot)/lib
 	$(INSTALL) -m 0644 $(DJUCRT0) $(DESTDIR)$(sysroot)/lib
 	$(INSTALL) -d $(DESTDIR)$(sysroot)/bin
