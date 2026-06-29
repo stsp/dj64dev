@@ -68,7 +68,7 @@ djdev64: djdev64.pc djstub64.pc
 	$(MAKE) -C src/djdev64
 
 ifeq ($(USE64),1)
-DJ64PC = dj64.pc dj64_s.pc dj64static.pc
+DJ64PC = dj64.pc dj64_s.pc
 endif
 DJ64PC += dj32.pc
 dj64: $(DJ64PC) $(DJ64DEVL)
@@ -94,7 +94,6 @@ ifeq ($(USE64),1)
 	$(INSTALL) -d $(DESTDIR)$(libdir)/pkgconfig
 	$(INSTALL) -m 0644 dj64.pc $(DESTDIR)$(libdir)/pkgconfig
 	$(INSTALL) -m 0644 dj64_s.pc $(DESTDIR)$(libdir)/pkgconfig
-	$(INSTALL) -m 0644 dj64static.pc $(DESTDIR)$(libdir)/pkgconfig
 ifeq ($(NCURSES),1)
 	$(MAKE) -C $(NC_BUILD) install
 endif
@@ -130,7 +129,6 @@ endif
 	$(RM) -r $(DESTDIR)$(includedir)/djdev64
 	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj64.pc
 	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj64_s.pc
-	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj64static.pc
 	$(MAKE) -C demos src_uninstall
 endif
 
