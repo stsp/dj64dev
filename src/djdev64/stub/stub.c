@@ -223,7 +223,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
     struct ldops *ops = NULL;
     int STFLAGS_OFF = 0x2c;
     int compact_va = 0;
-    int emb_ov = 0;
     int dj32 = 0;
     struct dos_ops *ioops = dosops;
     uint8_t stub_ver = 0;
@@ -312,7 +311,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 stubinfo.elfload_arg = atoi(envp[i] + l);
                 dyn = 1;
 
-                emb_ov = 1;
                 /* calling second ldr */
                 stubinfo.flags = ((STFLG2_EMBOV) << 8);
                 stubinfo.flags |= SHM_FLAGS;
@@ -382,10 +380,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 }
                 memcpy(&coffsize, &buf[0x1c], sizeof(coffsize));
                 noffset = offs;
-                if (!(buf[FLG2_OFF] & STFLG2_EMBOV))
+                if ((stub_ver >= 7 && !dyn) || !(buf[FLG2_OFF] & STFLG2_EMBOV))
                     noffset += coffsize;
-                else
-                    emb_ov = 1;
             }
             if (buf[FLG1_OFF] & STFLG1_COMPACT)
                 compact_va = 1;
@@ -432,7 +428,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
                     dyn++;
                     OPEN_DYN();
                     compact_va = 1;  // TODO - evaluate?
-                    emb_ov = 1;
                     stubinfo.flags = ((STFLG2_EMBOV) << 8) | STFLG1_COMPACT;
                     stubinfo.flags |= SHM_FLAGS;
                     nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
@@ -542,12 +537,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
     if (dj32 && (pfile != ifile || ioops == &hops))
         __dos_close(pfile);
     unregister_dosops();
-    /* emb_ov is dealt with by another (libelf-based) loader, and non-emb_ov
-     * is deprecated. */
-    if (dyn && pl32 && coffset && !emb_ov) {
-        error("deprecated non-emb_ov stub\n");
-        exit(EXIT_FAILURE);
-    }
 
     /* set base */
     __dpmi_set_segment_base_address(clnt_entry.selector, mem_base);
