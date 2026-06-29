@@ -192,6 +192,7 @@ setup_pname(void)
   strcpy(prog_name, fc);
 }
 
+extern void __main(void);
 extern void __setup_file_rec_list(void);
 
 char __PROXY[] = " !proxy";
@@ -233,6 +234,7 @@ __crt1_startup(main_t *main)
   __crt0_setup_arguments();
   _npxsetup(__crt0_argv ? __crt0_argv[0] : __dos_argv0);
   _crt0_init_mcount();
+  __main();
   errno = 0;	/* ANSI says errno should be zero at program startup */
   exit(main(__crt0_argc, __crt0_argv, _environ));
 }

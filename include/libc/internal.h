@@ -24,6 +24,7 @@ typedef int (main_t)(int, char **, char **);
 void __crt1_startup(main_t *main);
 void ___crt1_startup(void);
 int dj32_init(void);
+void __main(void);
 void _npxsetup(char *argv0);
 void __emu387_exception_handler(void);
 void __djgpp_exception_processor(void);
