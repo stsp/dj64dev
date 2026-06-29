@@ -357,6 +357,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
             stubinfo.stubinfo_ver |= stub_ver << 16;
             if (stub_ver >= 6)
                 STFLAGS_OFF = 0x38;
+            if (stub_ver >= 7)
+                stubinfo.flags |= SIFLG_SPLITPL;
             stub_debug("Found exe header %i at 0x%lx\n", cnt, coffset);
             memcpy(&offs, &buf[0x3c], sizeof(offs));
             if (!(buf[FLG2_OFF] & STFLG2_C32PL))

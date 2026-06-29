@@ -38,6 +38,7 @@
 #include <libc/djthunks.h>
 #include <libc/djctx.h>
 #include <libc/internal.h>
+#include <libc/stubinfo.h>
 #include <dpmi.h>
 #include <go64.h>
 #include <sys/nearptr.h>
@@ -281,6 +282,7 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         struct udisp *u = &udisps[handle];
         uint32_t flags = regs->eax;
         int have_core = (flags & 0x4000);
+        int split_pl = (flags & SIFLG_SPLITPL);
         uint32_t addr = regs->ebx;
         uint32_t size = regs->ecx;
         uint32_t mem_base = regs->edx;
@@ -291,6 +293,7 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
         u->cs = esi;
         djlogprintf("addr 0x%x mem_base 0x%x\n", addr, mem_base);
         if (addr) {
+            int have_upl = (!have_core || !split_pl);
             char *elf = (char *)djaddr2ptr(addr);
             djlogprintf("data %p(%s)\n", elf, elf);
             eh = u->eops->open(elf, size);
@@ -304,15 +307,17 @@ static int dj64_ctrl(int handle, int libid, int fn, unsigned esi, uint8_t *sp)
                 if (ret)
                     goto err;
             }
-            if (u->at[libid]) {
-                ret = process_athunks(u->at[libid], mem_base, u->eops, eh);
-                if (ret)
-                    goto err;
-            }
-            if (u->pt[libid]) {
-                ret = process_pthunks(u->pt[libid], u->eops, eh);
-               if (ret)
-                    goto err;
+            if (have_upl) {
+                if (u->at[libid]) {
+                    ret = process_athunks(u->at[libid], mem_base, u->eops, eh);
+                    if (ret)
+                        goto err;
+                }
+                if (u->pt[libid]) {
+                    ret = process_pthunks(u->pt[libid], u->eops, eh);
+                   if (ret)
+                        goto err;
+                }
             }
             u->eops->close(eh);
         } else if (have_core) {

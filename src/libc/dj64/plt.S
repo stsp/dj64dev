@@ -271,6 +271,14 @@ plt_init:
     movw handle + 2, %si
     int $0x31
     jc 2f
+
+    movl %fs:STUBINFO_FLAGS, %ecx
+    andl $0x4000|SIFLG_SPLITPL, %ecx
+    cmpl $0x4000|SIFLG_SPLITPL, %ecx
+    jne 11f
+    /* upl not here so invoke second loader and get it if it exists */
+    movl $0, %eax  /* reserve */
+    call resolve_upl
 11:
     popl %es
 
