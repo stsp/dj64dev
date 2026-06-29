@@ -549,7 +549,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
         __dos_close(pfile);
     unregister_dosops();
 #define PASS_EMBOV_TO_SECOND_LDR 1
-    if (dyn && pl32
+    if (dyn && pl32 && coffset
 #if PASS_EMBOV_TO_SECOND_LDR
         /* pass emb_ov format to another (libelf-based) loader */
         && !emb_ov
