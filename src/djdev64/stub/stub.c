@@ -372,7 +372,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
             } else {
                 pl32++;
                 coffset = offs;
-                if (stub_ver >= 6) {
+                if (stub_ver == 6) {
+                    /* static crt0 in emb_ov - deprecated */
                     uint32_t ooffs;
                     memcpy(&ooffs, &buf[0x2c], sizeof(ooffs));
                     coffset += ooffs;
