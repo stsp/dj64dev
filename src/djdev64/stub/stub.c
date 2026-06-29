@@ -372,6 +372,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 noffset = offs;
                 moff = 4;
                 done = 1;
+                assert(dyn);
+                OPEN_DYN();
             } else {
                 pl32++;
                 coffset = offs;

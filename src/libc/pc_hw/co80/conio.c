@@ -1093,3 +1093,9 @@ gppconio_init(void)
   ScreenAttrib = txinfo.normattr = txinfo.attribute = oldattrib;
 #endif
 }
+
+__attribute__((constructor))
+static void _gppconio_init(void)
+{
+  djregister_init_hook(gppconio_init);
+}
