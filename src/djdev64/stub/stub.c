@@ -438,7 +438,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
                     ops = &elf_ops;
                 }
                 pl32 = 1;
-            } else if (is_64) {
+            } else if (is_64 && (stub_ver < 7 || !dyn)) {
                 error("djstub: 64bit ELF at position %lx\n", coffset);
                 return -1;
             } else if (dyn) {
