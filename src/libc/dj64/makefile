@@ -95,13 +95,13 @@ SHARED_LDFLAGS = $(DJ64_LDFLAGS) -shared -Wl,--version-script,$(srcdir)/libdj64.
 endif
 
 $(LIB)/$(LIBN): $(TOP)/makefile.rf $(ALL_OBJS) \
-  thunk_calls.h thunk_asms.h $(OBJECTS) $(srcdir)/libdj64.version
+  thunk_calls.h thunk_asms.h $(OBJECTS) $(srcdir)/libdj64.version | $(LIB)
 	$(CC) $(SHARED_LDFLAGS) -o $@ \
   $(ALL_OBJS) $(OBJECTS)
 	@echo "Have `nm -u $@ | grep "U " | wc -l` undefined symbols"
 
 $(LIB)/$(LIBS): $(TOP)/makefile.rf $(ALL_OBJS) \
-  thunk_calls.h thunk_asms.h $(OBJECTS)
+  thunk_calls.h thunk_asms.h $(OBJECTS) | $(LIB)
 	@-$(RM) $@
 	$(AR) cr $@ $(ALL_OBJS) $(OBJECTS)
 	$(AR) s $@
@@ -111,7 +111,7 @@ $(LIB)/crt0.elf: libc_tmp.a $(PLT_O) | $(LIB)
 	$(CROSS_STRIP) --strip-debug $@
 	chmod -x $@
 
-$(LIB)/uplt.o: uplt.o
+$(LIB)/uplt.o: uplt.o | $(LIB)
 	cp $< $@
 
 $(LIB)/$(LIBNS) $(LIB)/$(LIBNV): $(LIB)/$(LIBN) | $(LIB)
