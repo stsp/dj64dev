@@ -56,7 +56,7 @@ int elfexec(const char *path, int argc, char **argv)
     __dpmi_regs regs;
     int en_dis = !(_crt0_startup_flags & _CRT0_FLAG_NEARPTR);
 
-    if ((_stubinfo->stubinfo_ver >> 16) < 4) {
+    if (((_stubinfo->stubinfo_ver >> 16) & 0xff) < 4) {
         fprintf(stderr, "unsupported stub version %i\n",
                 _stubinfo->stubinfo_ver);
         return -1;
