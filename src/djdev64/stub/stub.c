@@ -223,7 +223,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
     struct ldops *ops = NULL;
     int STFLAGS_OFF = 0x2c;
     int compact_va = 0;
-    int emb_ov = 0;
     int dj32 = 0;
     struct dos_ops *ioops = dosops;
     uint8_t stub_ver = 0;
@@ -312,7 +311,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 stubinfo.elfload_arg = atoi(envp[i] + l);
                 dyn = 1;
 
-                emb_ov = 1;
                 /* calling second ldr */
                 stubinfo.flags = ((STFLG2_EMBOV) << 8);
                 stubinfo.flags |= SHM_FLAGS;
@@ -357,13 +355,10 @@ int djstub_main(int argc, char *argv[], char *envp[],
             stubinfo.stubinfo_ver |= stub_ver << 16;
             if (stub_ver >= 6)
                 STFLAGS_OFF = 0x38;
+            if (stub_ver >= 7)
+                stubinfo.flags |= SIFLG_SPLITPL;
             stub_debug("Found exe header %i at 0x%lx\n", cnt, coffset);
             memcpy(&offs, &buf[0x3c], sizeof(offs));
-            /* fixup for old stubs: if they have any 32bit payload, that
-             * always includes the core payload. */
-            if (stub_ver > 0 && stub_ver < 5 && !(buf[FLG1_OFF] & STFLG1_NO32PL))
-                buf[FLG2_OFF] |= STFLG2_C32PL;
-
             if (!(buf[FLG2_OFF] & STFLG2_C32PL))
                 dyn++;
             else
@@ -377,17 +372,16 @@ int djstub_main(int argc, char *argv[], char *envp[],
             } else {
                 pl32++;
                 coffset = offs;
-                if (stub_ver >= 6) {
+                if (stub_ver == 6) {
+                    /* static crt0 in emb_ov - deprecated */
                     uint32_t ooffs;
                     memcpy(&ooffs, &buf[0x2c], sizeof(ooffs));
                     coffset += ooffs;
                 }
                 memcpy(&coffsize, &buf[0x1c], sizeof(coffsize));
                 noffset = offs;
-                if (stub_ver < 6 || !(buf[FLG2_OFF] & STFLG2_EMBOV))
+                if ((stub_ver >= 7 && !dyn) || !(buf[FLG2_OFF] & STFLG2_EMBOV))
                     noffset += coffsize;
-                else
-                    emb_ov = 1;
             }
             if (buf[FLG1_OFF] & STFLG1_COMPACT)
                 compact_va = 1;
@@ -411,10 +405,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
                             16, &rd);
                     stubinfo.payload2_name[rd] = '\0';
                 }
-            } else if (stub_ver >= 4) {
-                strncpy(stubinfo.payload2_name, &buf[0x2e], 12);
-                stubinfo.payload2_name[12] = '\0';
-                strcat(stubinfo.payload2_name, ".dbg");
             } else {
                 error("unsupported stub version %i\n", stub_ver);
                 return -1;
@@ -438,7 +428,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
                     dyn++;
                     OPEN_DYN();
                     compact_va = 1;  // TODO - evaluate?
-                    emb_ov = 1;
                     stubinfo.flags = ((STFLG2_EMBOV) << 8) | STFLG1_COMPACT;
                     stubinfo.flags |= SHM_FLAGS;
                     nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
@@ -449,7 +438,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
                     ops = &elf_ops;
                 }
                 pl32 = 1;
-            } else if (is_64) {
+            } else if (is_64 && (stub_ver < 7 || !dyn)) {
                 error("djstub: 64bit ELF at position %lx\n", coffset);
                 return -1;
             } else if (dyn) {
@@ -548,39 +537,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
     if (dj32 && (pfile != ifile || ioops == &hops))
         __dos_close(pfile);
     unregister_dosops();
-#define PASS_EMBOV_TO_SECOND_LDR 1
-    if (dyn && pl32 && coffset
-#if PASS_EMBOV_TO_SECOND_LDR
-        /* pass emb_ov format to another (libelf-based) loader */
-        && !emb_ov
-#endif
-       ) {
-        uint32_t va2;
-        uint32_t va_size2;
-
-        /* dyn loaded, now pl32 */
-        register_dosops(dosops);
-        handle = ops->read_headers(ifile);
-        if (!handle)
-            exit(EXIT_FAILURE);
-        stubinfo.uentry = ops->get_entry(handle);
-        va2 = ops->get_va(handle);
-        va_size2 = ops->get_length(handle);
-        stub_debug("va 0x%x va_size 0x%x\n", va2, va_size2);
-        if (va_size2 > MB)
-            exit(EXIT_FAILURE);
-        if (va2 < va + va_size || va2 + va_size2 - va > VA_SZ)
-            exit(EXIT_FAILURE);
-        if (compact_va && va2 + va_size2 - va > MB)
-            exit(EXIT_FAILURE);
-        ops->read_sections(handle, lin2ptr(mem_lin), va, ifile, coffset);
-        ops->close(handle);
-        unregister_dosops();
-#if !PASS_EMBOV_TO_SECOND_LDR
-        if (emb_ov)
-            stubinfo.flags &= ~(STFLG2_EMBOV << 8);
-#endif
-    }
 
     /* set base */
     __dpmi_set_segment_base_address(clnt_entry.selector, mem_base);
@@ -604,11 +560,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
 
     stubinfo.self_fd = ifile;
     stubinfo.self_offs = coffset;
-#if PASS_EMBOV_TO_SECOND_LDR
-    stubinfo.self_size = ((emb_ov && dyn && pl32) ? 0 : coffsize);
-#else
     stubinfo.self_size = coffsize;
-#endif
     stubinfo.payload_offs = noffset;
     stubinfo.payload_size = nsize;
     stubinfo.payload2_offs = noffset2;

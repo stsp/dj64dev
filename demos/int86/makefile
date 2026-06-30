@@ -23,6 +23,9 @@ info: $(TGT)
 run: $(TGT)
 	dosemu -t $<
 
+runelf: libtmp.so
+	dosemu -dumb -K . -E "elfexec $<"
+
 # hook in dj64 - make sure to not do that before defining `all:` target
 DJMK = $(shell pkg-config --silence-errors --variable=makeinc dj64)
 ifeq ($(wildcard $(DJMK)),)

@@ -200,13 +200,9 @@ plt_init:
     movl %eax, __plt_ctrl + 4
     movl %esi, __plt_ctrl
 
-    movl %fs:STUBINFO_FLAGS, %ecx
-    testw $0xc080, %cx
-    jnz 111f
-    movl %fs:STUBINFO_UENTRY, %eax
-    movl $AUX_USER, %ebx
-    call uplt_init
-111:
+    movl %fs:STUBINFO_FLAGS, %eax
+    test $0x4000, %eax  /* have cpl */
+    jz 3f
     movl %fs:STUBINFO_SELF_SIZE, %ecx
     orl %ecx, %ecx
     jz 3f
@@ -278,6 +274,14 @@ plt_init:
     movw handle + 2, %si
     int $0x31
     jc 2f
+
+    movl %fs:STUBINFO_FLAGS, %ecx
+    andl $0x4000|SIFLG_SPLITPL, %ecx
+    cmpl $0x4000|SIFLG_SPLITPL, %ecx
+    jne 11f
+    /* upl not here so invoke second loader and get it if it exists */
+    movl $0, %eax  /* reserve */
+    call resolve_upl
 11:
     popl %es
 

@@ -6,7 +6,6 @@ AC_CONFIG_FILES([
   Makefile.conf
   dj64.pc
   dj64_s.pc
-  dj64static.pc
   djdev64.pc
   djstub64.pc
   dj32.pc

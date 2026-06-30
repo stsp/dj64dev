@@ -31,6 +31,9 @@ info: $(TGT)
 run: $(TGT)
 	dosemu -dumb $<
 
+runelf: tmp.elf
+	dosemu -dumb -l $< -g 1
+
 # hook in dj64 - make sure to not do that before defining `all:` target
 DJMK = $(shell pkg-config --silence-errors --variable=makeinc dj32)
 ifeq ($(wildcard $(DJMK)),)

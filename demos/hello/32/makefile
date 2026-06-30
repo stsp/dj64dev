@@ -21,7 +21,10 @@ info: $(TGT)
 	djstubify -i $<
 
 run: $(TGT)
-	dosemu -dumb -l $(realpath $<)
+	dosemu -dumb -l $(realpath $<) -g 1
+
+runelf: tmp.elf
+	dosemu -dumb -l $< -g 1
 
 # hook in dj64 - make sure to not do that before defining `all:` target
 DJMK = $(shell pkg-config --silence-errors --variable=makeinc dj32)

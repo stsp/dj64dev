@@ -29,3 +29,7 @@ info: $(TGT)
 
 run: $(TGT)
 	dosemu -t $<
+
+runelf: $(TGT)
+	djstubify $<
+	dosemu -dumb $<
