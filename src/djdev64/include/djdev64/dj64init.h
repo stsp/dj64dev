@@ -87,7 +87,8 @@ struct elf_ops {
         uint32_t *r_entry);
     char *(*elfparse64)(int eid, uint32_t *r_size);
     char *(*elfparse64_h)(int handle, uint32_t *r_size);
-    int (*exec)(void);
+    int (*exec_self)(void);
+    int (*exec64)(int eid, int argc, char **argv);
 };
 
 typedef dj64cdispatch_t **(dj64init_t)(int handle, const struct elf_ops *ops,
