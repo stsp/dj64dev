@@ -53,6 +53,8 @@ XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1),$(2),$(3))
 %.O : %.S
 	$(call XASCPP,$<,0,$(CPP32)) -o $@
 
+# for debug-src builders
+# note that .SECONDARY does not work with patterns
 .PRECIOUS: %.C %.C32
 
 LIB=$(TOP)/../../lib
@@ -67,8 +69,6 @@ AS_OBJS64 := $(addsuffix .o, $(basename $(AS_SRC) $(AS_SRC64)))
 AS_OBJS32 := $(addsuffix .O, $(basename $(AS_SRC) $(AS_SRC32)))
 
 NOP = @echo
-
-.PRECIOUS: %.exe %.out %.err
 
 ifeq ($(USE64),1)
 TARG64 = $(OBJS) $(AS_OBJS64)
