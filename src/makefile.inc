@@ -39,12 +39,12 @@ XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1),$(2),$(3))
 # This is regardless of pipefail bash mode:
 # https://stackoverflow.com/questions/73162200/bash-set-eo-pipefail-not-immediately-exiting
 %.C : %.c
-	$(XCPP) -CC -g0 -MD $< | \
+	$(XCPP) -CC -g0 -MD -MT $@ -MF $@.d $< | \
 	  sed -E -e 's/^\*\/#/\*\/\n#/' -e 's/^\*\/ *;/\*\/\n;\n/' >$@
 %.o : %.C
 	$(XGCC) -xc $< -c $(EXTRA_CFLAGS) -o $@
 %.C32 : %.c
-	$(XCPP32) -CC -g0 -MD $< | \
+	$(XCPP32) -CC -g0 -MD -MT $@ -MF $@.d $< | \
 	  sed -E -e 's/^\*\/#/\*\/\n#/' -e 's/^\*\/ *;/\*\/\n;\n/' >$@
 %.O : %.C32
 	$(XGCC32) -xc $< -c $(EXTRA_CFLAGS) -o $@
