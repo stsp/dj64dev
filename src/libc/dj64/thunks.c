@@ -817,7 +817,14 @@ int djelf_exec(void)
     if (dj64api_ver < 22)
         return -1;
     u = &udisps[dj64api->get_handle()];
-    return u->eops->exec();
+    return u->eops->exec_self();
+}
+
+int djelf_run(int eid, int argc, char **argv)
+{
+    struct udisp *u;
+    u = &udisps[dj64api->get_handle()];
+    return u->eops->exec64(eid, argc, argv);
 }
 
 void djregister_init_hook(void (*hook)(void))

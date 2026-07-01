@@ -31,6 +31,7 @@ uint32_t djthunk_get_h(int handle, const char *name);
 void *djsbrk(int increment);
 int djelf_load(int num, int libid);
 int djelf_exec(void);
+int djelf_run(int eid, int argc, char **argv);
 void djregister_init_hook(void (*hook)(void));
 void djprocess_init_hooks(void);
 

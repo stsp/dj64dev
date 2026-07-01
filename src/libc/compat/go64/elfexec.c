@@ -29,6 +29,7 @@
 #include <crt0.h>
 #include <stubinfo.h>
 #include <go64.h>
+#include <libc/djthunks.h>
 
 // https://github.com/vonj/snippets.org/blob/master/strrpbrk.c
 static char *strrpbrk(const char *szString, const char *szChars)
@@ -135,16 +136,19 @@ int elfexec(const char *path, int argc, char **argv)
         regs.d.ebx = ELFEXEC_LIBID;
         upltinit32(&regs);
     }
+#if 0
     memset(&regs, 0, sizeof(regs));
     regs.d.ebx = 7 | (eid << 16);  // run
     regs.d.ecx = 0;  // argc - unsupp
     regs.d.edx = 0;  // argv - unsupp
     pltcall32(&regs, api);
+#else
+    /* run directly to not re-pack args */
+    err = djelf_run(eid, argc, argv);
+#endif
     /* returning only 16bit AX allows to distinguish with -1 returns above */
-    if (regs.x.flags & 1)
-        ret = -1;
-    else
-        ret = regs.x.ax;
+    if (err)
+        ret = (uint16_t)-1;
     __dpmi_free_shared_memory(shmi.handle);
     return ret;
 }

@@ -82,6 +82,7 @@ static const struct elf_ops eops = {
     djelf64_parse,
     do_elfparse64,
     djelf64_exec_self,
+    djelf64_run,
 };
 
 #define __S(x) #x
