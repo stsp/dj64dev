@@ -53,9 +53,18 @@ XASCPP = $(call CROSS_ASCPP, -I $(srcdir)/$(TOP)/../../include $(1),$(2),$(3))
 %.O : %.S
 	$(call XASCPP,$<,0,$(CPP32)) -o $@
 
+# By default, explicit targets are not intermediate. This happens when
+# .d files are included, which may trigger the second rebuild due to
+# building all previously-intermediate files that were erased.
+# Note: neither .INTERMEDIATE nor .SECONDARY do work with patterns,
+# but .PRECIOUS does. So here we list them explicitly. That forces
+# them back to an intermediate status, even is presence of .d.
+# Note that .SECONDARY also includes .INTERMEDIATE. I list them both
+# only for completeness.
+GENERATED = $(SRC:.c=.C) $(SRC64:.c=.C) $(SRC:.c=.C32) $(SRC32:.c=.C32)
+.INTERMEDIATE: $(GENERATED)
 # for debug-src builders
-# note that .SECONDARY does not work with patterns
-.PRECIOUS: %.C %.C32
+.SECONDARY: $(GENERATED)
 
 LIB=$(TOP)/../../lib
 BIN=$(TOP)/../../bin
