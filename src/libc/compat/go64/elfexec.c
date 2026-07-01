@@ -45,33 +45,6 @@ static char *strrpbrk(const char *szString, const char *szChars)
       return p0;
 }
 
-static unsigned argv_dup(char *argv[])
-{
-    int i = 0, l, tab_l;
-    unsigned ret;
-    char *ptr;
-
-    if (argv)
-        for (i = 0, l = 0; argv[i]; l += strlen(argv[i]) + 1, i++);
-    tab_l = sizeof(unsigned) * (i + 1);  // for ptr table
-    l += tab_l;
-    ret = malloc32(l);
-    if (!ret)
-        return ret;
-    ptr = DATA_PTR(ret);
-    if (argv) {
-        unsigned dat = ret + tab_l;
-        char *pdat = ptr + tab_l;
-        for (i = 0, l = 0; argv[i]; l += strlen(argv[i]) + 1, i++) {
-            unsigned off = dat + l;
-            memcpy(ptr + i * sizeof(unsigned), &off, sizeof(off));
-            strcpy(pdat + l, argv[i]);
-        }
-    }
-    memset(ptr + i * sizeof(unsigned), 0, sizeof(unsigned));  // trailing NULL
-    return ret;
-}
-
 int elfexec(const char *path, int argc, char **argv)
 {
     int err, fd, len, errn, eid, ret;
@@ -164,8 +137,8 @@ int elfexec(const char *path, int argc, char **argv)
     }
     memset(&regs, 0, sizeof(regs));
     regs.d.ebx = 7 | (eid << 16);  // run
-    regs.d.ecx = argc;
-    regs.d.edx = argv_dup(argv);
+    regs.d.ecx = 0;  // argc - unsupp
+    regs.d.edx = 0;  // argv - unsupp
     pltcall32(&regs, api);
     /* returning only 16bit AX allows to distinguish with -1 returns above */
     if (regs.x.flags & 1)
@@ -182,7 +155,6 @@ int elfload(int num)
     __dpmi_regs regs;
     int ret, err;
     int eid = -1;
-    char *dummy_argv[] = { NULL };
 
     switch (num) {
         case 0:
@@ -212,7 +184,7 @@ int elfload(int num)
     memset(&regs, 0, sizeof(regs));
     regs.d.ebx = 7 | (eid << 16);  // run
     regs.d.ecx = 0;  // argc - unsupp
-    regs.d.edx = argv_dup(dummy_argv);
+    regs.d.edx = 0;  // argv - unsupp
     pltcall32(&regs, api);
     /* returning only 16bit AX allows to distinguish with -1 returns above */
     if (regs.x.flags & 1)
