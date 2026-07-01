@@ -21,6 +21,7 @@ $(TGT): $(OBJECTS) $(AS_OBJECTS)
 
 clean:
 	$(RM) *.o $(TGT)
+	$(RM) -r tmp
 
 # display info about the built executable
 info: $(TGT)

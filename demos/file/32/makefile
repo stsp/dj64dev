@@ -18,6 +18,7 @@ all: $(TGT)
 
 clean: clean_dj32
 	$(RM) $(TGT)
+	$(RM) -r tmp
 
 # display info about the built executable
 info: $(TGT)

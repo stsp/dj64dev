@@ -12,6 +12,7 @@ static:
 
 clean: clean_dj64
 	$(RM) $(TGT)
+	$(RM) -r tmp
 
 # display info about the built executable
 info: $(TGT)
