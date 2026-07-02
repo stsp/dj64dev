@@ -79,7 +79,7 @@ thunks_p.C32: thunks_p.c thunk_p1.h thunk_p32.h thunk_incs.h thunk_asms.h
 ALL_OBJS = $(addprefix $(TOP)/,$(file < $(TOP)/makefile.r32))
 
 $(LIB)/$(LIBS32): $(TOP)/makefile.rf $(ALL_OBJS) \
-  thunk_calls.h thunk_asms.h $(OBJECTS)
+  thunk_calls.h thunk_asms.h $(OBJECTS) | $(LIB)
 	@-$(RM) $@
 	$(AR) cr $@ $(ALL_OBJS) $(OBJECTS)
 	$(AR) s $@
