@@ -48,7 +48,7 @@ static char *strrpbrk(const char *szString, const char *szChars)
 
 int elfexec(const char *path, int argc, char **argv)
 {
-    int err, fd, len, errn, eid, ret;
+    int err, fd, len, errn, eid, ret = 0;
     const char *p;
     unsigned fname;
     __dpmi_paddr api;
