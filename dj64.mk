@@ -27,7 +27,10 @@ CROSS_PREFIX := i586-suse-linux-
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 CROSS_PREFIX := x86_64-linux-gnu-
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
+CROSS_PREFIX := g
+ifeq ($(shell $(XLD) --version 2>/dev/null),)
 CROSS_PREFIX :=
+endif
 endif
 endif
 endif

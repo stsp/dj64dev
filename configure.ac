@@ -179,6 +179,9 @@ DJ64_EXTRA_LDFLAGS=""
 DJ64_S_EXTRA_LDFLAGS=""
 if test "$CONFIG_HOST" = "Darwin"; then
   DJ64_EXTRA_CPPFLAGS="-U__APPLE__"
+elif test "$CONFIG_HOST" = "SunOS"; then
+  DJ64_EXTRA_LDFLAGS="-Wl,-Bsymbolic -Wl,--no-undefined"
+  DJ64_S_EXTRA_LDFLAGS="-Wl,-Bsymbolic"
 else
   DJ64_EXTRA_LDFLAGS="-Wl,-Bsymbolic -Wl,--no-undefined -Wl,--as-needed"
   DJ64_S_EXTRA_LDFLAGS="-Wl,-Bsymbolic"
