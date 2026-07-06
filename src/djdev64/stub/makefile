@@ -25,8 +25,12 @@ else
 LIBN = libdjstub64.so.0.2
 LIBNV = libdjstub64.so.0
 LIBNS = libdjstub64.so
+ifeq ($(HOST),SunOS)
+SHARED_LDFLAGS = $(LDFLAGS) -shared -Wl,-soname=$(LIBNV)
+else
 SHARED_LDFLAGS = $(LDFLAGS) -shared -Wl,-soname=$(LIBNV) \
 	-Wl,--version-script=libdjstub.version
+endif
 endif
 LIB = $(LIBDIR)/$(LIBN)
 

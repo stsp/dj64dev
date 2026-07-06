@@ -133,6 +133,7 @@ fi
 
 machine=`$CC -dumpmachine | cut -d- -f1 | sed 's/i.86/i386/'`
 CONFIG_HOST=`uname -s`
+AC_SUBST(CONFIG_HOST)
 
 AC_MSG_CHECKING([for $CC actually being clang])
 if $CC -v 2>&1 | grep 'clang' >/dev/null; then
@@ -338,16 +339,18 @@ else
   AC_PATH_PROGS([XOBJCOPY], [i686-linux-gnu-objcopy i686-unknown-linux-gnu-objcopy i586-suse-linux-objcopy x86_64-linux-gnu-objcopy llvm-objcopy objcopy])
 fi
 
-AC_CHECK_PROGS([UCTAGS], [uctags ctags])
-AC_CHECK_PROGS([URTAGS], [ureadtags readtags])
-if test -z "$UCTAGS" -o -z "$URTAGS"; then
-  AC_MSG_ERROR([universal-ctags not installed])
-fi
-if ! $UCTAGS --version | grep "Universal Ctags" >/dev/null; then
-  AC_MSG_ERROR([bsd ctags do not suit, install universal-ctags])
-fi
+if test "$enable_64bit" != "no" -o "$enable_32bit" != "no"; then
+  AC_CHECK_PROGS([UCTAGS], [uctags ctags])
+  AC_CHECK_PROGS([URTAGS], [ureadtags readtags])
+  if test -z "$UCTAGS" -o -z "$URTAGS"; then
+    AC_MSG_ERROR([universal-ctags not installed])
+  fi
+  if ! $UCTAGS --version | grep "Universal Ctags" >/dev/null; then
+    AC_MSG_ERROR([bsd ctags do not suit, install universal-ctags])
+  fi
 
-AC_CHECK_TYPES([__float80])
+  AC_CHECK_TYPES([__float80])
+fi
 
 if ! test -f Makefile.conf.in; then
   AC_MSG_NOTICE([Populating makefiles...])

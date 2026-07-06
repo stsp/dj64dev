@@ -72,6 +72,12 @@ endif
 DJ64PC += dj32.pc
 dj64: $(DJ64PC) $(DJ64DEVL)
 
+ifeq ($(HOST),SunOS)
+CP_FP = cp -f
+else
+CP_FP = cp -fP
+endif
+
 install_dj64:
 ifeq ($(USE64),1)
 	$(INSTALL) -d $(DESTDIR)$(sysroot)/lib
@@ -81,8 +87,8 @@ ifeq ($(USE64),1)
 	$(INSTALL) -m 0644 $(DJELFLOAD) $(DESTDIR)$(sysroot)/bin
 	$(INSTALL) -d $(DESTDIR)$(sysroot)/lib64
 	$(INSTALL) $(DJ64LIB) $(DESTDIR)$(sysroot)/lib64
-	cp -fP $(DJ64LIBV) $(DESTDIR)$(sysroot)/lib64
-	cp -fP $(DJ64DEVL) $(DESTDIR)$(sysroot)/lib64
+	$(CP_FP) $(DJ64LIBV) $(DESTDIR)$(sysroot)/lib64
+	$(CP_FP) $(DJ64DEVL) $(DESTDIR)$(sysroot)/lib64
 	$(INSTALL) -m 0644 $(DJ64LIBS) $(DESTDIR)$(sysroot)/lib64
 	$(INSTALL) -d $(DESTDIR)$(sysroot)/include
 	cp -r $(abs_top_srcdir)/include $(DESTDIR)$(sysroot)
@@ -106,11 +112,11 @@ install_djdev64:
 	cp -rL $(abs_top_srcdir)/src/djdev64/include/djdev64 $(DESTDIR)$(includedir)
 	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -m 0755 $(DJDEV64LIB) $(DESTDIR)$(libdir)
-	cp -fP $(DJDEV64LIBV) $(DESTDIR)$(libdir)
-	cp -fP $(DJDEV64DEVL) $(DESTDIR)$(libdir)
+	$(CP_FP) $(DJDEV64LIBV) $(DESTDIR)$(libdir)
+	$(CP_FP) $(DJDEV64DEVL) $(DESTDIR)$(libdir)
 	$(INSTALL) -m 0755 $(DJSTUB64LIB) $(DESTDIR)$(libdir)
-	cp -fP $(DJSTUB64LIBV) $(DESTDIR)$(libdir)
-	cp -fP $(DJSTUB64DEVL) $(DESTDIR)$(libdir)
+	$(CP_FP) $(DJSTUB64LIBV) $(DESTDIR)$(libdir)
+	$(CP_FP) $(DJSTUB64DEVL) $(DESTDIR)$(libdir)
 
 install: install_dj64 install_djdev64 install_demos install32
 	@echo
