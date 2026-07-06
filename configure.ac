@@ -38,7 +38,11 @@ USE32=1
 AC_ARG_ENABLE(64bit,
   AS_HELP_STRING([--disable-64bit], [do not build 64bit components (reduced build)]))
 if test "$enable_64bit" != "no"; then
-  PKG_CHECK_MODULES([LIBELF], [libelf],, [AC_MSG_ERROR([libelf not installed])])
+  PKG_CHECK_MODULES([LIBELF], [libelf],, [
+    AC_CHECK_LIB(elf, elf_memory,, [
+      AC_MSG_ERROR([libelf not installed])
+    ])
+  ])
 
   AC_CHECK_FUNCS([dlmopen])
   AC_CHECK_DECLS([RTLD_DEEPBIND],,, [[#include <dlfcn.h>]])
