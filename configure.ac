@@ -314,6 +314,23 @@ if test -z "$CROSS_AR"; then
 fi
 
 if test -n "$CROSS_PREFIX"; then
+  AC_PATH_PROG([CROSS_NM], [${CROSS_PREFIX}nm])
+  if test -z "$CROSS_NM"; then
+    AC_MSG_ERROR([${CROSS_PREFIX}nm not found, CROSS_PREFIX is wrong])
+  fi
+else
+  AC_PATH_PROGS([CROSS_NM], [i686-linux-gnu-nm i686-unknown-linux-gnu-nm i586-suse-linux-nm i386-elf-nm x86_64-linux-gnu-nm llvm-nm], [], [$PATH${PATH_SEPARATOR}/usr/local/opt/llvm/bin])
+fi
+if test -z "$CROSS_NM"; then
+  if test "$machine" = "i386" -o "$machine" = "x86_64"; then
+    AC_PATH_PROGS([CROSS_NM], [gnm nm])
+  fi
+fi
+if test -z "$CROSS_NM"; then
+  AC_MSG_ERROR([cross-nm not found])
+fi
+
+if test -n "$CROSS_PREFIX"; then
   AC_PATH_PROG([CROSS_STRIP], [${CROSS_PREFIX}strip])
   if test -z "$CROSS_STRIP"; then
     AC_MSG_ERROR([${CROSS_PREFIX}strip not found, CROSS_PREFIX is wrong])

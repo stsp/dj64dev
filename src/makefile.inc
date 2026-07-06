@@ -12,6 +12,7 @@ vpath %.ah $(srcdir)
 
 # for mkproto.sh
 export CROSS_LD
+export CROSS_NM
 export UCTAGS
 export URTAGS
 
