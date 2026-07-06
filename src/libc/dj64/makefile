@@ -63,9 +63,9 @@ endif
 		thunk_c.h thunk_incs.h
 
 thunk_calls.tmp: thunk_c.h
-	nl -v 0 <$< | sed -E 's/^ *//' >$@
+	nl -v0 <$< | sed -E 's/^ *//' >$@
 thunk_asms.tmp: thunk_p.h
-	nl -v 0 <$< | sed -E 's/^ *//' >$@
+	nl -v0 <$< | sed -E 's/^ *//' >$@
 
 TGMK = $(shell $(PKG_CONFIG) --silence-errors --variable=makeinc thunk_gen)
 ifeq ($(wildcard $(TGMK)),)
@@ -87,11 +87,14 @@ uplt.o: uplt.S $(srcdir)/plt_defs.inc
 
 ALL_OBJS = $(addprefix $(TOP)/,$(file < $(TOP)/makefile.rf))
 
-OS = $(shell uname -s)
-ifeq ($(OS),Darwin)
+ifeq ($(HOST),Darwin)
 SHARED_LDFLAGS = $(DJ64_LDFLAGS) -dynamiclib -install_name $(prefix)/i386-pc-dj64/lib64/$(LIBN) -compatibility_version 0.2 -current_version 0.2
 else
+ifeq ($(HOST),SunOS)
+SHARED_LDFLAGS = $(DJ64_LDFLAGS) -shared -Wl,--no-undefined -Wl,-soname=$(LIBNV) -Wl,-Bsymbolic
+else
 SHARED_LDFLAGS = $(DJ64_LDFLAGS) -shared -Wl,--version-script,$(srcdir)/libdj64.version -Wl,--no-undefined -Wl,--as-needed -Wl,-soname=$(LIBNV) -Wl,-Bsymbolic
+endif
 endif
 
 $(LIB)/$(LIBN): $(TOP)/makefile.rf $(ALL_OBJS) \

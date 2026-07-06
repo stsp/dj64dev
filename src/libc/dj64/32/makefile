@@ -57,9 +57,9 @@ endif
 		thunk_c.h thunk_incs.h
 
 thunk_calls.tmp: thunk_c.h
-	nl -v 0 <$< | sed -E 's/^ *//' >$@
+	nl -v0 <$< | sed -E 's/^ *//' >$@
 thunk_asms.tmp: thunk_p.h
-	nl -v 0 <$< | sed -E 's/^ *//' >$@
+	nl -v0 <$< | sed -E 's/^ *//' >$@
 
 TGMK = $(shell $(PKG_CONFIG) --silence-errors --variable=makeinc thunk_gen)
 ifeq ($(wildcard $(TGMK)),)

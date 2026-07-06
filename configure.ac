@@ -263,7 +263,7 @@ if test -n "$CROSS_PREFIX"; then
     AC_MSG_ERROR([${CROSS_PREFIX}ld not found, CROSS_PREFIX is wrong])
   fi
 else
-  AC_PATH_PROGS([CROSS_LD], [i686-linux-gnu-ld i686-unknown-linux-gnu-ld i586-suse-linux-ld i386-elf-ld x86_64-linux-gnu-ld ld.lld])
+  AC_PATH_PROGS([CROSS_LD], [i686-linux-gnu-ld i686-unknown-linux-gnu-ld i586-suse-linux-ld i386-elf-ld x86_64-linux-gnu-ld gld ld.lld])
 fi
 if test -z "$CROSS_LD"; then
   if test \( "$machine" = "i386" -o "$machine" = "x86_64" \) -a "$CONFIG_HOST" != "Darwin"; then

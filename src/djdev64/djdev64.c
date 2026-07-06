@@ -18,6 +18,9 @@
 
 #define _GNU_SOURCE
 #include <dlfcn.h>
+#ifdef __sun__
+#include <link.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
