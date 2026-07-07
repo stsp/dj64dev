@@ -15,7 +15,7 @@ int main()
     puts("\n");
     while (fgets(buf, sizeof(buf), f))
         fputs(buf, stdout);
-    puts("\n\npress any key to exit");
-    getch();
+//    puts("\n\npress any key to exit");
+//    getch();
     return EXIT_SUCCESS;
 }

@@ -25,11 +25,13 @@ clean: clean_dj64
 info: $(TGT)
 	djstubify -i $<
 
-run: $(TGT)
+run:
+runi: $(TGT)
 	dosemu -t $<
 
-runelf: libtmp.so
-	dosemu -dumb -l $<
+runelf:
+runelfi: libtmp.so
+	dosemu -t -l $<
 
 # hook in dj64 - make sure to not do that before defining `all:` target
 DJMK = $(shell pkg-config --silence-errors --variable=makeinc dj64)

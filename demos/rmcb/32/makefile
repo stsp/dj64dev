@@ -31,11 +31,13 @@ clean: clean_dj32
 info: $(TGT)
 	djstubify -i $<
 
-run: $(TGT)
+run:
+runi: $(TGT)
 	dosemu -t $<
 
-runelf: tmp.elf
-	dosemu -dumb -l $< -g 1
+runelf:
+runelfi: tmp.elf
+	dosemu -t -l $< -g 1
 
 # hook in dj64 - make sure to not do that before defining `all:` target
 DJMK = $(shell pkg-config --silence-errors --variable=makeinc dj32)

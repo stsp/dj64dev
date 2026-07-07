@@ -22,7 +22,7 @@ info: $(TGT)
 	djstubify -i $<
 
 run: $(TGT)
-	dosemu -t $<
+	dosemu -dumb $<
 
 runelf: libtmp.so
 	dosemu -dumb -K . -E "elfexec $<"
