@@ -248,7 +248,20 @@ static int _djdev64_open(const char *path, const struct dj64_api *api,
     } else if (flags & FLG_STATIC) {
         dlh = emu_dlmopen(handles, path, RTLD_LOCAL | RTLD_NOW, &path2);
     } else {
+#if defined(__linux__)
+/* On linux, versioning works and glibc is versioned.
+ * Add your platform here. */
+#define VERSIONING 1
+#else
+#define VERSIONING 0
+#endif
+
+#if VERSIONING || HAVE_DECL_RTLD_DEEPBIND
 #define WANT_DLMOPEN 0
+#else
+#define WANT_DLMOPEN 1
+#endif
+
 #if WANT_DLMOPEN
 #ifdef HAVE_DLMOPEN
         use_dlm = 1;
