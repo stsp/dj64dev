@@ -40,4 +40,7 @@ jobs:
     - name: Set up test environment
       run: |
         ./ci_test_prereq.sh
+
+    - name: Run tests
+      run: |
         ./ci_test.sh
