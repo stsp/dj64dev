@@ -53,10 +53,12 @@
  * They can't be set together, and as such, when we have a core payload,
  * there is no indication of whether or not the user payload is also
  * present. */
-#define STFLG1_NO32PL  0x80  // no 32bit payload
+#define STFLG1_rsv     0x80  // no 32bit payload - pre-v7 stubs
 #define STFLG2_DJ32    0x20  // dj32 payload
 #define STFLG2_C32PL   0x40  // have core 32bit payload
 #define STFLG2_EMBOV   0x80  // embedded overlay layout
+
+#define HAS_32PL(buf) (buf[FLG2_OFF] & STFLG2_EMBOV)
 
 static const int STFLAGS_OFF = 0x38;
 
@@ -223,7 +225,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
     _GO32_StubInfo stubinfo = {0};
     _GO32_StubInfo *stubinfo_p;
     struct ldops *ops = NULL;
-    int compact_va = 0;
     int dj32 = 0;
     struct dos_ops *ioops = dosops;
     uint8_t stub_ver = 0;
@@ -370,15 +371,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 memcpy(&coffsize, &buf[0x1c], sizeof(coffsize));
                 noffset += coffsize;
             }
-            if (buf[FLG1_OFF] & STFLG1_NO32PL) {
-                done = 1;
-                assert(dyn);
-                OPEN_DYN();
-            } else {
+            if (HAS_32PL(buf))
                 pl32++;
-            }
-            if (buf[FLG1_OFF] & STFLG1_COMPACT)
-                compact_va = 1;
             if (buf[FLG2_OFF] & STFLG2_DJ32) {
                 done = 1;
                 dj32 = 1;
@@ -421,7 +415,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 if (is_64) {
                     dyn++;
                     OPEN_DYN();
-                    compact_va = 1;  // TODO - evaluate?
                     stubinfo.flags = ((STFLG2_EMBOV) << 8) | STFLG1_COMPACT;
                     stubinfo.flags |= SHM_FLAGS;
                     nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
@@ -435,9 +428,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
             } else if (is_64 && (stub_ver < 7 || !dyn)) {
                 error("djstub: 64bit ELF at position %lx\n", coffset);
                 return -1;
-            } else if (dyn) {
-                OPEN_DYN();
-            } else {
+            } else if (!dyn) {
                 ops = &elf_ops;
             }
             done = 1;
@@ -447,7 +438,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
         }
         dosops->_dos_seek(ifile, coffset, SEEK_SET);
     }
-    if (dyn && !pl32 && coffset)
+    if (dyn && coffset)
         OPEN_DYN();
     assert(ops);
     assert(pfile != -1);
@@ -508,7 +499,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     if (!dj32 && va_size > MB)
         exit(EXIT_FAILURE);
     /* if we load 2 payloads, use larger estimate */
-    if ((dyn && pl32) || compact_va) {
+    if (pl32) {
         stubinfo.initial_size = VA_SZ;
         stubinfo.upl_base = va;
         stubinfo.upl_size = VA_SZ;
