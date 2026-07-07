@@ -28,9 +28,11 @@ clean:
 info: $(TGT)
 	djstubify -i $<
 
-run: $(TGT)
+run:
+runi: $(TGT)
 	dosemu -t $<
 
-runelf: $(TGT)
+runelf:
+runelfi: $(TGT)
 	djstubify $<
-	dosemu -dumb $<
+	dosemu -t $<

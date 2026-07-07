@@ -27,8 +27,11 @@ jobs:
       id: build
       run: |
         make deb
-        sudo dpkg -i ../dj64*.deb
         sudo dpkg -i ../dj32*.deb
+        sudo dpkg -i ../dj64*.deb
+        sudo dpkg -i ../libdjdev64*.deb
+        sudo dpkg -i ../libdjstub64*.deb
+        sudo dpkg -i ../djdev64*.deb
 
     - name: Upload failure logs
       if: ${{ always() && (steps.build.outcome == 'failure') }}
@@ -40,4 +43,7 @@ jobs:
     - name: Set up test environment
       run: |
         ./ci_test_prereq.sh
+
+    - name: Run tests
+      run: |
         ./ci_test.sh

@@ -2,7 +2,12 @@
 
 set -e -x
 
-make demos -j 9
+make demos_static
+make -C demos run
+make -C demos runelf
+make demos_clean demos
+make -C demos run
+make -C demos runelf
 cd demos/hello
 ls -l hello
 make host.elf

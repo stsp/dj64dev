@@ -80,7 +80,7 @@ int main()
     sz = do_read(fd, buf, sizeof(buf));
     if (sz > 0)
         do_write(STDOUT_FILENO, buf, sz);
-    puts("\n\npress any key to exit");
-    getch();
+//    puts("\n\npress any key to exit");
+//    getch();
     return EXIT_SUCCESS;
 }

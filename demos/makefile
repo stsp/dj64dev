@@ -20,9 +20,9 @@ clean:
 	$(foreach D,$(DEMOS),$(MAKE) -C $(D)/32 clean;)
 
 run runelf:
-	$(foreach D,$(DEMOS),$(MAKE) -C $(D) $@;)
-	$(foreach D,$(DEMOS),$(MAKE) -C $(D)/32 $@;)
-	$(foreach D,$(DEMOS),$(MAKE) -C $(D)/djgpp $@;)
+	set -e; $(foreach D,$(DEMOS),$(MAKE) -C $(D) $@;)
+	set -e; $(foreach D,$(DEMOS),$(MAKE) -C $(D)/32 $@;)
+	set -e; $(foreach D,$(DEMOS),$(MAKE) -C $(D)/djgpp $@;)
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 

@@ -22,10 +22,11 @@ info: $(TGT)
 	djstubify -i $<
 
 run: $(TGT)
-	dosemu -t $<
+	dosemu -dumb $<
 
 runelf: libtmp.so
 	dosemu -dumb -K . -E "elfexec $<"
+	dosemu -dumb -K . -E "elfexec2 $<"
 
 # hook in dj64 - make sure to not do that before defining `all:` target
 DJMK = $(shell pkg-config --silence-errors --variable=makeinc dj64)

@@ -25,7 +25,7 @@ info: $(TGT)
 	djstubify -i $<
 
 run: $(TGT)
-	dosemu -t $<
+	dosemu -dumb $<
 
 runelf: tmp.elf
 	dosemu -dumb -K . -E "elfexec2 $<"
