@@ -363,6 +363,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 dyn++;
             else
                 pfile = ifile;
+            if (stub_ver >= 7 && dyn)
+                moff = 4;
             if (buf[FLG1_OFF] & STFLG1_NO32PL) {
                 noffset = offs;
                 moff = 4;
