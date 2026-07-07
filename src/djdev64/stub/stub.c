@@ -366,7 +366,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 moff = 4;
             coffset = offs;
             noffset = offs;
-            if ((stub_ver >= 7 && !dyn) || !(buf[FLG2_OFF] & STFLG2_EMBOV)) {
+            if (stub_ver >= 7 && !dyn) {
                 memcpy(&coffsize, &buf[0x1c], sizeof(coffsize));
                 noffset += coffsize;
             }
@@ -376,12 +376,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 OPEN_DYN();
             } else {
                 pl32++;
-                if (stub_ver == 6) {
-                    /* static crt0 in emb_ov - deprecated */
-                    uint32_t ooffs;
-                    memcpy(&ooffs, &buf[0x2c], sizeof(ooffs));
-                    coffset += ooffs;
-                }
             }
             if (buf[FLG1_OFF] & STFLG1_COMPACT)
                 compact_va = 1;
