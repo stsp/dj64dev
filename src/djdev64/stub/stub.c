@@ -39,7 +39,7 @@
 
 #define STUB_DEBUG 1
 #if STUB_DEBUG
-#define stub_debug(...) J_printf(do_printf, DJ64_PRINT_LOG, __VA_ARGS__)
+#define stub_debug(f, ...) J_printf(do_printf, DJ64_PRINT_LOG, "stub: " f, ##__VA_ARGS__)
 #else
 #define stub_debug(...)
 #endif
