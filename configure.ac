@@ -39,7 +39,9 @@ AC_ARG_ENABLE(64bit,
   AS_HELP_STRING([--disable-64bit], [do not build 64bit components (reduced build)]))
 if test "$enable_64bit" != "no"; then
   PKG_CHECK_MODULES([LIBELF], [libelf],, [
-    AC_CHECK_LIB(elf, elf_memory,, [
+    AC_CHECK_LIB(elf, elf_memory, [
+      LIBELF_LIBS=-lelf
+    ], [
       AC_MSG_ERROR([libelf not installed])
     ])
   ])
