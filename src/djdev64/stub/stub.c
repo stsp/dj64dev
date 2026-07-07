@@ -47,7 +47,7 @@
 #define FLG1_OFF STFLAGS_OFF
 #define FLG2_OFF (STFLAGS_OFF + 1)
 
-#define STFLG1_COMPACT 0x20  // compact 32bit VA layout
+#define STFLG1_rsv2    0x20  // compact 32bit VA layout - pre-v7 stubs
 #define STFLG1_STATIC  SIFLG_STATIC  // 0x40 - static linking
 /* 2 flags below are chosen for compatibility between v4 and v5 stubs.
  * They can't be set together, and as such, when we have a core payload,
@@ -415,7 +415,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 if (is_64) {
                     dyn++;
                     OPEN_DYN();
-                    stubinfo.flags = ((STFLG2_EMBOV) << 8) | STFLG1_COMPACT;
+                    stubinfo.flags = (STFLG2_EMBOV) << 8;
                     stubinfo.flags |= SHM_FLAGS;
                     nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
                 } else {
