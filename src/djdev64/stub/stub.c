@@ -58,6 +58,8 @@
 #define STFLG2_C32PL   0x40  // have core 32bit payload
 #define STFLG2_EMBOV   0x80  // embedded overlay layout
 
+static const int STFLAGS_OFF = 0x38;
+
 #define MB (1024 * 1024)
 #define VA_SZ (2*MB)
 
@@ -221,7 +223,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
     _GO32_StubInfo stubinfo = {0};
     _GO32_StubInfo *stubinfo_p;
     struct ldops *ops = NULL;
-    int STFLAGS_OFF = 0x2c;
     int compact_va = 0;
     int dj32 = 0;
     struct dos_ops *ioops = dosops;
@@ -353,8 +354,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
             cnt++;
 #endif
             stubinfo.stubinfo_ver |= stub_ver << 16;
-            if (stub_ver >= 6)
-                STFLAGS_OFF = 0x38;
             if (stub_ver >= 7)
                 stubinfo.flags |= SIFLG_SPLITPL;
             stub_debug("Found exe header %i at 0x%lx\n", cnt, coffset);
