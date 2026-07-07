@@ -365,25 +365,24 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 pfile = ifile;
             if (stub_ver >= 7 && dyn)
                 moff = 4;
+            coffset = offs;
+            noffset = offs;
+            if ((stub_ver >= 7 && !dyn) || !(buf[FLG2_OFF] & STFLG2_EMBOV)) {
+                memcpy(&coffsize, &buf[0x1c], sizeof(coffsize));
+                noffset += coffsize;
+            }
             if (buf[FLG1_OFF] & STFLG1_NO32PL) {
-                noffset = offs;
-                moff = 4;
                 done = 1;
                 assert(dyn);
                 OPEN_DYN();
             } else {
                 pl32++;
-                coffset = offs;
                 if (stub_ver == 6) {
                     /* static crt0 in emb_ov - deprecated */
                     uint32_t ooffs;
                     memcpy(&ooffs, &buf[0x2c], sizeof(ooffs));
                     coffset += ooffs;
                 }
-                memcpy(&coffsize, &buf[0x1c], sizeof(coffsize));
-                noffset = offs;
-                if ((stub_ver >= 7 && !dyn) || !(buf[FLG2_OFF] & STFLG2_EMBOV))
-                    noffset += coffsize;
             }
             if (buf[FLG1_OFF] & STFLG1_COMPACT)
                 compact_va = 1;
