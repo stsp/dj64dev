@@ -6,9 +6,12 @@ endif
 OS = $(shell uname -s)
 NATIVE=0
 ifneq ($(filter x86_64 amd64 i686 i586 i386,$(MACH)),)
-ifneq ($(OS), Darwin)
+ifneq ($(OS),Darwin)
 NATIVE = 1
 endif
+endif
+ifeq ($(OS),SunOS)
+NATIVE_PREFIX := g
 endif
 
 # find the suitable cross-assembler
@@ -27,7 +30,7 @@ CROSS_PREFIX := i586-suse-linux-
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
 CROSS_PREFIX := x86_64-linux-gnu-
 ifeq ($(shell $(DJ64AS) --version 2>/dev/null),)
-CROSS_PREFIX := g
+CROSS_PREFIX := $(NATIVE_PREFIX)
 ifeq ($(shell $(XLD) --version 2>/dev/null),)
 CROSS_PREFIX :=
 endif
