@@ -14,8 +14,8 @@
 #include <libc/fsexthlp.h>
 #include <libc/dosio.h>
 
-ssize_t
-_read(int handle, void* buffer, size_t count)
+int
+_read(int handle, void* buffer, unsigned count)
 {
   size_t j, k;
   int ngot;

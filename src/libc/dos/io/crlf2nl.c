@@ -2,8 +2,8 @@
 #include <libc/stubs.h>
 #include <io.h>
 
-ssize_t
-crlf2nl(char *buf, ssize_t len)
+int
+crlf2nl(char *buf, int len)
 {
   char *bp = buf;
   int i=0;

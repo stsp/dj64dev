@@ -17,8 +17,8 @@
 #include <libc/farptrgs.h>
 #include <libc/getdinfo.h>
 
-ssize_t
-_write(int handle, const void* buffer, size_t count)
+int
+_write(int handle, const void* buffer, unsigned count)
 {
   __FSEXT_Function *func = __FSEXT_get_function(handle);
   if (func)
