@@ -4,7 +4,6 @@ set -e -x
 
 make demos_static
 make -C demos run
-make -C demos runelf
 make demos_clean demos
 make -C demos run
 make -C demos runelf
