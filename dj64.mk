@@ -190,11 +190,9 @@ ifneq ($(.SHELLSTATUS),0)
 $(error dj64-dev-static not installed)
 endif
 DJ64_XLDFLAGS += -l $(S2) -f 0x4000
-else
-ifeq ($(AS_OBJECTS),)
-DJ64_XLDFLAGS += -f 0x80
 endif
-endif
+
+DJ64_XLDFLAGS += -f 0x80 -V 8
 
 $(DJ64_XLIB): $(OBJECTS) $(XELF)
 	$(LD) $^ $(DJLDFLAGS) -o $@
