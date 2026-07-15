@@ -43,6 +43,7 @@ LOADADDR = 0x08148000
 DJ64_XLDFLAGS += -f 0x40
 # ELF
 DJ64_XLDFLAGS += -f 0x80 -V 8
+DJ64_LINKARGS += -T 1 -D 5
 XELF = tmp.elf
 
 ifeq ($(filter clean install,$(MAKECMDGOALS)),)
