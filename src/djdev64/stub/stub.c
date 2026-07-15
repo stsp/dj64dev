@@ -187,6 +187,64 @@ static int open_dyn(int32_t *cpl_fd, struct dos_ops **ioops,
     } \
 } while(0)
 
+enum { OT_COFF, OT_DJ32, OT_E32, OT_E64, OT_D64, OT_D32, OT_MAX };
+
+static int find_idx(int type, char *buf)
+{
+    uint16_t type_map;
+    int cnt = 0;
+    memcpy(&type_map, &buf[0x36], sizeof(type_map));
+    if (type == 0 && type_map == 0)
+        return 0;
+    while (type_map) {
+        uint8_t t = type_map & 0xf;
+        if (t == type)
+            return cnt;
+        type_map >>= 4;
+        cnt++;
+    }
+    return -1;
+}
+
+static int find_size(int type, char *buf)
+{
+    uint32_t size;
+    int idx = find_idx(type, buf);
+    if (idx == -1)
+        return -1;
+    memcpy(&size, &buf[0x1c + idx * 4], sizeof(size));
+    return size;
+}
+
+static int find_offs(int type, char *buf)
+{
+    uint16_t type_map;
+    int offs = 0, cnt = 0;
+    memcpy(&type_map, &buf[0x36], sizeof(type_map));
+    if (type == 0 && type_map == 0)
+        return 0;
+    while (type_map) {
+        uint32_t off;
+        uint8_t t = type_map & 0xf;
+        if (t == type)
+            return offs;
+        memcpy(&off, &buf[0x1c + cnt * 4], sizeof(off));
+        offs += off;
+        type_map >>= 4;
+        cnt++;
+    }
+    return -1;
+}
+
+static int get_type0(char *buf)
+{
+    if (!(buf[FLG1_OFF] & STFLG1_ELF))
+        return OT_COFF;
+    if (buf[FLG2_OFF] & STFLG2_DJ32)
+        return OT_DJ32;
+    return OT_E32;
+}
+
 #define exit(x) return -(x)
 #define error(...) J_printf(do_printf, DJ64_PRINT_TERMINAL, __VA_ARGS__)
 int djstub_main(int argc, char *argv[], char *envp[],
@@ -344,7 +402,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
         if (buf[0] == 'M' && buf[1] == 'Z' && buf[8] == 4 && buf[9] == 0) {
             /* lfanew */
             uint32_t offs;
-            int moff = 0;
+            int moff, sz;
 
             stub_ver = buf[0x3b];
 #if STUB_DEBUG
@@ -360,14 +418,6 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 dyn++;
             else
                 pfile = ifile;
-            if (stub_ver >= 7 && dyn)
-                moff = 4;
-            coffset = offs;
-            noffset = offs;
-            if (stub_ver >= 7 && !dyn) {
-                memcpy(&coffsize, &buf[0x1c], sizeof(coffsize));
-                noffset += coffsize;
-            }
             if (HAS_32PL(buf))
                 pl32++;
             if (buf[FLG2_OFF] & STFLG2_DJ32) {
@@ -383,10 +433,29 @@ int djstub_main(int argc, char *argv[], char *envp[],
                     ops = &elf_ops;
             }
 
-            memcpy(&nsize, &buf[0x20 - moff], sizeof(nsize));
-            if (nsize)
-                noffset2 = noffset + nsize;
-            memcpy(&nsize2, &buf[0x24 - moff], sizeof(nsize2));
+            coffset = offs;
+            if (stub_ver <= 7) {
+                noffset = offs;
+                if (!dyn) {
+                    memcpy(&coffsize, &buf[0x1c], sizeof(coffsize));
+                    noffset += coffsize;
+                }
+                memcpy(&nsize, &buf[0x20 - dyn * 4], sizeof(nsize));
+            } else {
+                if ((sz = find_size(get_type0(buf), buf)) != -1)
+                    coffsize = sz;
+                if ((moff = find_offs(OT_E64, buf)) != -1)
+                    noffset = offs + moff;
+                if ((sz = find_size(OT_E64, buf)) != -1)
+                    nsize = sz;
+                if ((moff = find_offs(OT_D64, buf)) != -1)
+                    noffset2 = offs + moff;
+                if ((sz = find_size(OT_D64, buf)) != -1)
+                    nsize2 = sz;
+                if ((!(buf[FLG1_OFF] & STFLG1_ELF) || !dyn) && !coffsize)
+                    exit(EXIT_FAILURE);
+            }
+
             memcpy(&stubinfo.flags, &buf[STFLAGS_OFF], 2);
             if (stub_ver >= 6) {
                 uint32_t nmoffs;
