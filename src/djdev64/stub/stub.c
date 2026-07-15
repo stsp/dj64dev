@@ -49,11 +49,7 @@
 
 #define STFLG1_rsv2    0x20  // compact 32bit VA layout - pre-v7 stubs
 #define STFLG1_STATIC  SIFLG_STATIC  // 0x40 - static linking
-/* 2 flags below are chosen for compatibility between v4 and v5 stubs.
- * They can't be set together, and as such, when we have a core payload,
- * there is no indication of whether or not the user payload is also
- * present. */
-#define STFLG1_rsv     0x80  // no 32bit payload - pre-v7 stubs
+#define STFLG1_ELF     0x80  // ELF payload (since stub-v8)
 #define STFLG2_DJ32    0x20  // dj32 payload
 #define STFLG2_C32PL   0x40  // have core 32bit payload
 #define STFLG2_EMBOV   0x80  // embedded overlay layout
@@ -182,14 +178,14 @@ static int open_dyn(int32_t *cpl_fd, struct dos_ops **ioops,
     return pfile;
 }
 
-#define OPEN_DYN() { \
+#define OPEN_DYN() do { \
     assert(pfile < 0); \
     pfile = open_dyn(&stubinfo.cpl_fd, &ioops, &ops, uput); \
     if (pfile == -1) { \
         error("unable to open %s\n", CRT0); \
         return -1; \
     } \
-}
+} while(0)
 
 #define exit(x) return -(x)
 #define error(...) J_printf(do_printf, DJ64_PRINT_TERMINAL, __VA_ARGS__)
@@ -359,7 +355,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 stubinfo.flags |= SIFLG_SPLITPL;
             stub_debug("Found exe header %i at 0x%lx\n", cnt, coffset);
             memcpy(&offs, &buf[0x3c], sizeof(offs));
-            if (!(buf[FLG2_OFF] & STFLG2_C32PL))
+            if (!(buf[FLG2_OFF] & STFLG2_C32PL) && (stub_ver < 8 ||
+                    (buf[FLG1_OFF] & STFLG1_ELF)))
                 dyn++;
             else
                 pfile = ifile;
@@ -377,6 +374,13 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 done = 1;
                 dj32 = 1;
                 ops = &elf_ops;
+            }
+            if (stub_ver >= 8 && (buf[FLG1_OFF] & STFLG1_ELF)) {
+                done = 1;
+                if (dyn)
+                    OPEN_DYN();
+                else
+                    ops = &elf_ops;
             }
 
             memcpy(&nsize, &buf[0x20 - moff], sizeof(nsize));
@@ -402,6 +406,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
         } else if (buf[0] == 0x4c && buf[1] == 0x01) { /* it's a COFF */
             if (dyn) {
                 /* undo mistake: no dyn with COFF */
+                assert(stub_ver < 8);  // no such mistake for v8+
                 dyn = 0;
                 pl32 = 1;
                 pfile = ifile;
@@ -425,6 +430,9 @@ int djstub_main(int argc, char *argv[], char *envp[],
                     ops = &elf_ops;
                 }
                 pl32 = 1;
+            } else if (stub_ver >= 8) {
+                error("djstub: ELF at position %lx (expected COFF)\n", coffset);
+                return -1;
             } else if (is_64 && (stub_ver < 7 || !dyn)) {
                 error("djstub: 64bit ELF at position %lx\n", coffset);
                 return -1;
@@ -438,7 +446,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
         }
         dosops->_dos_seek(ifile, coffset, SEEK_SET);
     }
-    if (dyn && coffset)
+    if (dyn && coffset && stub_ver < 8)
         OPEN_DYN();
     assert(ops);
     assert(pfile != -1);
