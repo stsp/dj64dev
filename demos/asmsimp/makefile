@@ -44,7 +44,7 @@ endif
 
 # dj64 sets `DJ64_XOBJS`, `DJ64_XLIB`, `DJ64_XLDFLAGS`
 $(TGT): $(DJ64_XLIB)
-	$(LINK) -d $@.dbg $^ -o $@ $(DJ64_XLDFLAGS)
+	$(LINK) -d $@.dbg $(DJ64_LINKARGS) $^ -o $@ $(DJ64_XLDFLAGS)
 	$(DJSTRIP) $@
 
 djgpp/%:
