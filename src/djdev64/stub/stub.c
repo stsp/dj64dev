@@ -49,11 +49,7 @@
 
 #define STFLG1_rsv2    0x20  // compact 32bit VA layout - pre-v7 stubs
 #define STFLG1_STATIC  SIFLG_STATIC  // 0x40 - static linking
-/* 2 flags below are chosen for compatibility between v4 and v5 stubs.
- * They can't be set together, and as such, when we have a core payload,
- * there is no indication of whether or not the user payload is also
- * present. */
-#define STFLG1_rsv     0x80  // no 32bit payload - pre-v7 stubs
+#define STFLG1_ELF     0x80  // ELF payload (since stub-v8)
 #define STFLG2_DJ32    0x20  // dj32 payload
 #define STFLG2_C32PL   0x40  // have core 32bit payload
 #define STFLG2_EMBOV   0x80  // embedded overlay layout
@@ -182,13 +178,71 @@ static int open_dyn(int32_t *cpl_fd, struct dos_ops **ioops,
     return pfile;
 }
 
-#define OPEN_DYN() { \
+#define OPEN_DYN() do { \
     assert(pfile < 0); \
     pfile = open_dyn(&stubinfo.cpl_fd, &ioops, &ops, uput); \
     if (pfile == -1) { \
         error("unable to open %s\n", CRT0); \
         return -1; \
     } \
+} while(0)
+
+enum { OT_COFF, OT_DJ32, OT_E32, OT_E64, OT_D64, OT_D32, OT_MAX };
+
+static int find_idx(int type, char *buf)
+{
+    uint16_t type_map;
+    int cnt = 0;
+    memcpy(&type_map, &buf[0x36], sizeof(type_map));
+    if (type == 0 && type_map == 0)
+        return 0;
+    while (type_map) {
+        uint8_t t = type_map & 0xf;
+        if (t == type)
+            return cnt;
+        type_map >>= 4;
+        cnt++;
+    }
+    return -1;
+}
+
+static int find_size(int type, char *buf)
+{
+    uint32_t size;
+    int idx = find_idx(type, buf);
+    if (idx == -1)
+        return -1;
+    memcpy(&size, &buf[0x1c + idx * 4], sizeof(size));
+    return size;
+}
+
+static int find_offs(int type, char *buf)
+{
+    uint16_t type_map;
+    int offs = 0, cnt = 0;
+    memcpy(&type_map, &buf[0x36], sizeof(type_map));
+    if (type == 0 && type_map == 0)
+        return 0;
+    while (type_map) {
+        uint32_t off;
+        uint8_t t = type_map & 0xf;
+        if (t == type)
+            return offs;
+        memcpy(&off, &buf[0x1c + cnt * 4], sizeof(off));
+        offs += off;
+        type_map >>= 4;
+        cnt++;
+    }
+    return -1;
+}
+
+static int get_type0(char *buf)
+{
+    if (!(buf[FLG1_OFF] & STFLG1_ELF))
+        return OT_COFF;
+    if (buf[FLG2_OFF] & STFLG2_DJ32)
+        return OT_DJ32;
+    return OT_E32;
 }
 
 #define exit(x) return -(x)
@@ -348,7 +402,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
         if (buf[0] == 'M' && buf[1] == 'Z' && buf[8] == 4 && buf[9] == 0) {
             /* lfanew */
             uint32_t offs;
-            int moff = 0;
+            int moff, sz;
 
             stub_ver = buf[0x3b];
 #if STUB_DEBUG
@@ -359,18 +413,11 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 stubinfo.flags |= SIFLG_SPLITPL;
             stub_debug("Found exe header %i at 0x%lx\n", cnt, coffset);
             memcpy(&offs, &buf[0x3c], sizeof(offs));
-            if (!(buf[FLG2_OFF] & STFLG2_C32PL))
+            if (!(buf[FLG2_OFF] & STFLG2_C32PL) && (stub_ver < 8 ||
+                    (buf[FLG1_OFF] & STFLG1_ELF)))
                 dyn++;
             else
                 pfile = ifile;
-            if (stub_ver >= 7 && dyn)
-                moff = 4;
-            coffset = offs;
-            noffset = offs;
-            if (stub_ver >= 7 && !dyn) {
-                memcpy(&coffsize, &buf[0x1c], sizeof(coffsize));
-                noffset += coffsize;
-            }
             if (HAS_32PL(buf))
                 pl32++;
             if (buf[FLG2_OFF] & STFLG2_DJ32) {
@@ -378,11 +425,37 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 dj32 = 1;
                 ops = &elf_ops;
             }
+            if (stub_ver >= 8 && (buf[FLG1_OFF] & STFLG1_ELF)) {
+                done = 1;
+                if (dyn)
+                    OPEN_DYN();
+                else
+                    ops = &elf_ops;
+            }
 
-            memcpy(&nsize, &buf[0x20 - moff], sizeof(nsize));
-            if (nsize)
-                noffset2 = noffset + nsize;
-            memcpy(&nsize2, &buf[0x24 - moff], sizeof(nsize2));
+            coffset = offs;
+            if (stub_ver <= 7) {
+                noffset = offs;
+                if (!dyn) {
+                    memcpy(&coffsize, &buf[0x1c], sizeof(coffsize));
+                    noffset += coffsize;
+                }
+                memcpy(&nsize, &buf[0x20 - dyn * 4], sizeof(nsize));
+            } else {
+                if ((sz = find_size(get_type0(buf), buf)) != -1)
+                    coffsize = sz;
+                if ((moff = find_offs(OT_E64, buf)) != -1)
+                    noffset = offs + moff;
+                if ((sz = find_size(OT_E64, buf)) != -1)
+                    nsize = sz;
+                if ((moff = find_offs(OT_D64, buf)) != -1)
+                    noffset2 = offs + moff;
+                if ((sz = find_size(OT_D64, buf)) != -1)
+                    nsize2 = sz;
+                if ((!(buf[FLG1_OFF] & STFLG1_ELF) || !dyn) && !coffsize)
+                    exit(EXIT_FAILURE);
+            }
+
             memcpy(&stubinfo.flags, &buf[STFLAGS_OFF], 2);
             if (stub_ver >= 6) {
                 uint32_t nmoffs;
@@ -402,6 +475,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
         } else if (buf[0] == 0x4c && buf[1] == 0x01) { /* it's a COFF */
             if (dyn) {
                 /* undo mistake: no dyn with COFF */
+                assert(stub_ver < 8);  // no such mistake for v8+
                 dyn = 0;
                 pl32 = 1;
                 pfile = ifile;
@@ -425,6 +499,9 @@ int djstub_main(int argc, char *argv[], char *envp[],
                     ops = &elf_ops;
                 }
                 pl32 = 1;
+            } else if (stub_ver >= 8) {
+                error("djstub: ELF at position %lx (expected COFF)\n", coffset);
+                return -1;
             } else if (is_64 && (stub_ver < 7 || !dyn)) {
                 error("djstub: 64bit ELF at position %lx\n", coffset);
                 return -1;
@@ -438,7 +515,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
         }
         dosops->_dos_seek(ifile, coffset, SEEK_SET);
     }
-    if (dyn && coffset)
+    if (dyn && coffset && stub_ver < 8)
         OPEN_DYN();
     assert(ops);
     assert(pfile != -1);

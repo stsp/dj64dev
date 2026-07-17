@@ -241,7 +241,7 @@ clean: clean_dj64
 ```
 As soon as the dj64's makefile is hooked in, it takes care of compiling
 the object files and sets the following variables as the result:
-`DJ64_XLIB`, `DJ64_XLDFLAGS` and `LINK`.
+`DJ64_XLIB`, `DJ64_XLDFLAGS`, `LINK` and DJ64_LINKARGS.
 You only need to pass those to `djlink` as described below.
 
 Another important variable is `DJ64STATIC`. You can set it to `1`
@@ -253,14 +253,16 @@ itself on the platforms where dj64 does not support dynamic linking
 so you may want to strip them with `djstrip`. You can check if the
 executable is statically linked, by inspecting `bit 6` in `Stub flags`:
 ```
-$ djstubify -i hello.exe
+$ djstubify -i file.exe
 dj64 file format
-Overlay 0 (i386/ELF DOS payload) at 23368, size 30220
-Overlay 1 (x86_64/ELF host payload) at 53588, size 186376
-Overlay 2 (x86_64/ELF host debug info) at 239964, size 347000
-Overlay name: hello.exe
-Stub version: 4
-Stub flags: 0x0040
+Overlay 0 (i386/ELF (dj64) DOS payload)
+    at 32920, size 31468
+Overlay 1 (x86_64/ELF host payload)
+    at 64388, size 205744
+Overlay 2 (x86_64/ELF debug info for file.exe.dbg)
+    at 270132, size 848752
+Stub version: 8
+Stub flags: 0x40c0
 ```
 `0x0040` means that `bit 6` is set, so this is a statically linked executable.
 It doesn't need `dj64` package to be installed on a host system, as
@@ -273,14 +275,15 @@ STRIP = @true
 # or use `STRIP = djstrip` for non-debug build
 ...
 $(TGT): $(DJ64_XLIB)
-	$(LINK) -d $@.dbg $^ -o $@ $(DJ64_XLDFLAGS)
+	$(LINK) -d $@.dbg $(DJ64_LINKARGS) $^ -o $@ $(DJ64_XLDFLAGS)
 	$(STRIP) $@
 ```
 Lets consider this command line, which we get from the above recipe:
 ```
-djlink -d hello.exe.dbg libtmp.so -o hello.exe -f 0x80
+djlink -d file.exe.dbg -T 3 -D 4 libtmp.so -o file.exe -f 0x80 -V 8
 ```
 `-d` option sets the debuglink name.<br/>
+`-T 3 -D 4` is a content of `DJ64_LINKARGS`.<br/>
 `libtmp.so` arg is an expansion of `DJ64_XLIB` variable set by dj64 for us.<br/>
 `-o` specifies the output file.<br/>
 `-f 0x80` arg is an expansion of `DJ64_XLDFLAGS` variable set by dj64.
@@ -292,7 +295,7 @@ For example if you don't need to use debugger, then you can just do:
 ```
 $(TGT): $(DJ64_LIB)
 	strip $^
-	djlink $^ -o $@ $(DJ64_XLDFLAGS)
+	djlink $(DJ64_LINKARGS) $^ -o $@ $(DJ64_XLDFLAGS)
 ```
 to get an executable without debug info. Note the use of `strip` instead
 of `djstrip` in this example. This is because we strip an intermediate

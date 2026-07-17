@@ -189,12 +189,11 @@ S2 := $(shell pkg-config --variable=crt0 dj64_s)
 ifneq ($(.SHELLSTATUS),0)
 $(error dj64-dev-static not installed)
 endif
-DJ64_XLDFLAGS += -l $(S2) -f 0x4000
-else
-ifeq ($(AS_OBJECTS),)
-DJ64_XLDFLAGS += -f 0x80
+DJ64_XLDFLAGS += -t 2 -l $(S2) -f 0x4000
 endif
-endif
+
+DJ64_XLDFLAGS += -f 0x80 -V 8
+DJ64_LINKARGS += -T 3 -D 4
 
 $(DJ64_XLIB): $(OBJECTS) $(XELF)
 	$(LD) $^ $(DJLDFLAGS) -o $@
