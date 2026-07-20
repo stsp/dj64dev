@@ -9,7 +9,7 @@ puts(const char *s)
 
   while ((c = *s++))
     putchar(c);
-  if (!__is_text_file(stdout))
+  if (!__is_text_file(stdout) && !(stdout->_flag & _IOTERM))
     putchar('\r');
   return putchar('\n');
 }
