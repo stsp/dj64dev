@@ -22,6 +22,7 @@ SRC += fputc.c
 SRC += fputs.c
 SRC += fread.c
 SRC += freopen.c
+SRC += fdreopen.c
 SRC += frlist.c
 SRC += fscanf.c
 SRC += fseek.c

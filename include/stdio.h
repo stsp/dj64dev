@@ -144,6 +144,8 @@ int	vsscanf(const char *_s, const char *_format, va_list _ap);
 int	dprintf(int _fd, const char *_format, ...) __attribute__ ((__format__ (__printf__, 2, 3)));
 int	fileno(FILE *_stream);
 FILE *	fdopen(int _fildes, const char *_type);
+#define _HAVE_FDREOPEN 1
+FILE *	fdreopen(int _filedes, const char *_mode, FILE *_stream);
 int	mkstemp(char *_template);
 int	pclose(FILE *_pf);
 FILE *	popen(const char *_command, const char *_mode);
