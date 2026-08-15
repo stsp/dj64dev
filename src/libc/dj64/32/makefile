@@ -96,4 +96,4 @@ endif
 clean::
 	$(RM) rm *.a *.tmp plt.inc asm_*.h thunk_*.h plt_*.h asym_incs.h
 	$(RM) thunk_syms.s thunk_syms.ss
-	$(RM) $(LIB)/libc_s.a $(LIB)/libdj64.so* $(LIB)/libdj64.*dylib
+	$(RM) $(LIB)/libc32_s.a $(LIB)/libdj32_s.a $(LIB)/libdj64.so* $(LIB)/libdj64.*dylib

@@ -99,8 +99,7 @@ endif
 
 $(LIB)/$(LIBN): $(TOP)/makefile.rf $(ALL_OBJS) \
   thunk_calls.h thunk_asms.h $(OBJECTS) $(srcdir)/libdj64.version | $(LIB)
-	$(CC) $(SHARED_LDFLAGS) -o $@ \
-  $(ALL_OBJS) $(OBJECTS)
+	$(CC) $(SHARED_LDFLAGS) -o $@ $(ALL_OBJS) $(OBJECTS)
 	@echo "Have `nm -u $@ | grep "U " | wc -l` undefined symbols"
 
 $(LIB)/$(LIBS): $(TOP)/makefile.rf $(ALL_OBJS) \
@@ -131,5 +130,6 @@ endif
 clean::
 	$(RM) rm *.a *.tmp plt.inc asm_*.h thunk_*.h plt_*.h asym_incs.h
 	$(RM) thunk_syms.s thunk_syms.ss
-	$(RM) $(LIB)/libc_s.a $(LIB)/libdj64.so* $(LIB)/libdj64.*dylib
+	$(RM) $(LIB)/libc_s.a $(LIB)/libdj64_s.a $(LIB)/crt0.elf $(LIB)/uplt.o
+	$(RM) $(LIB)/libdj64.so* $(LIB)/libdj64.*dylib
 	$(MAKE) -C 32 clean
