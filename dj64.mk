@@ -7,7 +7,9 @@ OS = $(shell uname -s)
 NATIVE=0
 ifneq ($(filter x86_64 amd64 i686 i586 i386,$(MACH)),)
 ifneq ($(OS),Darwin)
+ifeq ($(filter android%,$(MACH)),)
 NATIVE = 1
+endif
 endif
 endif
 ifeq ($(OS),SunOS)
