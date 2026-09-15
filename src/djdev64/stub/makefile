@@ -5,15 +5,9 @@ SOURCES = coff.c elf.c util.c stub.c dpmiwrp.c dos.c
 OBJECTS = $(SOURCES:.c=.o)
 CFLAGS += -iquote $(srcdir)/../include -fpic -ggdb3 -Wall -Og -MD \
   -DCRT0=\"$(sysroot)/lib/crt0.elf\"
-SYM_VER = 5
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
-
-%.version: $(srcdir)/%.version.in makefile
-	sed \
-		-e 's!@SYM_VER[@]!$(SYM_VER)!g' \
-		$< >$@
 
 LIBDIR = $(TOP)/lib
 OS = $(shell uname -s)
@@ -29,7 +23,7 @@ ifeq ($(HOST),SunOS)
 SHARED_LDFLAGS = $(LDFLAGS) -shared -Wl,-soname=$(LIBNV)
 else
 SHARED_LDFLAGS = $(LDFLAGS) -shared -Wl,-soname=$(LIBNV) \
-	-Wl,--version-script=libdjstub.version
+	-Wl,--version-script=$(srcdir)/libdjstub.version
 endif
 endif
 LIB = $(LIBDIR)/$(LIBN)
@@ -42,7 +36,7 @@ clean:
 $(LIBDIR):
 	mkdir $@
 
-$(LIB): $(OBJECTS) libdjstub.version | $(LIBDIR)
+$(LIB): $(OBJECTS) $(srcdir)/libdjstub.version | $(LIBDIR)
 	$(CC) $(SHARED_LDFLAGS) \
 		-o $@ $(OBJECTS)
 

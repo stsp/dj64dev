@@ -1,4 +1,4 @@
-DJSTUB_0.@SYM_VER@ {
+DJSTUB_0.5 {
   global: djstub_main;
   local: *;
 };
