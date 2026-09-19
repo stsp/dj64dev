@@ -1,2 +1,3 @@
 usr/lib/*/i386-pc-dj64/lib64/*.so.*
 usr/lib/*/i386-pc-dj64/lib/crt0.elf
+usr/share/dj64/crt0.elf

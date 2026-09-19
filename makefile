@@ -94,7 +94,8 @@ ifeq ($(USE64),1)
 	cp -r $(abs_top_srcdir)/include $(DESTDIR)$(sysroot)
 	$(INSTALL) -d $(DESTDIR)$(sysroot)/share
 	$(INSTALL) -m 0644 $(abs_top_srcdir)/dj64.mk $(DESTDIR)$(sysroot)/share
-	$(INSTALL) -d $(DESTDIR)$(datadir)
+	$(INSTALL) -d $(DESTDIR)$(datadir)/dj64
+	$(INSTALL) -m 0644 $(DJCRT0) $(DESTDIR)$(datadir)/dj64
 	$(INSTALL) -d $(DESTDIR)$(libdir)/pkgconfig
 	$(INSTALL) -m 0644 dj64.pc $(DESTDIR)$(libdir)/pkgconfig
 	$(INSTALL) -m 0644 dj64_s.pc $(DESTDIR)$(libdir)/pkgconfig
@@ -104,7 +105,6 @@ endif
 endif
 
 install_djdev64:
-	$(INSTALL) -d $(DESTDIR)$(datadir)
 	$(INSTALL) -d $(DESTDIR)$(libdir)/pkgconfig
 	$(INSTALL) -m 0644 djdev64.pc $(DESTDIR)$(libdir)/pkgconfig
 	$(INSTALL) -m 0644 djstub64.pc $(DESTDIR)$(libdir)/pkgconfig
@@ -129,6 +129,7 @@ ifneq ($(wildcard $(NC_BUILD)),)
 	$(MAKE) -C $(NC_BUILD) uninstall
 endif
 endif
+	$(RM) -r $(DESTDIR)$(datadir)/dj64
 	$(RM) -r $(DESTDIR)$(sysroot)
 	$(RM) -r $(DESTDIR)$(includedir)/djdev64
 	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj64.pc

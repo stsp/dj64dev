@@ -60,6 +60,7 @@ This package contains runtime libraries for dj64-built programs.
 %defattr(-,root,root)
 %{_prefix}/i386-pc-dj64/lib64/*.so.*
 %{_prefix}/i386-pc-dj64/lib/crt0.elf
+%{_datadir}/dj64/crt0.elf
 %end
 
 %package dj64-devel
