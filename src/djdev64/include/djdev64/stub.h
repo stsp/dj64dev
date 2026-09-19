@@ -50,17 +50,27 @@ struct dpmi_ops {
 #undef vDDv
 
 struct stub_ret_regs {
-  uint16_t fs;
-  uint16_t ds;
-  uint16_t cs;
-  uint32_t eip;
+    uint16_t fs;
+    uint16_t ds;
+    uint16_t cs;
+    uint32_t eip;
 };
 
-int djstub_main(int argc, char *argv[], char *envp[],
-    unsigned psp_sel, int ifile, int ver,
-    struct stub_ret_regs *regs, char *(*lin2ptr)(unsigned lin),
-    struct dos_ops *dosops, struct dpmi_ops *dpmiops,
-    void (*do_printf)(int prio, const char *fmt, va_list ap),
-    int (*uput)(int), int (*elf32_open)(int), int api_ver);
+struct djstub_api {
+    unsigned psp_sel;
+    int ifile;
+    int ver;
+    struct stub_ret_regs *regs;
+    char *(*lin2ptr)(unsigned lin);
+    struct dos_ops *dosops;
+    struct dpmi_ops *dpmiops;
+    void (*do_printf)(int prio, const char *fmt, va_list ap);
+    int (*uput)(int);
+    int (*elf32_open)(int);
+    const char *dyn;
+};
+
+int djstub_main(int argc, char *argv[], char *envp[], int api_ver,
+        struct djstub_api api);
 
 #endif
