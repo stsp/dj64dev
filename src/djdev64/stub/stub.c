@@ -650,7 +650,7 @@ int djstub_main_v5(int argc, char *argv[], char *envp[],
         .do_printf = do_printf,
         .uput = uput,
         .elf32_open = elf32_open,
-        .dyn = CRT0,
+        .dyn = "/usr/share/dj64/crt0.elf",  // hardcoded, backward-compat
     };
     return djstub_main_v6(argc, argv, envp, api_ver, sapi);
 }
