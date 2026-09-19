@@ -39,7 +39,7 @@
 
 #define STUB_DEBUG 1
 #if STUB_DEBUG
-#define stub_debug(f, ...) J_printf(do_printf, DJ64_PRINT_LOG, "stub: " f, ##__VA_ARGS__)
+#define stub_debug(f, ...) J_printf(api.do_printf, DJ64_PRINT_LOG, "stub: " f, ##__VA_ARGS__)
 #else
 #define stub_debug(...)
 #endif
@@ -167,9 +167,9 @@ static void J_printf(void (*do_printf)(int prio, const char *fmt, va_list ap),
 #define SHM_FLAGS (SHM_FLAGS0 | (SHM_FLAGS1 << 8))
 
 static int open_dyn(int32_t *cpl_fd, struct dos_ops **ioops,
-    struct ldops **ops, int (*uput)(int))
+    struct ldops **ops, int (*uput)(int), const char *dyn)
 {
-    int pfile = open(CRT0, O_RDONLY | O_CLOEXEC);
+    int pfile = open(dyn, O_RDONLY | O_CLOEXEC);
     if (pfile == -1)
         return -1;
     *cpl_fd = uput(pfile);
@@ -180,9 +180,9 @@ static int open_dyn(int32_t *cpl_fd, struct dos_ops **ioops,
 
 #define OPEN_DYN() do { \
     assert(pfile < 0); \
-    pfile = open_dyn(&stubinfo.cpl_fd, &ioops, &ops, uput); \
+    pfile = open_dyn(&stubinfo.cpl_fd, &ioops, &ops, api.uput, api.dyn); \
     if (pfile == -1) { \
-        error("unable to open %s\n", CRT0); \
+        error("unable to open %s\n", api.dyn); \
         return -1; \
     } \
 } while(0)
@@ -246,13 +246,10 @@ static int get_type0(char *buf)
 }
 
 #define exit(x) return -(x)
-#define error(...) J_printf(do_printf, DJ64_PRINT_TERMINAL, __VA_ARGS__)
-int djstub_main(int argc, char *argv[], char *envp[],
-    unsigned psp_sel, int ifile, int ver,
-    struct stub_ret_regs *regs, char *(*lin2ptr)(unsigned lin),
-    struct dos_ops *dosops, struct dpmi_ops *dpmiops,
-    void (*do_printf)(int prio, const char *fmt, va_list ap),
-    int (*uput)(int), int (*elf32_open)(int), int api_ver)
+#define error(...) J_printf(api.do_printf, DJ64_PRINT_TERMINAL, __VA_ARGS__)
+__attribute__((symver("djstub_main@@DJSTUB_0.6")))
+int djstub_main_v6(int argc, char *argv[], char *envp[], int api_ver,
+        struct djstub_api api)
 {
     int pfile = -1;
     off_t coffset = 0;
@@ -280,25 +277,16 @@ int djstub_main(int argc, char *argv[], char *envp[],
     _GO32_StubInfo *stubinfo_p;
     struct ldops *ops = NULL;
     int dj32 = 0;
-    struct dos_ops *ioops = dosops;
+    struct dos_ops *ioops = api.dosops;
     uint8_t stub_ver = 0;
+    int ifile = api.ifile;
 
-    if (ver == 0) {
-        /* backward-compat code */
-        stub_debug("Opening self at %s\n", argv[0]);
-        rc = dosops->_dos_open(argv[0], O_RDONLY, &ifile);
-        if (rc) {
-            error("cannot open %s\n", argv[0]);
-            exit(EXIT_FAILURE);
-        }
-        ver = DJSTUB_API_VERSION;
-    }
-    if ((ver & 0xff) != DJSTUB_API_VERSION) {
-        error("Stub version mismatch: want 0x%x got 0x%x\n", DJSTUB_API_VERSION, ver);
+    if ((api.ver & 0xff) != DJSTUB_API_VERSION) {
+        error("Stub version mismatch: want 0x%x got 0x%x\n", DJSTUB_API_VERSION, api.ver);
 //        exit(1);
     }
 
-    register_dpmiops(dpmiops);
+    register_dpmiops(api.dpmiops);
     stubinfo.cpl_fd = -1;
     for (i = 0; envp && envp[i]; i++) {
         const char *s = "ELFLOAD=";
@@ -315,7 +303,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
         }
         if (el) {
             if (api_ver >= 23)
-                pfile = elf32_open(atoi(envp[i] + l));
+                pfile = api.elf32_open(atoi(envp[i] + l));
             if (pfile < 0) {
                 /* 64bit elf */
                 OPEN_DYN();
@@ -330,36 +318,36 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 ioops = &hops;
                 ops = &elf_ops;
             }
-            dosops->_dos_close(ifile);
+            api.dosops->_dos_close(ifile);
             ifile = -1;  // load dynamically via API
         }
         if (ee) {
             unsigned rd;
 
-            dosops->_dos_close(ifile);
+            api.dosops->_dos_close(ifile);
             ifile = -1;
-            rc = dosops->_dos_open(envp[i] + l, O_RDONLY, &pfile);
+            rc = api.dosops->_dos_open(envp[i] + l, O_RDONLY, &pfile);
             if (rc || pfile < 0) {
                 error("cannot open %s\n", envp[i] + l);
                 exit(EXIT_FAILURE);
             }
-            rc = dosops->_dos_read(pfile, buf, BUF_SIZE, &rd);
+            rc = api.dosops->_dos_read(pfile, buf, BUF_SIZE, &rd);
             if (rc) {
-                dosops->_dos_close(pfile);
+                api.dosops->_dos_close(pfile);
                 error("stub: read() failure\n");
                 exit(EXIT_FAILURE);
             }
             if (rd != BUF_SIZE) {
-                dosops->_dos_close(pfile);
+                api.dosops->_dos_close(pfile);
                 error("stub: read(%i)=%i, wrong exe file\n", BUF_SIZE, rd);
                 exit(EXIT_FAILURE);
             }
             if (!IS_ELF(buf)) {
-                dosops->_dos_close(pfile);
+                api.dosops->_dos_close(pfile);
                 error("stub: not an ELF: %s\n", envp[i] + l);
                 exit(EXIT_FAILURE);
             }
-            dosops->_dos_seek(pfile, 0, SEEK_SET);
+            api.dosops->_dos_seek(pfile, 0, SEEK_SET);
             if (ELF_IS64(buf)) {
                 ifile = pfile;
                 pfile = -1;
@@ -370,7 +358,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 /* calling second ldr */
                 stubinfo.flags = ((STFLG2_EMBOV) << 8);
                 stubinfo.flags |= SHM_FLAGS;
-                nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
+                nsize = api.dosops->_dos_seek(ifile, 0, SEEK_END);
             } else {
                 dj32 = 1;
                 ops = &elf_ops;
@@ -390,7 +378,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
 #endif
 
         stub_debug("Expecting header at 0x%lx\n", coffset);
-        rc = dosops->_dos_read(ifile, buf, BUF_SIZE, &rd);
+        rc = api.dosops->_dos_read(ifile, buf, BUF_SIZE, &rd);
         if (rc) {
             error("stub: read() failure\n");
             exit(EXIT_FAILURE);
@@ -461,8 +449,8 @@ int djstub_main(int argc, char *argv[], char *envp[],
                 uint32_t nmoffs;
                 memcpy(&nmoffs, &buf[0x28], sizeof(nmoffs));
                 if (nmoffs) {
-                    dosops->_dos_seek(ifile, noffset + nmoffs, SEEK_SET);
-                    rc = dosops->_dos_read(ifile, stubinfo.payload2_name,
+                    api.dosops->_dos_seek(ifile, noffset + nmoffs, SEEK_SET);
+                    rc = api.dosops->_dos_read(ifile, stubinfo.payload2_name,
                             16, &rd);
                     stubinfo.payload2_name[rd] = '\0';
                 }
@@ -491,7 +479,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
                     OPEN_DYN();
                     stubinfo.flags = (STFLG2_EMBOV) << 8;
                     stubinfo.flags |= SHM_FLAGS;
-                    nsize = dosops->_dos_seek(ifile, 0, SEEK_END);
+                    nsize = api.dosops->_dos_seek(ifile, 0, SEEK_END);
                 } else {
                     stubinfo.flags = ((STFLG2_DJ32) << 8);
                     dj32 = 1;
@@ -513,7 +501,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
             error("not an exe %s at %lx\n", argv[0], coffset);
             exit(EXIT_FAILURE);
         }
-        dosops->_dos_seek(ifile, coffset, SEEK_SET);
+        api.dosops->_dos_seek(ifile, coffset, SEEK_SET);
     }
     if (dyn && coffset && stub_ver < 8)
         OPEN_DYN();
@@ -547,12 +535,12 @@ int djstub_main(int argc, char *argv[], char *envp[],
 //    stubinfo.basename[sizeof(stubinfo.basename) - 1] = '\0';
     strncpy(stubinfo.dpmi_server, "CWSDPMI.EXE", sizeof(stubinfo.dpmi_server));
 #define max(a, b) ((a) > (b) ? (a) : (b))
-    stubinfo.psp_selector = psp_sel;
+    stubinfo.psp_selector = api.psp_sel;
     /* DJGPP relies on ds_selector, cs_selector and ds_segment all mapping
      * the same real-mode memory block. */
-    dosops->_dos_link_umb(1);
+    api.dosops->_dos_link_umb(1);
     db.rm = __dpmi_allocate_dos_memory(stubinfo.minkeep >> 4, &db.pm);
-    dosops->_dos_link_umb(0);
+    api.dosops->_dos_link_umb(0);
     stub_debug("rm seg 0x%x\n", db.rm);
     stubinfo.ds_selector = db.pm;
     stubinfo.ds_segment = db.rm;
@@ -593,7 +581,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     mem_base = mem_lin - va;
     stubinfo.mem_base = mem_base;
     stub_debug("mem_lin 0x%x mem_base 0x%x\n", mem_lin, mem_base);
-    ops->read_sections(handle, lin2ptr(mem_lin), va, pfile, dyn ? 0 : coffset);
+    ops->read_sections(handle, api.lin2ptr(mem_lin), va, pfile, dyn ? 0 : coffset);
     ops->close(handle);
     /* host fd can clash with DOS fd, so check also ioops */
     if (dj32 && (pfile != ifile || ioops == &hops))
@@ -618,7 +606,7 @@ int djstub_main(int argc, char *argv[], char *envp[],
     __dpmi_allocate_memory(&info);
     __dpmi_set_segment_base_address(stubinfo_fs, info.address);
     __dpmi_set_segment_limit(stubinfo_fs, sizeof(_GO32_StubInfo) - 1);
-    stubinfo_p = (_GO32_StubInfo *)lin2ptr(info.address);
+    stubinfo_p = (_GO32_StubInfo *)api.lin2ptr(info.address);
 
     stubinfo.self_fd = ifile;
     stubinfo.self_offs = coffset;
@@ -627,18 +615,42 @@ int djstub_main(int argc, char *argv[], char *envp[],
     stubinfo.payload_size = nsize;
     stubinfo.payload2_offs = noffset2;
     stubinfo.payload2_size = nsize2;
-    dosops->_dos_seek(ifile, noffset, SEEK_SET);
+    api.dosops->_dos_seek(ifile, noffset, SEEK_SET);
     if (nsize > 0)
         stub_debug("Found payload of size %i at 0x%x\n", nsize, noffset);
-    stubinfo.stubinfo_ver |= DJSTUB_VERSION | ((ver & 0xff00) << 16);
+    stubinfo.stubinfo_ver |= DJSTUB_VERSION | ((api.ver & 0xff00) << 16);
 
     unregister_dpmiops();
 
     memcpy(stubinfo_p, &stubinfo, sizeof(stubinfo));
     stub_debug("Jump to entry...\n");
-    regs->fs = stubinfo_fs;
-    regs->ds = clnt_ds;
-    regs->cs = clnt_entry.selector;
-    regs->eip = clnt_entry.offset32;
+    api.regs->fs = stubinfo_fs;
+    api.regs->ds = clnt_ds;
+    api.regs->cs = clnt_entry.selector;
+    api.regs->eip = clnt_entry.offset32;
     return 0;
+}
+
+__attribute__((symver("djstub_main@DJSTUB_0.5")))
+int djstub_main_v5(int argc, char *argv[], char *envp[],
+    unsigned psp_sel, int ifile, int ver,
+    struct stub_ret_regs *regs, char *(*lin2ptr)(unsigned lin),
+    struct dos_ops *dosops, struct dpmi_ops *dpmiops,
+    void (*do_printf)(int prio, const char *fmt, va_list ap),
+    int (*uput)(int), int (*elf32_open)(int), int api_ver)
+{
+    struct djstub_api sapi = {
+        .psp_sel = psp_sel,
+        .ifile = ifile,
+        .ver = ver,
+        .regs = regs,
+        .lin2ptr = lin2ptr,
+        .dosops = dosops,
+        .dpmiops = dpmiops,
+        .do_printf = do_printf,
+        .uput = uput,
+        .elf32_open = elf32_open,
+        .dyn = CRT0,
+    };
+    return djstub_main_v6(argc, argv, envp, api_ver, sapi);
 }
