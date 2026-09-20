@@ -1,8 +1,0 @@
-DJSTUB_0.5 {
-  global: djstub_main;
-  local: *;
-};
-
-DJSTUB_0.6 {
-  global: djstub_main;
-} DJSTUB_0.5;

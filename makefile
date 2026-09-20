@@ -26,19 +26,13 @@ DJ64LIBV = $(TOP)/lib/libdj64.*.*
 DJ64DEVL = $(TOP)/lib/libdj64.$(SHLIB_EXT)
 DJ64LIBS = $(TOP)/lib/libdj64_s.a
 DJ32LIBS = $(TOP)/lib/libdj32_s.a
-DJDEV64LIB = $(TOP)/lib/libdjdev64.*.*.*
-DJDEV64LIBV = $(TOP)/lib/libdjdev64.*.*
-DJDEV64DEVL = $(TOP)/lib/libdjdev64.$(SHLIB_EXT)
-DJSTUB64LIB = $(TOP)/lib/libdjstub64.*.*.*
-DJSTUB64LIBV = $(TOP)/lib/libdjstub64.*.*
-DJSTUB64DEVL = $(TOP)/lib/libdjstub64.$(SHLIB_EXT)
 DJELFLOAD = $(TOP)/lib/elfload.com
 NC_BUILD = contrib/ncurses/build
 NC_BUILD32 = contrib/ncurses/build32
 
-.PHONY: dj64 djdev64 demos ncurses ncurses32
+.PHONY: dj64 demos ncurses ncurses32
 
-all: Makefile.conf dj64 djdev64 ncurses ncurses32
+all: Makefile.conf dj64 ncurses ncurses32
 	@echo
 	@echo "Done building. You may need to run \"sudo make install\" now."
 	@echo "You can first run \"sudo make uninstall\" to purge the prev install."
@@ -62,9 +56,6 @@ endif
 
 %.pc: %.pc.in config.status
 	./config.status
-
-djdev64: djdev64.pc djstub64.pc
-	$(MAKE) -C src/djdev64
 
 ifeq ($(USE64),1)
 DJ64PC = dj64.pc dj64_s.pc
@@ -104,23 +95,8 @@ ifeq ($(NCURSES),1)
 endif
 endif
 
-install_djdev64:
-	$(INSTALL) -d $(DESTDIR)$(libdir)/pkgconfig
-	$(INSTALL) -m 0644 djdev64.pc $(DESTDIR)$(libdir)/pkgconfig
-	$(INSTALL) -m 0644 djstub64.pc $(DESTDIR)$(libdir)/pkgconfig
-	$(INSTALL) -d $(DESTDIR)$(includedir)/djdev64
-	cp -rL $(abs_top_srcdir)/src/djdev64/include/djdev64 $(DESTDIR)$(includedir)
-	$(INSTALL) -d $(DESTDIR)$(libdir)
-	$(INSTALL) -m 0755 $(DJDEV64LIB) $(DESTDIR)$(libdir)
-	$(CP_FP) $(DJDEV64LIBV) $(DESTDIR)$(libdir)
-	$(CP_FP) $(DJDEV64DEVL) $(DESTDIR)$(libdir)
-	$(INSTALL) -m 0755 $(DJSTUB64LIB) $(DESTDIR)$(libdir)
-	$(CP_FP) $(DJSTUB64LIBV) $(DESTDIR)$(libdir)
-	$(CP_FP) $(DJSTUB64DEVL) $(DESTDIR)$(libdir)
-
-install: install_dj64 install_djdev64 install_demos install32
+install: install_dj64 install_demos install32
 	@echo
-	@echo "Done installing. You may need to run \"sudo ldconfig\" now."
 
 uninstall64:
 ifeq ($(USE64),1)
@@ -131,22 +107,10 @@ endif
 endif
 	$(RM) -r $(DESTDIR)$(datadir)/dj64
 	$(RM) -r $(DESTDIR)$(sysroot)
-	$(RM) -r $(DESTDIR)$(includedir)/djdev64
 	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj64.pc
 	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj64_s.pc
 	$(MAKE) -C demos src_uninstall
 endif
-
-uninstall_dev64:
-	$(RM) $(DESTDIR)$(libdir)/pkgconfig/djdev64.pc
-	$(RM) $(DESTDIR)$(libdir)/pkgconfig/djstub64.pc
-	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJDEV64DEVL))
-	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJDEV64LIBV))
-	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJDEV64LIB))
-	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJSTUB64DEVL))
-	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJSTUB64LIBV))
-	$(RM) $(DESTDIR)$(libdir)/$(notdir $(DJSTUB64LIB))
-	ldconfig
 
 install32:
 ifeq ($(USE32),1)
@@ -176,11 +140,10 @@ endif
 	$(RM) $(DESTDIR)$(libdir)/pkgconfig/dj32.pc
 endif
 
-uninstall: uninstall64 uninstall_dev64 uninstall32
+uninstall: uninstall64 uninstall32
 
 clean: demos_clean
 	$(MAKE) -C src clean
-	$(MAKE) -C src/djdev64 clean
 	$(RM) *.pc
 	$(RM) -r lib
 ifeq ($(NCURSES),1)
