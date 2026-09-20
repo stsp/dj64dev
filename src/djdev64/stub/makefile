@@ -1,10 +1,8 @@
 TOP = ../../..
 include $(TOP)/Makefile.conf
-prefix ?= /usr/local
 SOURCES = coff.c elf.c util.c stub.c dpmiwrp.c dos.c
 OBJECTS = $(SOURCES:.c=.o)
-CFLAGS += -iquote $(srcdir)/../include -fpic -ggdb3 -Wall -Og -MD \
-  -DCRT0=\"$(sysroot)/lib/crt0.elf\"
+CFLAGS += -iquote $(srcdir)/../include -fpic -ggdb3 -Wall -Og -MD
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
