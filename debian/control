@@ -11,10 +11,10 @@ Build-Depends:
     autoconf,
     automake,
     pkgconf,
-    libelf-dev,
+    djdev64-dev,
     ncurses-bin,
     debhelper (>= 9~)
-Homepage: https://github.com/stsp/djgpp-cvs
+Homepage: https://github.com/stsp/dj64dev
 Description: 64-bit djgpp-compatible dev suite
  dj64dev is a 64-bit djgpp-compatible dev suite.
 
@@ -52,27 +52,3 @@ Depends: ${misc:Depends},
 Description: development tools and headers of dj32
  This package contains tools and headers for building dj64-enabled programs
  for 32bit targets.
-
-Package: libdjdev64-0
-Replaces: djdev64
-Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}
-Description: djdev64 runtime libraries
- This package contains runtime libraries for djdev64-enabled DPMI host.
-
-Package: libdjstub64-0
-Replaces: djdev64
-Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}
-Description: djdev64 runtime libraries
- This package contains runtime libraries for djdev64-enabled DPMI host.
-
-Package: djdev64-dev
-Architecture: any
-Section: libdevel
-Depends: libdjdev64-0 (= ${binary:Version}),
-    libdjstub64-0 (= ${binary:Version}),
-    ${misc:Depends}
-Description: djdev64 development libraries and headers
- This package contains development libraries and headers for
- djdev64-enabled DPMI host.

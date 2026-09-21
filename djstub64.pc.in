@@ -1,4 +1,0 @@
-Name: djstub64
-Description: djstub64 libs
-Version: @VERSION@
-Libs: -ldjstub64

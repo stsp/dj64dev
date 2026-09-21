@@ -6,8 +6,6 @@ AC_CONFIG_FILES([
   Makefile.conf
   dj64.pc
   dj64_s.pc
-  djdev64.pc
-  djstub64.pc
   dj32.pc
 ])
 
@@ -38,17 +36,6 @@ USE32=1
 AC_ARG_ENABLE(64bit,
   AS_HELP_STRING([--disable-64bit], [do not build 64bit components (reduced build)]))
 if test "$enable_64bit" != "no"; then
-  PKG_CHECK_MODULES([LIBELF], [libelf],, [
-    AC_CHECK_LIB(elf, elf_memory, [
-      LIBELF_LIBS=-lelf
-    ], [
-      AC_MSG_ERROR([libelf not installed])
-    ])
-  ])
-
-  AC_CHECK_FUNCS([dlmopen])
-  AC_CHECK_DECLS([RTLD_DEEPBIND],,, [[#include <dlfcn.h>]])
-
   AC_ARG_WITH(sysroot, [AS_HELP_STRING([--with-sysroot=dir],
     [sysroot directory. default: ${prefix}/${ARCH_DIR}])],
     sysroot="$withval", [
