@@ -737,6 +737,10 @@ set_cursor_shape(int shape)
   {
     new_cursor = 0x2000;
   }
+  else if (shape == NORMAL_CURSOR)
+  {
+    new_cursor = __tty_screen.init_cursor_shape;
+  }
   else
   {
     max_line = _farpeekw(_dos_ds, 0x0485) - 1;
@@ -757,7 +761,7 @@ set_cursor_shape(int shape)
     if (shape == ENHANCED_CURSOR)
       top_line = 0;
     else
-      top_line = bot_line + 1;
+      top_line = bot_line - 1;
 
     new_cursor = ((top_line & 0x1f) << 8) | (bot_line & 0x1f);
   }
